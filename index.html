@@ -10,9 +10,9 @@ body {
   margin: 2em; 
 }
 #map {
-  border:2px solid #000;
-  width:960px;
-  height:550px;
+  border: 2px solid #000;
+  width: 960px;
+  height: 550px;
 }
 .country {
   fill: #ccc;
@@ -77,9 +77,9 @@ var tooltip = d3.select("#map").append("div")
     .attr("class", "tooltip");
 
 queue()
-    .defer(d3.json, "world-50m.json")
-    .defer(d3.tsv, "world-country-names.tsv")
-    .defer(d3.json, "cities.json")
+    .defer(d3.json, "data/world.json")
+    .defer(d3.tsv, "data/world-country-names.tsv")
+    .defer(d3.json, "data/cities.json")
     .await(ready);
 
 function ready(error, world, names, points) {
