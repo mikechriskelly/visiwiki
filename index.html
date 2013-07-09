@@ -11,11 +11,12 @@ body {
 }
 #map {
   border: 2px solid #000;
-  width: 960px;
-  height: 550px;
+  width: 900px;
+  height: 450px;
+  background: #A5DCFF;
 }
 .country {
-  fill: #ccc;
+  fill: #1E70A6;
   stroke: #fff;
   stroke-width: .1px;
   stroke-linejoin: round;
@@ -38,33 +39,31 @@ div.tooltip {
   fill: #000;
   stroke: #fff;
   stroke-width: .5px;
-  opacity: 0.5; 
+  opacity: 1; 
 }
 </style>
 <body>
 <div id="map"></div>
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script>
-<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/queue.v1.min.js"></script>
+<script src="js/topojson.js"></script>
 
 <script>
-var width  = 960,
-    height = 500;
-
-var color = d3.scale.category10();
+var width  = 900,
+    height = 450;
 
 var projection = d3.geo.mercator()
-                .translate([480, 300])
-                .scale(970);
+                .translate([450,280])
+                .scale(140);
 
-var path = d3.geo.path()
-    .projection(projection);
+var path = d3.geo.path().projection(projection);
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height)
     .call(d3.behavior.zoom()
+    .scaleExtent([1,8])
     .on("zoom", redraw))
     .append("g");
 
@@ -100,30 +99,12 @@ function ready(error, world, names, points) {
   });
 
 var country = svg.selectAll(".country").data(countries);
-
   country
    .enter()
     .insert("path")
     .attr("class", "country")    
       .attr("title", function(d,i) { return d.name; })
-      .attr("d", path)
-      .style("fill", function(d, i) { return color(d.color = d3.max(neighbors[i], function(n) { return countries[n].color; }) + 1 | 0); });
-
-    //Show/hide tooltip
-    country
-      .on("mousemove", function(d,i) {
-        var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
-
-        tooltip
-          .classed("hidden", false)
-          .attr("style", "left:"+(mouse[0]+25)+"px;top:"+mouse[1]+"px")
-          .html(d.name)
-      })
-      .on("mouseout",  function(d,i) {
-        tooltip.classed("hidden", true)
-      });
-
-
+      .attr("d", path);
 
   //render the points
   points.cities.forEach(function(d) { 
@@ -134,17 +115,7 @@ var country = svg.selectAll(".country").data(countries);
           .attr("class","point")
           .attr("cx", x)
           .attr("cy", y)
-          .attr("r", 4)
-/*
-      var name = d.properties.name;
-      svg.append("svg:text")
-          .attr("x", x+4)
-          .attr("y", y+1)
-          .text(name);
-*/
-
+          .attr("r", 5)
   });
-
-
 }
 </script>
