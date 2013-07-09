@@ -1,3 +1,31 @@
+// FreeDB
+$(function() {
+  $("#myinput")
+    .suggest({
+      "key" : "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
+      filter:'(all type:/people/person)',
+      animate: "true"})
+    .bind("fb-select", function(e, data) { 
+      // Execute Query
+      var query = [{'id': data.id, 'name': data.name, 
+                  "/people/person/place_of_birth": [],
+                  "/people/person/nationality": [],
+                  "/people/person/date_of_birth": [],
+                  "/people/deceased_person/date_of_death": [],
+                  "/influence/influence_node/influenced_by": [], 
+                  "/influence/influence_node/influenced": []}];
+      var service_url = 'https://www.googleapis.com/freebase/v1/mqlread';
+      $.getJSON(service_url + '?callback=?', {query:JSON.stringify(query)}, function(response) {
+        $.each(response.result, function(i,result){
+          $('<p>',{text:result["name"] + " - " + result["/people/person/place_of_birth"] + ", " + result["/people/person/nationality"]
+           + " (" + result["/people/person/date_of_birth"] + " - " + result["/people/deceased_person/date_of_death"] + ")"}).appendTo(document.body);
+        });
+      });
+      //End Query
+  });
+});
+
+// SVG Map
 var width  = 900,
     height = 450;
 
@@ -20,9 +48,6 @@ function redraw() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
-var tooltip = d3.select("#map").append("div")
-    .attr("class", "tooltip");
-
 queue()
     .defer(d3.json, "data/world.json")
     .defer(d3.tsv, "data/world-country-names.tsv")
@@ -30,7 +55,6 @@ queue()
     .await(ready);
 
 function ready(error, world, names, points) {
-
   var countries = topojson.object(world, world.objects.countries).geometries,
       neighbors = topojson.neighbors(world, countries),
       i = -1,

@@ -1,13 +1,23 @@
 
 <!DOCTYPE html>
-<meta charset="utf-8">
-<title>VisiWiki</title>
-<link href="stylesheets/style.css" rel="stylesheet" type="text/css">
-<body>
-<div id="map"></div>
-<script src="javascripts/d3.v3.min.js"></script>
-<script src="javascripts/queue.v1.min.js"></script>
-<script src="javascripts/topojson.js"></script>
-<script src="javascripts/vwmap.js"></script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>VisiWiki</title>
+    <link type="text/css" rel="stylesheet" href="stylesheets/style.css">
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/freebase/suggest/4_2/suggest.min.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/4_2/suggest.min.js"></script>
+  </head>
+  <body>
+    <div id="header">
+      <input type="text" id="myinput" placeholder="Search for Historical Figure" autofocus/>
+      <span id="htitle">VisiWiki</span>
+    </div>
+    <div id="map"></div>
+    <script src="javascripts/d3.v3.min.js"></script>
+    <script src="javascripts/queue.v1.min.js"></script>
+    <script src="javascripts/topojson.js"></script>
+    <script src="javascripts/vwmap.js"></script>
+  </body>
 </html>
