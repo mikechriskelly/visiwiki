@@ -1,27 +1,90 @@
+function getValues(obj, key) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getValues(obj[i], key));
+        } else if (i == key) {
+            objects.push(obj[i]);
+        }
+    }
+    return objects;
+}
 // FreeDB
 $(function() {
   $("#myinput")
     .suggest({
-      "key" : "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
+      "key": "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
       filter:'(all type:/people/person)',
-      animate: "true"})
+      animate: "false"})
     .bind("fb-select", function(e, data) { 
-      // Execute Query
-      var query = [{'id': data.id, 'name': data.name, 
-                  "/people/person/place_of_birth": [],
-                  "/people/person/nationality": [],
-                  "/people/person/date_of_birth": [],
-                  "/people/deceased_person/date_of_death": [],
-                  "/influence/influence_node/influenced_by": [], 
-                  "/influence/influence_node/influenced": []}];
-      var service_url = 'https://www.googleapis.com/freebase/v1/mqlread';
-      $.getJSON(service_url + '?callback=?', {query:JSON.stringify(query)}, function(response) {
-        $.each(response.result, function(i,result){
-          $('<p>',{text:result["name"] + " - " + result["/people/person/place_of_birth"] + ", " + result["/people/person/nationality"]
-           + " (" + result["/people/person/date_of_birth"] + " - " + result["/people/deceased_person/date_of_death"] + ")"}).appendTo(document.body);
+
+      // Initialize record for node
+      var node_person = { 
+        "name" : data.name,
+        "city" : "",
+        "country" : "",
+        "lived" : ["?","?"],
+        "geo" : [0,0],
+        "infby" : [],
+        "infed" : [] };
+      
+      // Queries
+      var query_person = [{
+        "id": data.id,
+        "type": "/people/person",
+        "place_of_birth": [{
+          "name": null,
+          "type": "/location/location",
+          "geolocation": {
+            "latitude": null,
+            "longitude": null
+          }
+        }],
+        "nationality": [],
+        "date_of_birth": []
+      }];
+      var query_death = [{
+        "id": data.id,
+        "type": "/people/deceased_person",
+        "date_of_death": []
+      }];
+      var query_influence = [{
+        "id": data.id,
+        "type": "/influence/influence_node",
+        "influenced_by": [],
+        "influenced": []
+      }];
+
+      var service_url = "https://www.googleapis.com/freebase/v1/mqlread?callback=?";
+      $.getJSON(service_url, {query:JSON.stringify(query_person)}, function(response) {
+        console.dir(response.result[0]);
+        node_person.city = response.result[0].place_of_birth[0].name;
+        node_person.country = response.result[0].nationality[0];
+        // Check if geo coordinates available, else use country
+        node_person.geo = [response.result[0].place_of_birth[0].geolocation.latitude, response.result[0].place_of_birth[0].geolocation.longitude];
+        node_person.lived[0] = response.result[0].date_of_birth[0].match(/[-]?\d{4}/);
+        console.log(node_person);
+        // Convert DOB to YYYY format
+
+        $.getJSON(service_url, {query:JSON.stringify(query_death)}, function(response) {
+          // Determine if person is alive or dead
+          node_person.lived[1] = response.result[0].date_of_death[0].match(/[-]?\d{4}/);
+          $.getJSON(service_url, {query:JSON.stringify(query_influence)}, function(response) {
+            node_person.infby = response.result[0].influenced_by;
+            node_person.infed = response.result[0].influenced;
+
+            // Print Results
+            $('<p>',{text:node_person.name + " - " + 
+              node_person.city + ", " + 
+              node_person.country + " (" + 
+              node_person.lived + ") [" +
+              node_person.geo[0] + ", " + node_person.geo[1] + "]"
+            }).appendTo(document.body);
+          });      
         });
-      });
-      //End Query
+
+      }); // End getJSON Process
   });
 });
 
