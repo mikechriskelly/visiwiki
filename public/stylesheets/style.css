@@ -72,9 +72,6 @@ div.right {
   background-color: #fff;
   border-radius: 3px;
 }
-.hidden { 
-  display: none; 
-}
 div.maphovertip {
   float: left;
   margin-top: 1px;
@@ -84,19 +81,14 @@ div.maphovertip {
   text-shadow: 0px 1px 0px #f5f5f5;
   border-radius: 2px; 
   box-shadow: 0px 0px 2px 0px #a6a6a6; 
-  opacity: 0.6; 
 }
 div.tooltip {
   position: absolute;
-  text-align: right;           
+  text-align: left;           
   width: 100px;                  
-  height: 12px;                 
+  height: 12px;   
   color: #000; 
   border: 0px; 
-/*  text-shadow: 0px 1px 0px #f5f5f5;
-  background: #fff;
-  border-radius: 2px; 
-  box-shadow: 0px 0px 2px 0px #a6a6a6;*/
   pointer-events: none; 
 }
 .point {

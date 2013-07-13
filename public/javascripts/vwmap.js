@@ -1,3 +1,4 @@
+// ****************** Setup FreeDB Search Box ******************************* //
 // FreeDB Service URL
 var service_url = "https://www.googleapis.com/freebase/v1/mqlread?callback=?";
 
@@ -9,14 +10,19 @@ $(function() {
       filter:'(all type:/people/person)',
       animate: "false"})
 
-    // Search Result Selected
+    // Search Result Selected - Trigger Query
     .bind("fb-select", function(e, data) { 
       // Query and parse one person's info; On completion calls plotOnMap
-      getPersonInfo(data.id, true);
+      getPersonInfo(data.id, 0);
     });
 });
 
-// Render SVG Map
+// Set depth of graph search and node colors
+var recur_limit = 2;
+var colors = ['#f04c14', '#f5770d', '#faa807', '#ffdd00'];
+
+// ****************** Render SVG Map & Timeline ******************************* //
+// Map Setup
 var width  = 900,
     height = 450;
 
@@ -36,11 +42,9 @@ var svg = d3.select("#map").append("svg")
     .call(zoom)
     .append("g");
 
-// Creat info tip boxes
-var maphovertip = d3.select(".right").append("div").attr("class", "maphovertip hidden");
-var infotip = d3.select("body").append("div")   
-        .attr("class", "tooltip")               
-        .style("opacity", 0);
+function redraw() {
+    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
 
 // Timeline Setup
 var svg_timeline = d3.select("#map").append("svg")
@@ -56,10 +60,17 @@ svg_timeline.append("g")
   .attr("transform", "translate(0,-4)")
   .call(xAxis);
 
-function redraw() {
-    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
+// Tip box for country names
+var maphovertip = d3.select(".right").append("div")
+    .attr("class", "maphovertip")
+    .style("opacity", 0);
 
+// Tip box for people names 
+var infotip = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+// Load map paths and country names
 queue()
     .defer(d3.json, "data/world.json")
     .defer(d3.tsv, "data/world-country-names.tsv")
@@ -90,20 +101,23 @@ function ready(error, world, names) {
     .attr("title", function(d,i) { return d.name; })
     .attr("d", path);
 
-  // Display country name tooltip
+  // Display and Hide country name tooltip
   country
     .on("mousemove", function(d,i) {
       maphovertip
-        .classed("hidden", false)
         .html(d.name)
+        .style("opacity", 0.6);  
     })
     .on("mouseout",  function(d,i) {
       maphovertip
-        .classed("hidden", true)
-        .attr("style", "left: 0px; top 0px")
+        .style("opacity", 0);  
     });
 }
-function getPersonInfo(id, find_infl) {
+
+
+// ****************** Query FreeDB  ******************************* //
+
+function getPersonInfo(id, ndegree) {
   var query = [{
     "id": id,
     "name": [],
@@ -118,7 +132,7 @@ function getPersonInfo(id, find_infl) {
   
   // Async Query Request
   $.getJSON(service_url, {query:JSON.stringify(query)}, function(response) {
-    console.dir(response.result[0]);
+    //console.dir(response.result[0]);
 
     // Store data in object
     var person = {};
@@ -152,17 +166,22 @@ function getPersonInfo(id, find_infl) {
     person.infld = response.result[0]["/influence/influence_node/influenced_by"];
     person.infby = response.result[0]["/influence/influence_node/influenced_by"];
 
-    // Add namebox
-    $("<p>",{text:person.name + " (" + person.dob + " to " + person.dod + "): " + person.profession}).appendTo(".nameboxes");
+    // Set color according to distance from origin node
+    person.color = colors[ndegree];
+
+    // Add namebox with basic info
+    $("<p style='color:" + person.color + "'>",
+      {text:person.name + " (" + person.dob + " to " + person.dod + "): " + person.profession})
+      .appendTo(".nameboxes");
 
     // Sends info to put on map
     plotOnMap(person);
 
     // Recursive call for more nodes
-    if(find_infl) {
+    if(ndegree < recur_limit) {
       for (var i = 0; i < person.infld.length; i++) {
-        getPersonInfo(person.infld[i]["id"], false);
-        console.log(person.infld[i]["id"]);
+        getPersonInfo(person.infld[i]["id"], ndegree+1);
+        //console.log(person.infld[i]["id"]);
       }
     }
   });
@@ -192,62 +211,56 @@ function plotOnMap(person) {
         .attr("cy", y)
         .attr("r", 4)
         .attr("title", person.name)
-        .attr("fill", "#FF6600")
+        .attr("fill", person.color)
         .on("mouseover", function(d,i) {
-            infotip
-              .transition()            
-              .style("opacity", .9);      
-            infotip 
-              .html(person.name)  
-              .style("left", (d3.event.pageX - 20) + "px")     
-              .style("top", (d3.event.pageY - 30) + "px");   
+            maphovertip
+              .html(person.name)
+              .style("opacity", 0.6);  
           d3.select(this)
-            // Add hover
+            // Add node hover effects
             .classed("hoverpoint", true)
             .transition()
-            .attr("fill", "#FFCC33")
+            .attr("r", 6)
         })
         .on("mouseout",  function(d,i) {
-            infotip
-              .transition()            
-              .style("opacity", 0);   
+            maphovertip
+              .html(person.name)
+              .style("opacity", 0);  
           d3.select(this)
-            // Remove hover
+            // Remove node hover effects
             .classed("hoverpoint", false)
             .transition()
-            .attr("fill", "#FF6600")
+            .attr("r", 4)
         })
         .on("click",  function(d,i) {
           d3.select("#activepoint")
             // Remove old activepoint
             .attr("id", "")
             .transition()
-            .attr("r", 4)
-            .attr("fill", "#FF6600") 
+            .attr("r", 4) 
           d3.select(this)
             // Add new activepoint
             .classed("activepoint", false)
             .attr("id", "activepoint")
             .transition()
             .attr("r", 6)
-            .attr("fill", "#FFCC33")
         });
-      }
-    catch(err) {
+
+        // Draw timeline
+        svg_timeline.append("svg:rect")
+          .attr("title", person.name)
+          .attr("x", function(d) {
+            return xScale(person.dob);
+          })
+          .attr("y", 0)
+          .attr("width", function(d) {
+            return xScale(person.dod) - xScale(person.dob);
+          })
+          .attr("height", 15)
+          .attr("fill", person.color)
+          .attr("opacity", 0.8)
+    } catch(err) {
       console.log("Location unknown");
     }
-
-    // Draw timeline
-    svg_timeline.append("svg:rect")
-      .attr("x", function(d) {
-        return xScale(person.dob);
-      })
-      .attr("y", 0)
-      .attr("width", function(d) {
-        return xScale(person.dod) - xScale(person.dob);
-      })
-      .attr("height", 15)
-      .attr("fill", "red")
-      .attr("opacity", 0.7)
   });
 }
