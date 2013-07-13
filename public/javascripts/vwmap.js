@@ -180,10 +180,10 @@ function getPersonInfo(id, ndegree) {
       var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</h1><ul></ul>";
       $('#namebox').append(personinfo);
     } else if(ndegree == 1) { 
-      var personinfo = "<li><span style='font-color:" + person.color + "'>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
+      var personinfo = "<li><span style='color:" + person.color + "'>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
       $('#namebox ul').prepend(personinfo);
     } else {
-      var personinfo = "<li><span style='font-color:" + person.color + "'>influenced by</span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
+      var personinfo = "<li><span style='color:" + person.color + "'>influenced by</span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
       $('#namebox ul').prepend(personinfo);
     }
     
@@ -226,7 +226,7 @@ function plotOnMap(person) {
         .attr("cx", x)
         .attr("cy", y)
         .attr('cx', function(d) { return x * zoom.scale(); })
-        .attr('cy', function(d) { return y * zoo.scale(); })
+        .attr('cy', function(d) { return y * zoom.scale(); })
         .attr("r", 3)
         .attr("title", person.name)
         .attr("fill", person.color)
@@ -276,7 +276,7 @@ function plotOnMap(person) {
           .attr("fill", person.color)
           .attr("opacity", 0.8)
     } catch(err) {
-      console.log("Location unknown");
+      console.log("Location unknown: " + err);
     }
   });
 }
