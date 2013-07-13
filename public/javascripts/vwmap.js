@@ -12,13 +12,18 @@ $(function() {
 
     // Search Result Selected - Trigger Query
     .bind("fb-select", function(e, data) { 
+      d3.selectAll("circle").remove();
+      d3.selectAll("rect").remove();
+      d3.selectAll("nameboxes h1").remove();
+      d3.selectAll("nameboxes p").remove();
+
       // Query and parse one person's info; On completion calls plotOnMap
       getPersonInfo(data.id, 0);
     });
 });
 
 // Set depth of graph search and node colors
-var recur_limit = 2;
+var recur_limit = 1;
 var colors = ['#f04c14', '#f5770d', '#faa807', '#ffdd00'];
 
 // ****************** Render SVG Map & Timeline ******************************* //
@@ -170,9 +175,12 @@ function getPersonInfo(id, ndegree) {
     person.color = colors[ndegree];
 
     // Add namebox with basic info
-    $("<p style='color:" + person.color + "'>",
-      {text:person.name + " (" + person.dob + " to " + person.dod + "): " + person.profession})
-      .appendTo(".nameboxes");
+    if(ndegree == 0) {
+      var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</h1>";
+    } else { 
+      var personinfo = "<p><span>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</p>";
+    }
+    $('.nameboxes').append(personinfo);
 
     // Sends info to put on map
     plotOnMap(person);
@@ -218,7 +226,6 @@ function plotOnMap(person) {
               .style("opacity", 0.6);  
           d3.select(this)
             // Add node hover effects
-            .classed("hoverpoint", true)
             .transition()
             .attr("r", 6)
         })
@@ -228,7 +235,6 @@ function plotOnMap(person) {
               .style("opacity", 0);  
           d3.select(this)
             // Remove node hover effects
-            .classed("hoverpoint", false)
             .transition()
             .attr("r", 4)
         })
@@ -240,7 +246,6 @@ function plotOnMap(person) {
             .attr("r", 4) 
           d3.select(this)
             // Add new activepoint
-            .classed("activepoint", false)
             .attr("id", "activepoint")
             .transition()
             .attr("r", 6)
