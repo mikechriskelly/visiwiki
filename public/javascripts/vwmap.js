@@ -169,7 +169,7 @@ function getPersonInfo(id, ndegree) {
     person.city_id = response.result[0]["/people/person/place_of_birth"][0]["id"];
     person.city_name = response.result[0]["/people/person/place_of_birth"][0]["name"];
     person.profession = response.result[0]["/people/person/profession"].join(", "); 
-    person.infld = response.result[0]["/influence/influence_node/influenced_by"];
+    person.infld = response.result[0]["/influence/influence_node/influenced"];
     person.infby = response.result[0]["/influence/influence_node/influenced_by"];
 
     // Set color according to distance from origin node
