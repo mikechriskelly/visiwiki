@@ -12,7 +12,7 @@ $(function() {
     // Search Result Selected
     .bind("fb-select", function(e, data) { 
       // Query and parse one person's info; On completion calls plotOnMap
-      getPersonInfo(data.id);
+      getPersonInfo(data.id, true);
     });
 });
 
@@ -35,6 +35,12 @@ var svg = d3.select("#map").append("svg")
     .attr("height", height)
     .call(zoom)
     .append("g");
+
+// Creat info tip boxes
+var maphovertip = d3.select(".right").append("div").attr("class", "maphovertip hidden");
+var infotip = d3.select("body").append("div")   
+        .attr("class", "tooltip")               
+        .style("opacity", 0);
 
 // Timeline Setup
 var svg_timeline = d3.select("#map").append("svg")
@@ -75,8 +81,7 @@ function ready(error, world, names) {
     }
   });
 
-var maphovertip = d3.select(".right").append("div").attr("class", "maphovertip hidden");
-var country = svg.selectAll(".country").data(countries);
+  var country = svg.selectAll(".country").data(countries);
 
   country
    .enter()
@@ -88,7 +93,6 @@ var country = svg.selectAll(".country").data(countries);
   // Display country name tooltip
   country
     .on("mousemove", function(d,i) {
-      console.log(zoom.scale());
       maphovertip
         .classed("hidden", false)
         .html(d.name)
@@ -99,7 +103,7 @@ var country = svg.selectAll(".country").data(countries);
         .attr("style", "left: 0px; top 0px")
     });
 }
-function getPersonInfo(id) {
+function getPersonInfo(id, find_infl) {
   var query = [{
     "id": id,
     "name": [],
@@ -122,19 +126,45 @@ function getPersonInfo(id) {
     person.name = response.result[0]["name"][0];
 
     // Filter DOB and DOD to YYYY format
-    person.dob = parseInt(response.result[0]["/people/person/date_of_birth"][0].match(/[-]?\d{4}/)[0]);
-    person.dod = parseInt(response.result[0]["/people/deceased_person/date_of_death"][0].match(/[-]?\d{4}/)[0]);
+    person.dob = response.result[0]["/people/person/date_of_birth"][0];
+    if(typeof person.dob == "undefined") { 
+      person.dob = null;
+    } else {
+      person.dob = parseInt(person.dob.match(/[\-]?\d{4}/)[0], 10);
+    }
+    person.dod = response.result[0]["/people/deceased_person/date_of_death"][0];
+    if(typeof person.dod == "undefined") { 
+      if (person.dob > 1910) {
+        var thisyear = new Date().getFullYear();
+        person.dod = thisyear + 1;
+      }  else if (person.dob != null) {
+        person.dod = person.dob + 70;
+      } else {
+        person.dod = null;
+      }
+    } else {
+      person.dod = parseInt(person.dod.match(/[\-]?\d{4}/)[0], 10);
+    }
 
     person.city_id = response.result[0]["/people/person/place_of_birth"][0]["id"];
     person.city_name = response.result[0]["/people/person/place_of_birth"][0]["name"];
     person.profession = response.result[0]["/people/person/profession"].join(", "); 
     person.infld = response.result[0]["/influence/influence_node/influenced_by"];
     person.infby = response.result[0]["/influence/influence_node/influenced_by"];
-  
+
+    // Add namebox
     $("<p>",{text:person.name + " (" + person.dob + " to " + person.dod + "): " + person.profession}).appendTo(".nameboxes");
 
-    // Callback function sends info to put on map
+    // Sends info to put on map
     plotOnMap(person);
+
+    // Recursive call for more nodes
+    if(find_infl) {
+      for (var i = 0; i < person.infld.length; i++) {
+        getPersonInfo(person.infld[i]["id"], false);
+        console.log(person.infld[i]["id"]);
+      }
+    }
   });
 }
 
@@ -148,46 +178,67 @@ function plotOnMap(person) {
     }]
   }];
   $.getJSON(service_url, {query:JSON.stringify(geo_query)}, function(response) {
-    // Parse coordinates
-    var coordinates = [response.result[0]["/location/location/geolocation"][0]["longitude"][0],
-                      response.result[0]["/location/location/geolocation"][0]["latitude"][0]];
-    var x = projection(coordinates)[0];
-    var y = projection(coordinates)[1];
+    try {
+      // Parse coordinates  
+      var coordinates = [response.result[0]["/location/location/geolocation"][0]["longitude"][0],
+                        response.result[0]["/location/location/geolocation"][0]["latitude"][0]];
+      var x = projection(coordinates)[0];
+      var y = projection(coordinates)[1];
 
-    // Draw node
-    svg.append("svg:circle")
-      .attr("class","point")
-      .attr("cx", x)
-      .attr("cy", y)
-      .attr("r", 4)
-      .attr("title", person.name)
-      .on("mouseover", function(d,i) {
-        d3.select("maphovertip")
-          .classed("hidden", false)
-          .html(person.name)
-        d3.select(this)
-          .classed("hoverpoint", true)
-      })
-      .on("mouseout",  function(d,i) {
-        d3.select("maphovertip")
-          .classed("hidden", true)
-        d3.select(this)
-          .classed("hoverpoint", false)
-      })
-      .on("click",  function(d,i) {
-        d3.select("#activepoint")
-          .attr("id", "")
-          .attr("r", 4) 
-        d3.select(this)
-          .classed("activepoint", false)
-          .attr("r", 6)
-          .attr("id", "activepoint")
-      });
+      // Draw node
+      svg.append("svg:circle")
+        .attr("class","point")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", 4)
+        .attr("title", person.name)
+        .attr("fill", "#FF6600")
+        .on("mouseover", function(d,i) {
+            infotip
+              .transition()            
+              .style("opacity", .9);      
+            infotip 
+              .html(person.name)  
+              .style("left", (d3.event.pageX - 20) + "px")     
+              .style("top", (d3.event.pageY - 30) + "px");   
+          d3.select(this)
+            // Add hover
+            .classed("hoverpoint", true)
+            .transition()
+            .attr("fill", "#FFCC33")
+        })
+        .on("mouseout",  function(d,i) {
+            infotip
+              .transition()            
+              .style("opacity", 0);   
+          d3.select(this)
+            // Remove hover
+            .classed("hoverpoint", false)
+            .transition()
+            .attr("fill", "#FF6600")
+        })
+        .on("click",  function(d,i) {
+          d3.select("#activepoint")
+            // Remove old activepoint
+            .attr("id", "")
+            .transition()
+            .attr("r", 4)
+            .attr("fill", "#FF6600") 
+          d3.select(this)
+            // Add new activepoint
+            .classed("activepoint", false)
+            .attr("id", "activepoint")
+            .transition()
+            .attr("r", 6)
+            .attr("fill", "#FFCC33")
+        });
+      }
+    catch(err) {
+      console.log("Location unknown");
+    }
+
     // Draw timeline
-    svg_timeline.selectAll("rect")
-      .data([1])
-      .enter()
-      .append("rect")
+    svg_timeline.append("svg:rect")
       .attr("x", function(d) {
         return xScale(person.dob);
       })
