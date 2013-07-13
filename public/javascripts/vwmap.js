@@ -12,10 +12,9 @@ $(function() {
 
     // Search Result Selected - Trigger Query
     .bind("fb-select", function(e, data) { 
-      d3.selectAll("circle").remove();
-      d3.selectAll("rect").remove();
-      d3.selectAll("nameboxes h1").remove();
-      d3.selectAll("nameboxes p").remove();
+      svg.selectAll("circle").remove();
+      svg_timeline.selectAll("rect").remove();
+      $('#namebox').empty();
 
       // Query and parse one person's info; On completion calls plotOnMap
       getPersonInfo(data.id, 0);
@@ -180,7 +179,7 @@ function getPersonInfo(id, ndegree) {
     } else { 
       var personinfo = "<p><span>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</p>";
     }
-    $('.nameboxes').append(personinfo);
+    $('#namebox').append(personinfo);
 
     // Sends info to put on map
     plotOnMap(person);
