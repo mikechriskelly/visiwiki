@@ -24,8 +24,8 @@ $(function() {
 // Set depth of graph search and node colors
 var recur_limit = 1;
 //var colors = ['#f04c14', '#f5770d', '#faa807', '#ffdd00'];
-//            Original    Infld       Infby
-var colors = ["#3B3B3B", "#CC333F", "#FA6900"]
+//            Original    Infld (O)      Infby (B)
+var colors = ["#3B3B3B", "#CC333F", "#4172E6"]
 
 // ****************** Render SVG Map & Timeline ******************************* //
 // Map Setup
