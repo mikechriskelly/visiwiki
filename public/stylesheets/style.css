@@ -55,9 +55,9 @@ div.right {
   stroke-width: 2px;
 }
 .country {
-  fill: #1e70a6;
+  fill: #d2c8c4;
   stroke: #fff;
-  stroke-width: .1px;
+  stroke-width: .3px;
   stroke-linejoin: round;
 }
 #namebox {
@@ -98,7 +98,8 @@ div.maphovertip {
   stroke-width: 0px;
 }
 #activepoint {
-  fill: #FFCC33;
+  stroke-color: #fff;
+  stroke-width: 1px;
 }
 #myinput {
   font-size: 14px;

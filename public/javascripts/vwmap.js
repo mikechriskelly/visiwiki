@@ -23,7 +23,9 @@ $(function() {
 
 // Set depth of graph search and node colors
 var recur_limit = 1;
-var colors = ['#f04c14', '#f5770d', '#faa807', '#ffdd00'];
+//var colors = ['#f04c14', '#f5770d', '#faa807', '#ffdd00'];
+//            Original    Infld       Infby
+var colors = ["#3B3B3B", "#CC333F", "#FA6900"]
 
 // ****************** Render SVG Map & Timeline ******************************* //
 // Map Setup
@@ -175,11 +177,16 @@ function getPersonInfo(id, ndegree) {
 
     // Add namebox with basic info
     if(ndegree == 0) {
-      var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</h1>";
-    } else { 
-      var personinfo = "<p><span>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</p>";
+      var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</h1><ul></ul>";
+      $('#namebox').append(personinfo);
+    } else if(ndegree == 1) { 
+      var personinfo = "<li><span style='font-color:" + person.color + "'>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
+      $('#namebox ul').prepend(personinfo);
+    } else {
+      var personinfo = "<li><span style='font-color:" + person.color + "'>influenced by</span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
+      $('#namebox ul').prepend(personinfo);
     }
-    $('#namebox').append(personinfo);
+    
 
     // Sends info to put on map
     plotOnMap(person);
@@ -188,7 +195,9 @@ function getPersonInfo(id, ndegree) {
     if(ndegree < recur_limit) {
       for (var i = 0; i < person.infld.length; i++) {
         getPersonInfo(person.infld[i]["id"], ndegree+1);
-        //console.log(person.infld[i]["id"]);
+      }
+      for (var i = 0; i < person.infld.length; i++) {
+        getPersonInfo(person.infby[i]["id"], ndegree+2);
       }
     }
   });
@@ -216,9 +225,12 @@ function plotOnMap(person) {
         .attr("class","point")
         .attr("cx", x)
         .attr("cy", y)
-        .attr("r", 4)
+        .attr('cx', function(d) { return x * zoom.scale(); })
+        .attr('cy', function(d) { return y * zoo.scale(); })
+        .attr("r", 3)
         .attr("title", person.name)
         .attr("fill", person.color)
+        .attr("opacity", 0.8)
         .on("mouseover", function(d,i) {
             maphovertip
               .html(person.name)
@@ -226,7 +238,7 @@ function plotOnMap(person) {
           d3.select(this)
             // Add node hover effects
             .transition()
-            .attr("r", 6)
+            .attr("r", 5)
         })
         .on("mouseout",  function(d,i) {
             maphovertip
@@ -235,19 +247,19 @@ function plotOnMap(person) {
           d3.select(this)
             // Remove node hover effects
             .transition()
-            .attr("r", 4)
+            .attr("r", 3)
         })
         .on("click",  function(d,i) {
           d3.select("#activepoint")
             // Remove old activepoint
             .attr("id", "")
             .transition()
-            .attr("r", 4) 
+            .attr("r", 3)
           d3.select(this)
             // Add new activepoint
             .attr("id", "activepoint")
             .transition()
-            .attr("r", 6)
+            .attr("r", 5)
         });
 
         // Draw timeline
