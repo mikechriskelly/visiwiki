@@ -50,27 +50,6 @@ var infotip = d3.select("body").append("div")
 d3.select("#map").append("div")     
     .attr("id", "zoombox")
 
-
-// Click to zoom in/out
-function clickzoom(d) {
-  var w = projection.translate() / 2;
-  var h = projection.translate() / 2;
-  svg
-    .transition()
-    .duration(750)
-    .attr("transform", "translate(" + w + "," + h + ")scale(" + (zoom.scale() * 2) + ")");
-}
-
-// Zoom buttons on map
-d3.select("#zoombox").append("div")     
-    .attr("class", "zoombutton top")
-    .html("+")
-    .on("click", clickzoom);
-
-d3.select("#zoombox").append("div")     
-    .attr("class", "zoombutton bottom")
-    .html("-")
-
 // Load map paths and country names
 queue()
     .defer(d3.json, "data/world.json")
