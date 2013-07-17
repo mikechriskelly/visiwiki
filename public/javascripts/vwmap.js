@@ -94,14 +94,16 @@ function ready(error, world, names) {
 
 // ****************** Setup FreeDB Search Box ******************************* //
 // FreeDB Service URL
-var service_url = "https://www.googleapis.com/freebase/v1/mqlread?callback=?";
+var api_key = "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY";
+var service_url = "https://www.googleapis.com/freebase/v1/mqlread?key=" + api_key + "&callback=?";
+
 
 // FreeDB Search Box 
 $(function() {
   $("#myinput")
     .suggest({
-      "key": "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
-      filter:'(all type:/people/person)',
+      "key": api_key,
+      filter: "(all type:/people/person)",
       animate: "false"})
 
     // Search Result Selected - Trigger Query
@@ -194,10 +196,10 @@ function getPersonInfo(id, ndegree) {
     // Recursive call for more nodes
     if(ndegree < recur_limit) {
       for (var i = 0; i < person.infld.length; i++) {
-        //getPersonInfo(person.infld[i]["id"], ndegree+1);
+        getPersonInfo(person.infld[i]["id"], ndegree+1);
       }
       for (var i = 0; i < person.infld.length; i++) {
-        //getPersonInfo(person.infby[i]["id"], ndegree+2);
+        getPersonInfo(person.infby[i]["id"], ndegree+2);
       }
     }
   });
@@ -222,6 +224,12 @@ function plotOnMap(person) {
 
       // Draw node
       svg.append("svg:circle")
+        .attr("class","point")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("title", person.name)
+        .attr("fill", person.color)
+        .attr("opacity", 0.8)
         .on("mouseover", function(d,i) {
             maphovertip
               .html(person.name)
@@ -229,7 +237,7 @@ function plotOnMap(person) {
           d3.select(this)
             // Add node hover effects
             .transition()
-            .attr("r", 5)
+            .attr("fill", "#ffff00")
         })
         .on("mouseout",  function(d,i) {
             maphovertip
@@ -238,30 +246,25 @@ function plotOnMap(person) {
           d3.select(this)
             // Remove node hover effects
             .transition()
-            .attr("r", 3)
+            .attr("fill", person.color)
         })
         .on("click",  function(d,i) {
           d3.select("#activepoint")
             // Remove old activepoint
             .attr("id", "")
             .transition()
-            .attr("r", 3)
+            .attr("r", 2)
           d3.select(this)
             // Add new activepoint
             .attr("id", "activepoint")
             .transition()
             .attr("r", 5);
         })
-        .attr("class","point")
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr("r", 20)
+        .attr("r", 10)
         .transition()
-        .duration(350)
-        .attr("r", 3)
-        .attr("title", person.name)
-        .attr("fill", person.color)
-        .attr("opacity", 0.8);
+        .duration(500)
+        .attr("r", 2);
+
 
         // Draw timeline
         svg_timeline.append("svg:rect")
