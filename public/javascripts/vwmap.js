@@ -1,31 +1,3 @@
-// ****************** Setup FreeDB Search Box ******************************* //
-// FreeDB Service URL
-var service_url = "https://www.googleapis.com/freebase/v1/mqlread?callback=?";
-
-// FreeDB Search Box 
-$(function() {
-  $("#myinput")
-    .suggest({
-      "key": "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
-      filter:'(all type:/people/person)',
-      animate: "false"})
-
-    // Search Result Selected - Trigger Query
-    .bind("fb-select", function(e, data) { 
-      svg.selectAll("circle").remove();
-      svg_timeline.selectAll("rect").remove();
-      $('#namebox').empty();
-
-      // Query and parse one person's info; On completion calls plotOnMap
-      getPersonInfo(data.id, 0);
-    });
-});
-
-// Set depth of graph search and node colors
-var recur_limit = 1;
-// Original (Black) / Infld (Blue) / Infby (Orange)
-var colors = ["#3B3B3B", "#4172E6", "#CC333F"]
-
 // ****************** Render SVG Map & Timeline ******************************* //
 // Map Setup
 var width  = 900,
@@ -53,7 +25,7 @@ function redraw() {
 
 // Timeline Setup
 var svg_timeline = d3.select("#map").append("svg")
-    .attr("id", "timeline")
+    .attr("id", "timeline");
 var xScale = d3.scale.linear()
              .domain([-1000, 2013])
              .range([12, width-10]);
@@ -71,9 +43,33 @@ var maphovertip = d3.select(".right").append("div")
     .style("opacity", 0);
 
 // Tip box for people names 
-var infotip = d3.select("body").append("div")   
-    .attr("class", "tooltip")               
+var infotip = d3.select("body").append("div") 
+    .attr("class", "tooltip")         
     .style("opacity", 0);
+
+d3.select("#map").append("div")     
+    .attr("id", "zoombox")
+
+
+// Click to zoom in/out
+function clickzoom(d) {
+  var w = projection.translate() / 2;
+  var h = projection.translate() / 2;
+  svg
+    .transition()
+    .duration(750)
+    .attr("transform", "translate(" + w + "," + h + ")scale(" + (zoom.scale() * 2) + ")");
+}
+
+// Zoom buttons on map
+d3.select("#zoombox").append("div")     
+    .attr("class", "zoombutton top")
+    .html("+")
+    .on("click", clickzoom);
+
+d3.select("#zoombox").append("div")     
+    .attr("class", "zoombutton bottom")
+    .html("-")
 
 // Load map paths and country names
 queue()
@@ -82,12 +78,10 @@ queue()
     .await(ready);
 
 function ready(error, world, names) {
-  var countries = topojson.object(world, world.objects.countries).geometries,
-      neighbors = topojson.neighbors(world, countries),
-      i = -1,
-      n = countries.length;
+  var countries = topojson.object(world, world.objects.countries).geometries;
+  var n = countries.length;
 
-  countries.forEach(function(d) { 
+  countries.forEach(function(d) {
     var tryit = names.filter(function(n) { return d.id == n.id; })[0];
     if (typeof tryit === "undefined"){
       d.name = "Undefined";
@@ -108,17 +102,44 @@ function ready(error, world, names) {
 
   // Display and Hide country name tooltip
   country
-    .on("mousemove", function(d,i) {
+    .on("mousemove", function(d) {
       maphovertip
         .html(d.name)
         .style("opacity", 0.6);  
     })
-    .on("mouseout",  function(d,i) {
+    .on("mouseout",  function() {
       maphovertip
         .style("opacity", 0);  
     });
 }
 
+// ****************** Setup FreeDB Search Box ******************************* //
+// FreeDB Service URL
+var service_url = "https://www.googleapis.com/freebase/v1/mqlread?callback=?";
+
+// FreeDB Search Box 
+$(function() {
+  $("#myinput")
+    .suggest({
+      "key": "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY",
+      filter:'(all type:/people/person)',
+      animate: "false"})
+
+    // Search Result Selected - Trigger Query
+    .bind("fb-select", function(e, data) {
+      svg.selectAll("circle").remove();
+      svg_timeline.selectAll("rect").remove();
+      $('#namebox').empty();
+
+      // Query and parse one person's info; On completion calls plotOnMap
+      getPersonInfo(data.id, 0);
+    });
+});
+
+// Set depth of graph search and node colors
+var recur_limit = 1;
+// Original (Black) / Infld (Blue) / Infby (Orange)
+var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
 
 // ****************** Query FreeDB  ******************************* //
 
@@ -186,6 +207,7 @@ function getPersonInfo(id, ndegree) {
       $('#namebox ul').prepend(personinfo);
     }
     
+    console.log(2 + person.infld.length*2 + person.infby.length*2);
 
     // Sends info to put on map
     plotOnMap(person);
@@ -193,10 +215,10 @@ function getPersonInfo(id, ndegree) {
     // Recursive call for more nodes
     if(ndegree < recur_limit) {
       for (var i = 0; i < person.infld.length; i++) {
-        getPersonInfo(person.infld[i]["id"], ndegree+1);
+        //getPersonInfo(person.infld[i]["id"], ndegree+1);
       }
       for (var i = 0; i < person.infld.length; i++) {
-        getPersonInfo(person.infby[i]["id"], ndegree+2);
+        //getPersonInfo(person.infby[i]["id"], ndegree+2);
       }
     }
   });
@@ -221,15 +243,6 @@ function plotOnMap(person) {
 
       // Draw node
       svg.append("svg:circle")
-        .attr("class","point")
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr('cx', function(d) { return x * zoom.scale(); })
-        .attr('cy', function(d) { return y * zoom.scale(); })
-        .attr("r", 3)
-        .attr("title", person.name)
-        .attr("fill", person.color)
-        .attr("opacity", 0.8)
         .on("mouseover", function(d,i) {
             maphovertip
               .html(person.name)
@@ -258,8 +271,18 @@ function plotOnMap(person) {
             // Add new activepoint
             .attr("id", "activepoint")
             .transition()
-            .attr("r", 5)
-        });
+            .attr("r", 5);
+        })
+        .attr("class","point")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", 20)
+        .transition()
+        .duration(350)
+        .attr("r", 3)
+        .attr("title", person.name)
+        .attr("fill", person.color)
+        .attr("opacity", 0.8);
 
         // Draw timeline
         svg_timeline.append("svg:rect")
@@ -273,7 +296,7 @@ function plotOnMap(person) {
           })
           .attr("height", 15)
           .attr("fill", person.color)
-          .attr("opacity", 0.8)
+          .attr("opacity", 0.8);
     } catch(err) {
       console.log("Location unknown: " + err);
     }
