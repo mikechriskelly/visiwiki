@@ -97,7 +97,6 @@ function ready(error, world, names) {
 var api_key = "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY";
 var service_url = "https://www.googleapis.com/freebase/v1/mqlread?key=" + api_key + "&callback=?";
 
-
 // FreeDB Search Box 
 $(function() {
   $("#myinput")
@@ -113,174 +112,171 @@ $(function() {
       $('#namebox').empty();
 
       // Query and parse one person's info; On completion calls plotOnMap
-      getPersonInfo(data.id, 0);
+      getPersonInfo(data.id);
     });
 });
 
-// Set depth of graph search and node colors
-var recur_limit = 1;
-// Original (Black) / Infld (Blue) / Infby (Orange)
-var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
+// ****************** Parse Query & Create Nodes ******************************* //
 
-// ****************** Query FreeDB  ******************************* //
-
-function getPersonInfo(id, ndegree) {
-  var query = [{
-    "id": id,
-    "name": [],
-    "/people/person/place_of_birth": [{}],
-    "/people/person/nationality": [],
-    "/people/person/profession": [],
-    "/people/person/date_of_birth": [],
-    "/people/deceased_person/date_of_death": [],
-    "/influence/influence_node/influenced_by": [{}],
-    "/influence/influence_node/influenced": [{}]
-  }];
-  
-  // Async Query Request
-  $.getJSON(service_url, {query:JSON.stringify(query)}, function(response) {
-    //console.dir(response.result[0]);
-
-    // Store data in object
+// Parse query results into new object
+// Degree 0 = origin node; 1 = influenced node; 2 = influenced_by node 
+function createPersonNode(queryResult, degree) {
     var person = {};
-    person.id = id;
-    person.name = response.result[0]["name"][0];
+    person.id = queryResult["id"];
+    person.name = queryResult["name"];
+    person.degree = degree;
+    person.profession = queryResult["/people/person/profession"];
+    person.nationality = queryResult["/people/person/nationality"];
+    person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
+    person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";
+    person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
+                          queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]];
 
-    // Filter DOB and DOD to YYYY format
-    person.dob = response.result[0]["/people/person/date_of_birth"][0];
-    if(typeof person.dob == "undefined") { 
-      person.dob = null;
-    } else {
-      person.dob = parseInt(person.dob.match(/[\-]?\d{4}/)[0], 10);
-    }
-    person.dod = response.result[0]["/people/deceased_person/date_of_death"][0];
-    if(typeof person.dod == "undefined") { 
-      if (person.dob > 1910) {
-        var thisyear = new Date().getFullYear();
-        person.dod = thisyear + 1;
-      }  else if (person.dob != null) {
-        person.dod = person.dob + 70;
-      } else {
-        person.dod = null;
-      }
-    } else {
-      person.dod = parseInt(person.dod.match(/[\-]?\d{4}/)[0], 10);
-    }
+    // Filter DOB and DOD to YYYY format for timeline chart
+    // Estimate lifespan if DOD unknown
+    person.lived = [NaN, NaN];
+    person.lived[0] = parseInt(person.dob.match(/[\-]?\d{4}/), 10);
+    person.lived[1] = parseInt(person.dod.match(/[\-]?\d{4}/), 10) || person.lived[0] + 80;
 
-    person.city_id = response.result[0]["/people/person/place_of_birth"][0]["id"];
-    person.city_name = response.result[0]["/people/person/place_of_birth"][0]["name"];
-    person.profession = response.result[0]["/people/person/profession"].join(", "); 
-    person.infld = response.result[0]["/influence/influence_node/influenced"];
-    person.infby = response.result[0]["/influence/influence_node/influenced_by"];
+    // Create empty influence lists as default
+    person.infld = [];
+    person.infld_by = [];
+
+    // If they exist, load and process influence lists as arrays of PersonNodes
+    var temp_infld = queryResult["/influence/influence_node/influenced"] || [];
+    var temp_infld_by = queryResult["/influence/influence_node/influenced_by"] || [];
+    for (var i = 0; i < temp_infld.length; i++) {
+      person.infld[i] = createPersonNode(temp_infld[i], 1);
+    }
+    for (var j = 0; j < temp_infld_by.length; j++) {
+      person.infld_by[j] = createPersonNode(temp_infld_by[j], 2);
+    }
 
     // Set color according to distance from origin node
-    person.color = colors[ndegree];
+    // Original (Black) / Infld (Blue) / Infby (Orange)
+    var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
+    person.color = colors[degree];
+
+    return person;
+}
+function getPersonInfo(id) {
+  var query = {
+    "id": id,
+    "name": null,
+    "/people/person/place_of_birth": {
+      "/location/location/geolocation": {
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    "/people/person/nationality": [],
+    "/people/person/profession": [],
+    "/people/person/date_of_birth": null,
+    "/people/deceased_person/date_of_death": null,
+    "/influence/influence_node/influenced_by": [{
+      "id": null,
+      "name": null,
+      "/people/person/place_of_birth": {
+        "/location/location/geolocation": {
+          "latitude": null,
+          "longitude": null
+        }
+      },
+      "/people/person/nationality": [],
+      "/people/person/profession": [],
+      "/people/person/date_of_birth": null,
+      "/people/deceased_person/date_of_death": null
+    }],
+    "/influence/influence_node/influenced": [{
+      "id": null,
+      "name": null,
+      "/people/person/place_of_birth": {
+        "/location/location/geolocation": {
+          "latitude": null,
+          "longitude": null
+        }
+      },
+      "/people/person/nationality": [],
+      "/people/person/profession": [],
+      "/people/person/date_of_birth": null,
+      "/people/deceased_person/date_of_death": null
+    }]
+  };
+  
+  // Async Query Request
+  $.getJSON(service_url, {query:JSON.stringify(query)}, function(q) {
+    // Parse results into an origin node 
+    var person = createPersonNode(q.result, 0);
 
     // Add namebox with basic info
-    if(ndegree == 0) {
-      var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</h1><ul></ul>";
-      $('#namebox').append(personinfo);
-    } else if(ndegree == 1) { 
-      var personinfo = "<li><span style='color:" + person.color + "'>influenced </span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
-      $('#namebox ul').prepend(personinfo);
-    } else {
-      var personinfo = "<li><span style='color:" + person.color + "'>influenced by</span>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession + "</li>";
-      $('#namebox ul').prepend(personinfo);
-    }
-    
-    console.log(2 + person.infld.length*2 + person.infby.length*2);
-
+    var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession.join(", ") + "</h1><ul></ul>";
+    $('#namebox').append(personinfo);
+ 
+    console.dir(person);
     // Sends info to put on map
     plotOnMap(person);
-
-    // Recursive call for more nodes
-    if(ndegree < recur_limit) {
-      for (var i = 0; i < person.infld.length; i++) {
-        getPersonInfo(person.infld[i]["id"], ndegree+1);
-      }
-      for (var i = 0; i < person.infld.length; i++) {
-        getPersonInfo(person.infby[i]["id"], ndegree+2);
-      }
-    }
   });
 }
 
-
 function plotOnMap(person) {
-  var geo_query = [{
-    "id": person.city_id,
-    "/location/location/geolocation": [{
-      "latitude": [],
-      "longitude": []
-    }]
-  }];
-  $.getJSON(service_url, {query:JSON.stringify(geo_query)}, function(response) {
-    try {
-      // Parse coordinates  
-      var coordinates = [response.result[0]["/location/location/geolocation"][0]["longitude"][0],
-                        response.result[0]["/location/location/geolocation"][0]["latitude"][0]];
-      var x = projection(coordinates)[0];
-      var y = projection(coordinates)[1];
+  // Parse coordinates  
+  var x = projection(person.coordinates)[0];
+  var y = projection(person.coordinates)[1];
 
-      // Draw node
-      svg.append("svg:circle")
-        .attr("class","point")
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr("title", person.name)
-        .attr("fill", person.color)
-        .attr("opacity", 0.8)
-        .on("mouseover", function(d,i) {
-            maphovertip
-              .html(person.name)
-              .style("opacity", 0.6);  
-          d3.select(this)
-            // Add node hover effects
-            .transition()
-            .attr("fill", "#ffff00")
-        })
-        .on("mouseout",  function(d,i) {
-            maphovertip
-              .html(person.name)
-              .style("opacity", 0);  
-          d3.select(this)
-            // Remove node hover effects
-            .transition()
-            .attr("fill", person.color)
-        })
-        .on("click",  function(d,i) {
-          d3.select("#activepoint")
-            // Remove old activepoint
-            .attr("id", "")
-            .transition()
-            .attr("r", 2)
-          d3.select(this)
-            // Add new activepoint
-            .attr("id", "activepoint")
-            .transition()
-            .attr("r", 5);
-        })
-        .attr("r", 10)
+  // Draw node
+  svg.append("svg:circle")
+    .attr("class","point")
+    .attr("cx", x)
+    .attr("cy", y)
+    .attr("title", person.name)
+    .attr("fill", person.color)
+    .attr("opacity", 0.8)
+    .on("mouseover", function(d,i) {
+        maphovertip
+          .html(person.name)
+          .style("opacity", 0.6);  
+      d3.select(this)
+        // Add node hover effects
         .transition()
-        .duration(500)
-        .attr("r", 2);
+        .attr("fill", "#ffff00")
+    })
+    .on("mouseout",  function(d,i) {
+        maphovertip
+          .html(person.name)
+          .style("opacity", 0);  
+      d3.select(this)
+        // Remove node hover effects
+        .transition()
+        .attr("fill", person.color)
+    })
+    .on("click",  function(d,i) {
+      d3.select("#activepoint")
+        // Remove old activepoint
+        .attr("id", "")
+        .transition()
+        .attr("r", 2)
+      d3.select(this)
+        // Add new activepoint
+        .attr("id", "activepoint")
+        .transition()
+        .attr("r", 5);
+    })
+    .attr("r", 10)
+    .transition()
+    .duration(500)
+    .attr("r", 2);
 
-
-        // Draw timeline
-        svg_timeline.append("svg:rect")
-          .attr("title", person.name)
-          .attr("x", function(d) {
-            return xScale(person.dob);
-          })
-          .attr("y", 0)
-          .attr("width", function(d) {
-            return xScale(person.dod) - xScale(person.dob);
-          })
-          .attr("height", 15)
-          .attr("fill", person.color)
-          .attr("opacity", 0.8);
-    } catch(err) {
-      console.log("Location unknown: " + err);
-    }
-  });
+    // Draw timeline
+    svg_timeline.append("svg:rect")
+      .attr("title", person.name)
+      .attr("x", function(d) {
+        return xScale(person.dob);
+      })
+      .attr("y", 0)
+      .attr("width", function(d) {
+        return xScale(person.dod) - xScale(person.dob);
+      })
+      .attr("height", 15)
+      .attr("fill", person.color)
+      .attr("opacity", 0.8);
 }
