@@ -13,25 +13,25 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([1,8])
     .on("zoom", redraw);
 
-var svg = d3.select("#map").append("svg")
+var svg_map = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height)
     .call(zoom)
     .append("g");
 
 function redraw() {
-    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    svg_map.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
 // Timeline Setup
 var svg_timeline = d3.select("#map").append("svg")
     .attr("id", "timeline");
+var thisYear = new Date().getFullYear();
 var xScale = d3.scale.linear()
-             .domain([-1000, 2013])
+             .domain([-1000, thisYear])
              .range([12, width-10]);
-
 var xAxis = d3.svg.axis().scale(xScale).ticks(15);
- 
+
 svg_timeline.append("g")
   .attr("class", "timeline")
   .attr("transform", "translate(0,-4)")
@@ -70,7 +70,7 @@ function ready(error, world, names) {
     }
   });
 
-  var country = svg.selectAll(".country").data(countries);
+  var country = svg_map.selectAll(".country").data(countries);
 
   country
    .enter()
@@ -107,7 +107,7 @@ $(function() {
 
     // Search Result Selected - Trigger Query
     .bind("fb-select", function(e, data) {
-      svg.selectAll("circle").remove();
+      svg_map.selectAll("circle").remove();
       svg_timeline.selectAll("rect").remove();
       $('#namebox').empty();
 
@@ -129,14 +129,23 @@ function createPersonNode(queryResult, degree) {
     person.nationality = queryResult["/people/person/nationality"];
     person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
     person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";
+    
+    // Save standard geocoordinates
     person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
                           queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]];
 
+    // Translate geocoordinates into map coordinates
+    person.x = projection(person.coordinates)[0];
+    person.y = projection(person.coordinates)[1];
+
     // Filter DOB and DOD to YYYY format for timeline chart
-    // Estimate lifespan if DOD unknown
-    person.lived = [NaN, NaN];
-    person.lived[0] = parseInt(person.dob.match(/[\-]?\d{4}/), 10);
-    person.lived[1] = parseInt(person.dod.match(/[\-]?\d{4}/), 10) || person.lived[0] + 80;
+    person.lived = [parseInt(person.dob.match(/[\-]?\d{4}/), 10),
+                    parseInt(person.dod.match(/[\-]?\d{4}/), 10)];
+
+    // Estimate lifespan if DOB or DOD unknown. Set to 0 if both unknown.
+    if(isNaN(person.lived[0])) { person.lived[0] = (person.lived[1] - 80) || 0; }
+    if(isNaN(person.lived[1])) { person.lived[1] = (person.lived[0] + 80) || 0; }
+    if(person.lived[1] > thisYear) { person.lived[1] = thisYear; }
 
     // Create empty influence lists as default
     person.infld = [];
@@ -153,7 +162,7 @@ function createPersonNode(queryResult, degree) {
     }
 
     // Set color according to distance from origin node
-    // Original (Black) / Infld (Blue) / Infby (Orange)
+    // origin = black, influenced = blue, influenced_by = orange
     var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
     person.color = colors[degree];
 
@@ -212,44 +221,47 @@ function getPersonInfo(id) {
     var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession.join(", ") + "</h1><ul></ul>";
     $('#namebox').append(personinfo);
  
+    // Sends objects to put on map: origin, infld array, and infld_by array
     console.dir(person);
-    // Sends info to put on map
-    plotOnMap(person);
+    plotOnMap(person.infld_by, 2);
+    plotOnMap(person.infld, 1);
+    plotOnMap(person, 0);
   });
 }
 
-function plotOnMap(person) {
-  // Parse coordinates  
-  var x = projection(person.coordinates)[0];
-  var y = projection(person.coordinates)[1];
+function plotOnMap(person, degree) {
 
-  // Draw node
-  svg.append("svg:circle")
-    .attr("class","point")
-    .attr("cx", x)
-    .attr("cy", y)
-    .attr("title", person.name)
-    .attr("fill", person.color)
+  // Draw nodes on map
+  svg_map
+    .selectAll("circle degree_" + degree)
+    .data(person)
+    .enter()
+    .append("circle")
+    .attr("class", "point degree_" + degree)
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })
+    .attr("title", function(d) { return d.name; })
+    .attr("fill", function(d) { return d.color; })
     .attr("opacity", 0.8)
-    .on("mouseover", function(d,i) {
+    .on("mouseover", function(d) {
         maphovertip
-          .html(person.name)
+          .html(d.name)
           .style("opacity", 0.6);  
       d3.select(this)
         // Add node hover effects
         .transition()
         .attr("fill", "#ffff00")
     })
-    .on("mouseout",  function(d,i) {
+    .on("mouseout",  function(d) {
         maphovertip
-          .html(person.name)
+          .html(d.name)
           .style("opacity", 0);  
       d3.select(this)
         // Remove node hover effects
         .transition()
-        .attr("fill", person.color)
+        .attr("fill", function(d) { return d.color; })
     })
-    .on("click",  function(d,i) {
+    .on("click",  function() {
       d3.select("#activepoint")
         // Remove old activepoint
         .attr("id", "")
@@ -266,17 +278,18 @@ function plotOnMap(person) {
     .duration(500)
     .attr("r", 2);
 
-    // Draw timeline
-    svg_timeline.append("svg:rect")
-      .attr("title", person.name)
-      .attr("x", function(d) {
-        return xScale(person.dob);
-      })
-      .attr("y", 0)
-      .attr("width", function(d) {
-        return xScale(person.dod) - xScale(person.dob);
-      })
-      .attr("height", 15)
-      .attr("fill", person.color)
-      .attr("opacity", 0.8);
+  // Draw lifespans on timeline
+  svg_timeline
+    .selectAll("rect degree_" + degree)
+    .data(person)
+    .enter()
+    .append("rect")
+    .attr("class", "degree_" + degree)
+    .attr("title", function(d) { return d.name; })
+    .attr("x", function(d) { return xScale(d.lived[0]); })
+    .attr("y", 0)
+    .attr("width", function(d) { return xScale(d.lived[1]) - xScale(d.lived[0]); })
+    .attr("height", 15)
+    .attr("fill", function(d) { return d.color; })
+    .attr("opacity", 0.8);
 }
