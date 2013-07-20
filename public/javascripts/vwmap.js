@@ -313,6 +313,7 @@ function plotOnMap(person, degree) {
     .on("mouseout",  function(d) {
       infotip
         .style("opacity", 0)
+        .text("")
         .style("width", "1px")
       d3.select(this)
         .attr("opacity", function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
