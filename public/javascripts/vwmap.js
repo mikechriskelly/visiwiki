@@ -233,7 +233,7 @@ function getPersonInfo(id) {
       // Parse results into an origin node 
       var person = createPersonNode(q.result, 0);
       // Add namebox with basic info  
-      var img_url = freebase_url + "/image" + person.id +  "?maxwidth=80&key=" + api_key;
+      var img_url = freebase_url + "/image" + person.id +  "?maxwidth=150&key=" + api_key;
       var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
         + "<br><strong>Lived:</strong> " + person.dob + " to " + person.dod 
         + "<br><strong>Country:</strong> " + person.nationality
