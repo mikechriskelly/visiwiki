@@ -131,9 +131,9 @@ function createPersonNode(queryResult, degree) {
     person.degree = degree;
     person.profession = queryResult["/people/person/profession"];
     person.nationality = queryResult["/people/person/nationality"];
-    person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
-    person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";
     person.city = queryResult["/people/person/place_of_birth"]["name"];
+    person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
+    person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";    
     
     // Save standard geocoordinates
     person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
@@ -151,6 +151,9 @@ function createPersonNode(queryResult, degree) {
     if(isNaN(person.lived[0])) { person.lived[0] = (person.lived[1] - 80) || 0; }
     if(isNaN(person.lived[1])) { person.lived[1] = (person.lived[0] + 80) || 0; }
     if(person.lived[1] > thisYear) { person.lived[1] = thisYear; }
+
+    // Change Unknown to Present if the person is probably still alive
+    if((thisYear - person.lived[0]) < 100 && person.dod === "Unknown") { person.dod = "Present"; } 
 
     // Create empty influence lists as default
     person.infld = [];
