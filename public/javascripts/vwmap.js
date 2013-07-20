@@ -43,8 +43,10 @@ var maphovertip = d3.select(".right").append("div")
     .style("opacity", 0);
 
 // Tip box for people names 
-var infotip = d3.select("body").append("div") 
-    .attr("class", "tooltip")         
+var infotip = d3.select("body").append("span") 
+    .attr("class", "infotip")       
+    .style("position", "absolute")
+    .style("z-index", "10")
     .style("opacity", 0);
 
 d3.select("#map").append("div")     
@@ -110,6 +112,7 @@ $(function() {
       svg_map.selectAll("circle").remove();
       svg_timeline.selectAll("rect").remove();
       $('#namebox').empty();
+      $('#namebox').append("<h1>Loading...</h1>");
 
       // Query and parse one person's info; On completion calls plotOnMap
       getPersonInfo(data.id);
@@ -163,7 +166,8 @@ function createPersonNode(queryResult, degree) {
 
     // Set color according to distance from origin node
     // origin = black, influenced = blue, influenced_by = orange
-    var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
+    // var colors = ["#3B3B3B", "#4172E6", "#CC333F"];
+    var colors = ["#332412", "#1B567A", "#C2412D"];
     person.color = colors[degree];
 
     return person;
@@ -214,23 +218,28 @@ function getPersonInfo(id) {
   
   // Async Query Request
   $.getJSON(service_url, {query:JSON.stringify(query)}, function(q) {
-    // Parse results into an origin node 
-    var person = createPersonNode(q.result, 0);
 
-    // Add namebox with basic info
-    var personinfo = "<h1>" + person.name + " (" + person.dob + " to " + person.dod + ") " + person.profession.join(", ") + "</h1><ul></ul>";
-    $('#namebox').append(personinfo);
- 
-    // Sends objects to put on map: origin, infld array, and infld_by array
-    console.dir(person);
-    plotOnMap(person.infld_by, 2);
-    plotOnMap(person.infld, 1);
-    plotOnMap(person, 0);
+    $('#namebox').empty();
+    
+    if(q.result == null) {
+      $('#namebox').append("<h1>Sorry, not enough data to map this person.</h1>");
+    } else {
+      // Parse results into an origin node 
+      var person = createPersonNode(q.result, 0);
+      // Add namebox with basic info  
+      var personinfo = "<h1>" + person.name + "</h1><p>(" + person.dob + " to " + person.dod + ") " + person.profession.join(", ") + "</p>";
+      $('#namebox').append(personinfo);
+
+      // Sends objects to put on map: origin, infld array, and infld_by array
+      console.dir(person);
+      plotOnMap(person.infld_by, 2);
+      plotOnMap(person.infld, 1);
+      plotOnMap([person], 0);
+    }
   });
 }
 
 function plotOnMap(person, degree) {
-
   // Draw nodes on map
   svg_map
     .selectAll("circle degree_" + degree)
@@ -242,41 +251,50 @@ function plotOnMap(person, degree) {
     .attr("cy", function(d) { return d.y; })
     .attr("title", function(d) { return d.name; })
     .attr("fill", function(d) { return d.color; })
-    .attr("opacity", 0.8)
+    .attr("opacity", 0.9)
     .on("mouseover", function(d) {
-        maphovertip
-          .html(d.name)
-          .style("opacity", 0.6);  
+      // If name length is too long display last name only
+      var resized_name = "";
+      if(d.name.length > 23) {
+        var split_name = d.name.split(" ");
+        resized_name = split_name[split_name.length-1].substring(0,23);
+      } else {
+        resized_name = d.name;
+      }
+      infotip
+        .style("opacity", 1)
+        .text(resized_name);
       d3.select(this)
-        // Add node hover effects
-        .transition()
-        .attr("fill", "#ffff00")
+        .attr("opacity", 1);
     })
+    .on("mousemove", function() { 
+      infotip
+        .style("top", (d3.event.pageY-10)+"px")
+        .style("left",(d3.event.pageX+28)+"px"); })
     .on("mouseout",  function(d) {
-        maphovertip
-          .html(d.name)
-          .style("opacity", 0);  
+      infotip
+        .style("opacity", 0)
+        .style("top", "0px")
+        .style("left", "0px");
       d3.select(this)
-        // Remove node hover effects
-        .transition()
-        .attr("fill", function(d) { return d.color; })
+        .attr("opacity", 0.9);
     })
     .on("click",  function() {
       d3.select("#activepoint")
         // Remove old activepoint
         .attr("id", "")
         .transition()
-        .attr("r", 2)
+        .attr("r", 1)
       d3.select(this)
         // Add new activepoint
         .attr("id", "activepoint")
         .transition()
-        .attr("r", 5);
+        .attr("r", 3);
     })
     .attr("r", 10)
     .transition()
     .duration(500)
-    .attr("r", 2);
+    .attr("r", function() { if(degree === 0) { return 3; } else { return 1; } });
 
   // Draw lifespans on timeline
   svg_timeline
