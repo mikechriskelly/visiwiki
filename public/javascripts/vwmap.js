@@ -97,7 +97,8 @@ function ready(error, world, names) {
 // ****************** Setup FreeDB Search Box ******************************* //
 // FreeDB Service URL
 var api_key = "AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY";
-var service_url = "https://www.googleapis.com/freebase/v1/mqlread?key=" + api_key + "&callback=?";
+var freebase_url = "https://www.googleapis.com/freebase/v1";
+var service_url = freebase_url + "/mqlread?key=" + api_key + "&callback=?";
 
 // FreeDB Search Box 
 $(function() {
@@ -132,6 +133,7 @@ function createPersonNode(queryResult, degree) {
     person.nationality = queryResult["/people/person/nationality"];
     person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
     person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";
+    person.city = queryResult["/people/person/place_of_birth"]["name"];
     
     // Save standard geocoordinates
     person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
@@ -190,6 +192,7 @@ function getPersonInfo(id) {
       "id": null,
       "name": null,
       "/people/person/place_of_birth": {
+        "name": null,
         "/location/location/geolocation": {
           "latitude": null,
           "longitude": null
@@ -227,7 +230,11 @@ function getPersonInfo(id) {
       // Parse results into an origin node 
       var person = createPersonNode(q.result, 0);
       // Add namebox with basic info  
-      var personinfo = "<h1>" + person.name + "</h1><p>(" + person.dob + " to " + person.dod + ") " + person.profession.join(", ") + "</p>";
+      var img_url = freebase_url + "/image" + person.id +  "?maxwidth=80&key=" + api_key;
+      var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
+        + "<br><strong>Lived:</strong> " + person.dob + " to " + person.dod 
+        + "<br><strong>Country:</strong> " + person.nationality
+        + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</p>";
       $('#namebox').append(personinfo);
 
       // Sends objects to put on map: origin, infld array, and infld_by array
@@ -264,6 +271,11 @@ function plotOnMap(person, degree) {
       infotip
         .style("opacity", 1)
         .text(resized_name);
+      if(d.city != null) {
+        maphovertip
+          .html(d.city)
+          .style("opacity", 0.6);
+      }  
       d3.select(this)
         .attr("opacity", 1);
     })
@@ -273,11 +285,11 @@ function plotOnMap(person, degree) {
         .style("left",(d3.event.pageX+28)+"px"); })
     .on("mouseout",  function(d) {
       infotip
-        .style("opacity", 0)
-        .style("top", "0px")
-        .style("left", "0px");
+        .style("opacity", 0);
       d3.select(this)
         .attr("opacity", 0.9);
+      maphovertip
+        .style("opacity", 0); 
     })
     .on("click",  function() {
       d3.select("#activepoint")

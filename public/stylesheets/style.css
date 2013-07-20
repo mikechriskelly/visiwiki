@@ -6,9 +6,11 @@ body {
   background-image: url(/images/bg.png);
   background-repeat: repeat;
 }
-
 a { color: #00b7ff; }
-
+h1 {
+  font-size: 20px;
+  margin: 2px;
+}
 .left { float: left; width: 430px; }
 .right { float: right; width: 470px; }
 .top { top: 0px; }
@@ -62,22 +64,25 @@ a { color: #00b7ff; }
   stroke-linejoin: round;
 }
 #namebox {
+  overflow: auto;
   margin-right: auto;
   margin-left: auto;
   margin-top: 30px;
+  padding: 4px;
   width: 900px;
   background-color: #FAF5EF;
   border: 5px solid #FAF5EF;
   border-radius: 6px; 
+  overflow: ;
 }
-#namebox h1 {
-  font-size: 20px;
-  margin: 10px;
+img.biopic {
+  float: left;
+  margin-right: 10px;
 }
 #namebox p {
   color: #333; 
-  line-height: 1.2em;
-  margin: 0px 0px 0px 10px;
+  line-height: 1em;
+  margin: 0px 0px 0px 4px;
 }
 #namebox span {
   font-size: 8px;
@@ -140,5 +145,15 @@ span.infotip:after {
   outline: none;
   border: 1px solid #ECDDCA;
 }
-
-
+#footer {
+  margin-top: 50px;
+  color: #ECDDCA;
+  text-align: center;
+}  
+#footer p {
+  font-size: 9px;
+}
+#footer a {
+  color: #ECDDCA;
+  text-decoration: none;
+}
