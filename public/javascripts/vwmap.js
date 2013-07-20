@@ -110,11 +110,10 @@ $(function() {
 
     // Search Result Selected - Trigger Query
     .bind("fb-select", function(e, data) {
+      // Clear existing results from map -- including origin node
       svg_map.selectAll("circle").remove();
-      svg_timeline.selectAll("rect").remove();
-      $('#namebox').empty();
-      $('#namebox').append("<h1>Loading...</h1>");
-
+      svg_map.selectAll("circle").remove();
+      svg_timeline.selectAll("line").remove();
       // Query and parse one person's info; On completion calls plotOnMap
       getPersonInfo(data.id);
     });
@@ -177,7 +176,10 @@ function createPersonNode(queryResult, degree) {
 
     return person;
 }
-function getPersonInfo(id) {
+function getPersonInfo(id, drawLine) {
+  $('#namebox').empty();
+  $('#namebox').append("<h1>Loading...</h1>");
+
   var query = {
     "id": id,
     "name": null,
@@ -230,12 +232,30 @@ function getPersonInfo(id) {
     if(q.result == null) {
       $('#namebox').append("<h1>Sorry, not enough data to map this person.</h1>");
     } else {
+      if(drawLine) {
+        svg_map
+          .append("line")
+          .attr("stroke", "#332412")
+          .attr("stroke-width", 1)
+          .attr("x1", function() { return svg_map.select("circle.degree_0").attr("cx"); })
+          .attr("y1", function() { return svg_map.select("circle.degree_0").attr("cy"); })
+          .attr("x2", drawLine[0])
+          .attr("y2", drawLine[1]);
+        svg_map
+          .selectAll(".degree_0")
+          .attr("class", "degree_10")
+      }
+      // Clear existing results from map -- except origin node
+      svg_map.selectAll(".degree_1").remove();
+      svg_map.selectAll(".degree_2").remove();
+      svg_timeline.selectAll(".degree_1").remove();
+      svg_timeline.selectAll(".degree_2").remove();
       // Parse results into an origin node 
       var person = createPersonNode(q.result, 0);
       // Add namebox with basic info  
       var img_url = freebase_url + "/image" + person.id +  "?maxwidth=150&key=" + api_key;
       var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
-        + "<br><strong>Lived:</strong> " + person.dob + " to " + person.dod 
+        + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
         + "<br><strong>Country:</strong> " + person.nationality
         + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</p>";
       $('#namebox').append(personinfo);
@@ -252,16 +272,16 @@ function getPersonInfo(id) {
 function plotOnMap(person, degree) {
   // Draw nodes on map
   svg_map
-    .selectAll("circle degree_" + degree)
+    .selectAll(".degree_" + degree)
     .data(person)
     .enter()
     .append("circle")
-    .attr("class", "point degree_" + degree)
+    .attr("class", "degree_" + degree)
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
     .attr("title", function(d) { return d.name; })
     .attr("fill", function(d) { return d.color; })
-    .attr("opacity", 0.9)
+    .attr("opacity", function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } })
     .on("mouseover", function(d) {
       // If name length is too long display last name only
       var resized_name = "";
@@ -290,22 +310,11 @@ function plotOnMap(person, degree) {
       infotip
         .style("opacity", 0);
       d3.select(this)
-        .attr("opacity", 0.9);
+        .attr("opacity", function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
       maphovertip
         .style("opacity", 0); 
     })
-    .on("click",  function() {
-      d3.select("#activepoint")
-        // Remove old activepoint
-        .attr("id", "")
-        .transition()
-        .attr("r", 1.25)
-      d3.select(this)
-        // Add new activepoint
-        .attr("id", "activepoint")
-        .transition()
-        .attr("r", 3);
-    })
+    .on("click", function(d) { getPersonInfo(d.id, [d.x, d.y]); })
     .attr("r", 10)
     .transition()
     .duration(500)
@@ -313,7 +322,7 @@ function plotOnMap(person, degree) {
 
   // Draw lifespans on timeline
   svg_timeline
-    .selectAll("rect degree_" + degree)
+    .selectAll(".degree_" + degree)
     .data(person)
     .enter()
     .append("rect")

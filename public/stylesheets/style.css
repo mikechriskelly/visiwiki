@@ -67,8 +67,7 @@ h1 {
   overflow: auto;
   margin-right: auto;
   margin-left: auto;
-  margin-top: 30px;
-  padding: 4px;
+  margin-top: 20px;
   width: 900px;
   background-color: #FAF5EF;
   border: 5px solid #FAF5EF;
@@ -77,12 +76,12 @@ h1 {
 }
 img.biopic {
   float: left;
-  margin-right: 10px;
+  margin: 4px 10px 4px 4px;
 }
 #namebox p {
-  color: #333; 
+  color: #333;
+  padding: 2px; 
   line-height: 1em;
-  margin: 0px 0px 0px 4px;
 }
 #namebox span {
   font-size: 8px;
@@ -124,13 +123,6 @@ span.infotip:after {
   border-color: transparent #60AC39 transparent transparent;
   top: 0px;
   left: -24px;
-}
-.point {
-  stroke-width: 0px;
-}
-#activepoint {
-  stroke-color: #fff;
-  stroke-width: 1px;
 }
 #myinput {
   font-size: 14px;
