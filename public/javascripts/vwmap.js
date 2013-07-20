@@ -4,8 +4,8 @@ var width  = 900,
     height = 450;
 
 var projection = d3.geo.mercator()
-                .translate([450,280])
-                .scale(140);
+                .translate([420,250])
+                .scale(170);
 
 var path = d3.geo.path().projection(projection);
 
@@ -284,7 +284,7 @@ function plotOnMap(person, degree) {
         // Remove old activepoint
         .attr("id", "")
         .transition()
-        .attr("r", 1)
+        .attr("r", 1.25)
       d3.select(this)
         // Add new activepoint
         .attr("id", "activepoint")
@@ -294,7 +294,7 @@ function plotOnMap(person, degree) {
     .attr("r", 10)
     .transition()
     .duration(500)
-    .attr("r", function() { if(degree === 0) { return 3; } else { return 1; } });
+    .attr("r", function() { if(degree === 0) { return 3; } else { return 1.25; } });
 
   // Draw lifespans on timeline
   svg_timeline
