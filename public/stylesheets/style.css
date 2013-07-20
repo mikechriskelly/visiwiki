@@ -1,5 +1,5 @@
 body {
-  margin-top: 25px;
+  margin-top: 10px;
   color: #666; 
   background: #863e25; 
   font: normal 14px "Helvetica Neue", Helvetica, sans-serif;
@@ -67,7 +67,7 @@ h1 {
   overflow: auto;
   margin-right: auto;
   margin-left: auto;
-  margin-top: 20px;
+  margin-top: 10px;
   width: 900px;
   background-color: #FAF5EF;
   border: 5px solid #FAF5EF;

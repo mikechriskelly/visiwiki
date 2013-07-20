@@ -307,11 +307,13 @@ function plotOnMap(person, degree) {
     })
     .on("mousemove", function() { 
       infotip
+        .style("width", "175px")
         .style("top", (d3.event.pageY-10)+"px")
         .style("left",(d3.event.pageX+28)+"px"); })
     .on("mouseout",  function(d) {
       infotip
-        .style("opacity", 0);
+        .style("opacity", 0)
+        .style("width", "1px")
       d3.select(this)
         .attr("opacity", function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
       maphovertip
