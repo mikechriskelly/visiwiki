@@ -113,7 +113,7 @@ $(function() {
       // Clear existing results from map -- including origin node
       svg_map.selectAll("circle").remove();
       svg_map.selectAll("circle").remove();
-      svg_timeline.selectAll("line").remove();
+      svg_map.selectAll("line").remove();
       // Query and parse one person's info; On completion calls plotOnMap
       getPersonInfo(data.id);
     });
@@ -245,11 +245,14 @@ function getPersonInfo(id, drawLine) {
           .selectAll(".degree_0")
           .attr("class", "degree_10")
       }
-      // Clear existing results from map -- except origin node
+      // Clear existing results from map, except old origin node (degree_10)
+      svg_map.selectAll(".degree_0").remove();
       svg_map.selectAll(".degree_1").remove();
       svg_map.selectAll(".degree_2").remove();
+      svg_timeline.selectAll(".degree_0").remove();
       svg_timeline.selectAll(".degree_1").remove();
       svg_timeline.selectAll(".degree_2").remove();
+
       // Parse results into an origin node 
       var person = createPersonNode(q.result, 0);
       // Add namebox with basic info  
