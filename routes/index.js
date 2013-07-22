@@ -7,7 +7,8 @@ exports.index = function(req, res){
   res.render('index', { title: 'Visiwiki' });
 };
 
-exports.result = function(req, res) {
-	res.render('index', { title: 'Result' });
+exports.id = function(req, res) {
+	res.jshare.id = [req.params.id1, req.params.id2];
+	res.render('index', { title: 'VisiWiki' });
 };
 

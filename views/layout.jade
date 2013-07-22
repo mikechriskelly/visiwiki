@@ -2,13 +2,13 @@ doctype 5
 html
 	head
 		title= title
-		link(type='text/css', rel='stylesheet', href='stylesheets/style.css')
+		link(type='text/css', rel='stylesheet', href='/stylesheets/style.css')
 		link(type='text/css', rel='stylesheet', href='https://www.gstatic.com/freebase/suggest/4_2/suggest.min.css')
 		script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js')
 		script(src='https://www.gstatic.com/freebase/suggest/4_2/suggest.min.js')
-		script(src='javascripts/d3.v3.min.js')
-		script(src='javascripts/queue.v1.min.js')
-		script(src='javascripts/topojson.js')
+		script(src='/javascripts/d3.v3.min.js')
+		script(src='/javascripts/queue.v1.min.js')
+		script(src='/javascripts/topojson.js')
 		!= includeJShare()
 	body
 		block content

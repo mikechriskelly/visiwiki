@@ -54,8 +54,8 @@ d3.select("#map").append("div")
 
 // Load map paths and country names
 queue()
-    .defer(d3.json, "data/world.json")
-    .defer(d3.tsv, "data/world-country-names.tsv")
+    .defer(d3.json, "/data/world.json")
+    .defer(d3.tsv, "/data/world-country-names.tsv")
     .await(ready);
 
 function ready(error, world, names) {
@@ -92,6 +92,11 @@ function ready(error, world, names) {
       maphovertip
         .style("opacity", 0);  
     });
+
+    // If received ID from URL then start query
+    if(typeof(jshare.id) === "object" && jshare.id.length === 2) {
+      getPersonInfo("/" + jshare.id.join("/"));
+    }
 }
 
 // ****************** Setup FreeDB Search Box ******************************* //
@@ -179,7 +184,7 @@ function createPersonNode(queryResult, degree) {
 function getPersonInfo(id, drawLine) {
   $('#namebox').empty();
   $('#namebox').append("<h1>Loading...</h1>");
-
+  console.log(id);
   var query = {
     "id": id,
     "name": null,
