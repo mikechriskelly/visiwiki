@@ -49,9 +49,6 @@ var infotip = d3.select("body").append("span")
     .style("z-index", "10")
     .style("opacity", 0);
 
-d3.select("#map").append("div")     
-    .attr("id", "zoombox")
-
 // Load map paths and country names
 queue()
     .defer(d3.json, "/data/world.json")
