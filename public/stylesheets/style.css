@@ -2,11 +2,11 @@ body {
   padding-top: 40px;
   color: #666; 
   background: #B8E2FF; 
-  font: normal 16px Georgia, sans-serif;
+  font: normal 14px Georgia, sans-serif;
 }
 a { color: #00b7ff; }
 h1 {
-  font-size: 18px;
+  font-size: 16px;
   margin: 2px;
 }
 
