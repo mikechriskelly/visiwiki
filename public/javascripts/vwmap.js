@@ -1,8 +1,8 @@
 $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
-  var width  = 900,
-      height = 450;
+  var map_w  = $("#map").width();
+  var map_h = map_w / 2;
 
   var projection = d3.geo.mercator()
                   .translate([420,250])
@@ -15,8 +15,8 @@ $(document).ready(function() {
       .on("zoom", redraw);
 
   var svg_map = d3.select("#map").append("svg")
-      .attr("width", width)
-      .attr("height", height)
+      .attr("width", map_w)
+      .attr("height", map_h)
       .call(zoom)
       .append("g");
 
@@ -25,11 +25,15 @@ $(document).ready(function() {
   }
 
   // Timeline Setup
-  var svg_timeline = d3.select("#timeline").append("svg");
+  var timeline_w = $(document).width();
+  var timeline_h = timeline_w / 3;
+  var svg_timeline = d3.select("#timeline").append("svg")
+      .attr("width", timeline_w)
+      .attr("height", timeline_h);
   var thisYear = new Date().getFullYear();
   var xScale = d3.scale.linear()
                .domain([-1000, thisYear])
-               .range([12, width-10]);
+               .range([12, timeline_w]);
   var xAxis = d3.svg.axis().scale(xScale).ticks(15);
 
   svg_timeline.append("g")

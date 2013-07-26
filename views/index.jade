@@ -4,25 +4,24 @@ block content
 	.navbar.navbar-fixed-top
 		.navbar-inner
 			.container-fluid
-				button.btn.btn-navbar(type='button', data-toggle='collapse', data-target='.nav-collapse')
-					span.icon-bar 
-					span.icon-bar
-					span.icon-bar
 				form.navbar-search.pull-left
 					input#fbinput.search-query(type='text', placeholder='Search for Historical Figure', autofocus='')
-				.nav-collapse.collapse
-					ul.nav
-						li.divider-vertical
-						li
-							a(href='#') Influences
-						li.active
-							a(href='#') Contemporaries
-						li
-							a(href='#') Works
-						li
-							a(href='#') Article
-					.brand VisiWiki
-	#map
+				ul.nav
+					li.divider-vertical
+					li
+						a(href='#') Influences
+					li.active
+						a(href='#') Contemporaries
+					li
+						a(href='#') Works
+					li
+						a(href='#') Article
+				.brand VisiWiki
+	.rowfluid
+		.span10
+			#map
+		.span2
+			#namebox
+				h1 A map of influential people.
 	#timeline
-	#namebox
-		h1 A map of influential people.
+		
