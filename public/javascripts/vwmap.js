@@ -107,7 +107,7 @@ $(document).ready(function() {
 
   // FreeDB Search Box 
   $(function() {
-    $("#myinput")
+    $("#fbinput")
       .suggest({
         "key": api_key,
         filter: "(all type:/people/person)",

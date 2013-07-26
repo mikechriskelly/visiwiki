@@ -1,20 +1,15 @@
 body {
-  margin-top: 20px;
+  padding-top: 40px;
   color: #666; 
   background: #863e25; 
-  font: normal 14px "Helvetica Neue", Helvetica, sans-serif;
-  background-image: url(/images/bg.png);
-  background-repeat: repeat;
+  font: normal 16px Georgia, sans-serif;
 }
 a { color: #00b7ff; }
 h1 {
   font-size: 20px;
   margin: 2px;
 }
-.left { float: left; width: 430px; }
-.right { float: right; width: 470px; }
-.top { top: 0px; }
-.bottom { bottom: 0px; }
+
 .hidden { display: none; }
 
 #header {
@@ -33,13 +28,6 @@ h1 {
   font: normal 24px Georgia, sans-serif;
 }
 #map {
-  position: relative;
-  border: 5px solid #FAF5EF;
-  border-radius: 0px 0px 6px 6px;
-  margin-right: auto;
-  margin-left: auto;
-  width: 900px;
-  height: 470px;
   background: #B8E2FF;
 }
 #timeline {
@@ -114,7 +102,6 @@ span.infotip {
   text-shadow: rgba(0, 0, 0, 0.6) 1px 1px 1px;
   box-shadow: rgb(85, 153, 51) -4px 0px 4px 0px inset;
 }
-
 span.infotip:after {
   content: "";
   position: absolute;
@@ -125,19 +112,6 @@ span.infotip:after {
   border-color: transparent #60AC39 transparent transparent;
   top: 0px;
   left: -24px;
-}
-#myinput {
-  font-size: 14px;
-  color: #666;
-  width: 400px;
-  height: 17px;
-  padding: 3px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-}
-#myinput:focus {
-  outline: none;
-  border: 1px solid #ECDDCA;
 }
 #footer {
   margin-top: 50px;
