@@ -91,10 +91,10 @@ $(document).ready(function() {
       });
 
       // If received ID from URL then start query
-      if(typeof(jshare.id) === "object" && jshare.id.length === 2) {
+      if(typeof jshare !== "undefined" && jshare.id.length === 2) {
         getPersonInfo("/" + jshare.id.join("/"));
       }
-      if(typeof(jshare.id) === "object" && jshare.id.length === 2) {
+      if(typeof jshare !== "undefined" && jshare.id.length === 2) {
         getPersonInfo("/" + jshare.id.join("/"));
       }
   }
@@ -253,7 +253,7 @@ $(document).ready(function() {
     };
 
     // Async Query Request
-    $.getJSON(service_url, {query:JSON.stringify(queryProfession)}, function(q) {
+    $.getJSON(service_url, {query:JSON.stringify(queryInfluence)}, function(q) {
 
       $('#namebox').empty();
       console.dir(q.result);
