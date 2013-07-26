@@ -94,6 +94,9 @@ $(document).ready(function() {
       if(typeof(jshare.id) === "object" && jshare.id.length === 2) {
         getPersonInfo("/" + jshare.id.join("/"));
       }
+      if(typeof(jshare.id) === "object" && jshare.id.length === 2) {
+        getPersonInfo("/" + jshare.id.join("/"));
+      }
   }
 
   // ****************** Setup FreeDB Search Box ******************************* //
@@ -182,10 +185,12 @@ $(document).ready(function() {
     $('#namebox').empty();
     $('#namebox').append("<h1>Loading...</h1>");
     console.log(id);
-    var query = {
+
+    var queryInfluence = {
       "id": id,
       "name": null,
       "/people/person/place_of_birth": {
+        "name": null,
         "/location/location/geolocation": {
           "latitude": null,
           "longitude": null
@@ -214,6 +219,7 @@ $(document).ready(function() {
         "id": null,
         "name": null,
         "/people/person/place_of_birth": {
+          "name": null,
           "/location/location/geolocation": {
             "latitude": null,
             "longitude": null
@@ -226,13 +232,28 @@ $(document).ready(function() {
       }]
     };
     
-    var query2 = {
-      "id": "/m/07lqg0",
-      "/people/profession/people_with_this_profession": [],
-      "limit": 2
+    var queryProfession = {
+      "id": "/m/02h6fbs",
+      "name": null,
+      "/people/profession/people_with_this_profession": [{
+        "id": null,
+        "name": null,
+        "/people/person/place_of_birth": {
+          "/location/location/geolocation": {
+            "latitude": null,
+            "longitude": null
+          }
+        },
+        "/people/person/nationality": [],
+        "/people/person/profession": [],
+        "/people/person/date_of_birth": null,
+        "/people/deceased_person/date_of_death": null,
+        "limit": 2
+      }]
     };
+
     // Async Query Request
-    $.getJSON(service_url, {query:JSON.stringify(query)}, function(q) {
+    $.getJSON(service_url, {query:JSON.stringify(queryProfession)}, function(q) {
 
       $('#namebox').empty();
       console.dir(q.result);
