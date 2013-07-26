@@ -1,12 +1,12 @@
 $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
-  var map_w  = $("#map").width();
-  var map_h = map_w / 2;
+  var map_w  = $(document).width();
+  var map_h = map_w / 2.5;
 
   var projection = d3.geo.mercator()
-                  .translate([420,250])
-                  .scale(170);
+                  .translate([map_w / 2, map_h / 1.5])
+                  .scale(map_w / 6);
 
   var path = d3.geo.path().projection(projection);
 
@@ -289,7 +289,8 @@ $(document).ready(function() {
         // Parse results into an origin node 
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
-        var img_url = freebase_url + "/image" + person.id +  "?maxwidth=150&key=" + api_key;
+        var img_width = $("#map").width();
+        var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
         var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
           + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
           + "<br><strong>Country:</strong> " + person.nationality

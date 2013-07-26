@@ -1,12 +1,12 @@
 body {
   padding-top: 40px;
   color: #666; 
-  background: #863e25; 
+  background: #B8E2FF; 
   font: normal 16px Georgia, sans-serif;
 }
 a { color: #00b7ff; }
 h1 {
-  font-size: 20px;
+  font-size: 18px;
   margin: 2px;
 }
 
@@ -45,16 +45,17 @@ h1 {
   stroke-width: .3px;
   stroke-linejoin: round;
 }
-#namebox {
-  background-color: #FAF5EF;
-}
 img.biopic {
-  float: left;
-  margin: 4px 10px 4px 4px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+#namebox {
+  margin: 5px 5px 0px 0px;
+  background: #fff;
 }
 #namebox p {
-  color: #333;
-  padding: 2px; 
+  color: #333; 
   line-height: 1em;
 }
 #namebox span {
