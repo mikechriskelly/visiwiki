@@ -187,7 +187,7 @@ $(document).ready(function() {
   }
   function getPersonInfo(id, drawLine) {
     $('#namebox').empty();
-    $('#namebox').append("<h1>Loading...</h1>");
+    $('#namebox').append("<h1><small>Loading...</small></h1>");
     console.log(id);
 
     var queryInfluence = {
@@ -263,7 +263,7 @@ $(document).ready(function() {
       console.dir(q.result);
       
       if(q.result == null) {
-        $('#namebox').append("<h1>Sorry, not enough data to map this person.</h1>");
+        $('#namebox').append("<h1><small>Sorry, not enough data to map this person.<small></h1>");
       } else {
         if(drawLine) {
           svg_map
@@ -369,9 +369,9 @@ $(document).ready(function() {
       .attr("class", "degree_" + degree)
       .attr("title", function(d) { return d.name; })
       .attr("x", function(d) { return xScale(d.lived[0]); })
-      .attr("y", 0)
+      .attr("y", 20)
       .attr("width", function(d) { return xScale(d.lived[1]) - xScale(d.lived[0]); })
-      .attr("height", 15)
+      .attr("height", 30)
       .attr("fill", function(d) { return d.color; })
       .attr("opacity", 0.8);
   }

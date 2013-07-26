@@ -105,7 +105,7 @@ li.fbs-nomatch,
 
 .fbs-pane,
 .fbs-flyout-pane {
-    margin-top: 10px; 
+    margin-top: 6px; 
     border: 0px;
     padding: 0px;
 }
@@ -348,10 +348,10 @@ Freebase Suggest Status
 */
 
 .fbs-status {
-    border: 1px solid #dae3e9;
-    padding: 4px 5px;
-    color: #000;
-    font-size: 0.7em;
+    height: 0px;
+    color: #fff;
+    display: none;
+    overflow: hidden;
 }
 
 /*

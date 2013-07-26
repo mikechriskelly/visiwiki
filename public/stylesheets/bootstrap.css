@@ -205,8 +205,6 @@ textarea {
 }
 body {
   margin: 0;
-  font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 14px;
   line-height: 20px;
   color: #333333;
   background-color: #ffffff;
@@ -617,9 +615,7 @@ h4,
 h5,
 h6 {
   margin: 10px 0;
-  font-family: Georgia, "Times New Roman", Times, serif;
   font-weight: bold;
-  line-height: 20px;
   color: inherit;
   text-rendering: optimizelegibility;
 }
@@ -3436,8 +3432,9 @@ input[type="submit"].btn.btn-mini {
 .navbar .brand {
   float: right;
   display: block;
-  margin-top: 8px;
-  margin-right: 20px;
+  margin-top: 10px;
+  margin-right: 22px;
+  font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 24px;
   font-weight: 150;
   color: #777777;
@@ -3461,9 +3458,8 @@ input[type="submit"].btn.btn-mini {
 }
 .navbar .divider-vertical {
   height: 40px;
-  margin: 0 9px;
+  margin: 0px 0px 0px 10px;
   border-left: 1px solid #f2f2f2;
-  border-right: 1px solid #ffffff;
 }
 .navbar .btn,
 .navbar .btn-group {

@@ -2,31 +2,17 @@ body {
   padding-top: 40px;
   color: #666; 
   background: #B8E2FF; 
-  font: normal 14px Georgia, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
 }
 a { color: #00b7ff; }
 h1 {
   font-size: 16px;
   margin: 2px;
 }
-
 .hidden { display: none; }
+div:empty { display: none; }
 
-#header {
-  border: 5px solid #FAF5EF;
-  border-radius: 6px 6px 0px 0px;
-  margin-right: auto;
-  margin-left: auto;
-  width: 900px;
-  height: 20px;
-  background: #FAF5EF;
-}
-#htitle {
-  float: right;
-  text-align: right;
-  padding-right: 10px;
-  font: normal 24px Georgia, sans-serif;
-}
 #map {
   background: #B8E2FF;
 }
@@ -53,10 +39,6 @@ img.biopic {
 #namebox {
   margin: 5px 5px 0px 0px;
   background: #fff;
-}
-#namebox p {
-  color: #333; 
-  line-height: 1em;
 }
 #namebox span {
   font-size: 8px;
@@ -97,16 +79,4 @@ span.infotip:after {
   border-color: transparent #60AC39 transparent transparent;
   top: 0px;
   left: -24px;
-}
-#footer {
-  margin-top: 50px;
-  color: #ECDDCA;
-  text-align: center;
-}  
-#footer p {
-  font-size: 9px;
-}
-#footer a {
-  color: #ECDDCA;
-  text-decoration: none;
 }
