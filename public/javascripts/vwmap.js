@@ -289,7 +289,7 @@ $(document).ready(function() {
         // Parse results into an origin node 
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
-        var img_width = $("#map").width();
+        var img_width = 80; // $("#map").width();
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
         var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
           + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
