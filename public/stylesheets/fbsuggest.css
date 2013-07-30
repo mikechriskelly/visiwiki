@@ -105,10 +105,7 @@ li.fbs-nomatch,
 
 .fbs-pane,
 .fbs-flyout-pane {
-    margin-top: 6px; 
-    border-bottom: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    margin-top: 6px;
     padding: 0px;
 }
 
@@ -137,12 +134,12 @@ li.fbs-nomatch {
 
 h1#fbs-flyout-title,
 li.fbs-selected .fbs-item-name { 
-    color: rgba(82, 168, 236, 0.8);
+    color: #333333; /* rgba(82, 168, 236, 0.8)  */
 }
 
 li.fbs-selected .fbs-item-name {
-    border-color: rgba(82, 168, 236, 0.8);
-    background: #fff;
+    border-color: #333333; /* rgba(82, 168, 236, 0.8); */
+    background: #d5d5d5;
 }
 
 
@@ -322,6 +319,7 @@ a.fbs-more-link {
     padding: 2px 8px 1px 6px;
     font-size: 1.4em;
     line-height: 1.4em;
+    background: #eeeeee;
 }
 
 /* result name */

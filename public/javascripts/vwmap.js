@@ -293,12 +293,15 @@ $(document).ready(function() {
         //var img_width = $("#namebox").width();
         var img_width = 64;
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
-        var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h4 class='media-heading'>"
-        + person.name + "</h4>" + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
-          + "<br><strong>Country:</strong> " + person.nationality
-          + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</div></div>";
+        var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h3 class='media-heading'>"
+        + person.name + "</h3><label class='label label-info'>" + person.dob + " to " + person.dod + "</label></div></div>" 
+        + "<table class='table table-condensed' id='namebox-prof'></table>";
 
         $('#namebox').append(personinfo);
+
+        for (var i in person.profession) {
+           $('#namebox-prof').append('<tr><td>' + person.profession[i] + '</td></tr>');
+        }        
 
         // Sends objects to put on map: origin, infld array, and infld_by array
         console.dir(person);
