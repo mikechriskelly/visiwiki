@@ -291,12 +291,13 @@ $(document).ready(function() {
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
         //var img_width = $("#namebox").width();
-        var img_width = 100;
+        var img_width = 64;
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
-        var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
-          + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
+        var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h4 class='media-heading'>"
+        + person.name + "</h4>" + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
           + "<br><strong>Country:</strong> " + person.nationality
-          + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</p>";
+          + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</div></div>";
+
         $('#namebox').append(personinfo);
 
         // Sends objects to put on map: origin, infld array, and infld_by array
