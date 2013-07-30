@@ -1,8 +1,13 @@
 $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
+<<<<<<< HEAD
   var map_w  = $(document).width();
   var map_h = map_w / 3.5;
+=======
+  var map_w  = $("#map").width();
+  var map_h = map_w / 2.5;
+>>>>>>> bootstrap3
 
   var projection = d3.geo.mercator()
                   .translate([map_w / 2, map_h / 1.5])
@@ -15,8 +20,9 @@ $(document).ready(function() {
       .on("zoom", redraw);
 
   var svg_map = d3.select("#map").append("svg")
-      .attr("width", map_w)
-      .attr("height", map_h)
+      .attr("viewBox", "0 0 900 360" )
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("pointer-events", "all")
       .call(zoom)
       .append("g");
 
@@ -42,9 +48,9 @@ $(document).ready(function() {
     .call(xAxis);
 
   // Tip box for country names
-  var maphovertip = d3.select(".right").append("div")
-      .attr("class", "maphovertip")
-      .style("opacity", 0);
+  // var maphovertip = d3.select(".right").append("div")
+  //     .attr("class", "maphovertip")
+  //     .style("opacity", 0);
 
   // Tip box for people names 
   var infotip = d3.select("body").append("span") 
@@ -289,12 +295,18 @@ $(document).ready(function() {
         // Parse results into an origin node 
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
+<<<<<<< HEAD
         var img_width = 80; // $("#map").width();
+=======
+        //var img_width = $("#namebox").width();
+        var img_width = 64;
+>>>>>>> bootstrap3
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
-        var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
-          + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
+        var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h4 class='media-heading'>"
+        + person.name + "</h4>" + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 
           + "<br><strong>Country:</strong> " + person.nationality
-          + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</p>";
+          + "<br><strong>Profession:</strong> " + person.profession.join(", ") + "</div></div>";
+
         $('#namebox').append(personinfo);
 
         // Sends objects to put on map: origin, infld array, and infld_by array

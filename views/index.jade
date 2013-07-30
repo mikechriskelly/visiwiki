@@ -1,6 +1,7 @@
 extends layout 
 
 block content
+<<<<<<< HEAD
 	.navbar.navbar-fixed-top
 		.navbar-inner
 			.container-fluid
@@ -18,6 +19,26 @@ block content
 						a(href='#') Article
 				.brand VisiWiki
 	#map
+=======
+	.navbar
+		.container
+			.navbar-brand.pull-left VisiWiki
+			form.navbar-form.pull-left
+				input#fbinput.form-control(type='text', placeholder='Search...', autofocus='')
+			ul.nav.navbar-nav
+				li.active
+					a(href='#') Influences
+				li
+					a(href='#') Contemporaries
+				li
+					a(href='#') Works
+				li
+					a(href='#') Article
+	.container
+		.row
+			.col-sm-10#map
+			.col-sm-2#namebox
+>>>>>>> bootstrap3
 	#timeline
 	#namebox.thumbnail
 		

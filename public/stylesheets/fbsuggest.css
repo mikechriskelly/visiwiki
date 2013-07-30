@@ -106,7 +106,9 @@ li.fbs-nomatch,
 .fbs-pane,
 .fbs-flyout-pane {
     margin-top: 6px; 
-    border: 0px;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
     padding: 0px;
 }
 
@@ -119,10 +121,10 @@ li.fbs-nomatch,
 .fbs-flyout-content,
 .fbs-attribution, 
 .fbs-header { 
-    background-color: #f5f5f5;
+    background-color: #eeeeee;
 }
 
-.fbs-header { background: #fefefe; }
+.fbs-header { background: #eeeeee; }
 
 li.fbs-help-on-focus,
 li.fbs-nomatch { 
@@ -130,7 +132,7 @@ li.fbs-nomatch {
 }
 
 .fbs-item-name {
-    border: 1px solid #f5f5f5;
+    /* border: 1px solid #f5f5f5; */
 }
 
 h1#fbs-flyout-title,
@@ -320,7 +322,6 @@ a.fbs-more-link {
     padding: 2px 8px 1px 6px;
     font-size: 1.4em;
     line-height: 1.4em;
-    background: #f4f8fb;
 }
 
 /* result name */
