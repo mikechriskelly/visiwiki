@@ -2,7 +2,7 @@ $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
   var map_w  = $(document).width();
-  var map_h = map_w / 2.5;
+  var map_h = map_w / 3.5;
 
   var projection = d3.geo.mercator()
                   .translate([map_w / 2, map_h / 1.5])
@@ -11,7 +11,7 @@ $(document).ready(function() {
   var path = d3.geo.path().projection(projection);
 
   var zoom = d3.behavior.zoom()
-      .scaleExtent([1,8])
+      .scaleExtent([1,9])
       .on("zoom", redraw);
 
   var svg_map = d3.select("#map").append("svg")
