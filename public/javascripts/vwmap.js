@@ -1,7 +1,7 @@
 $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
-  var map_w  = 900;
+  var map_w  = $("#map").width();
   var map_h = map_w / 2.5;
 
   var projection = d3.geo.mercator()
