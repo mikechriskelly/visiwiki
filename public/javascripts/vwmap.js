@@ -1,7 +1,7 @@
 $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
-  var map_w  = $(document).width();
+  var map_w  = 900;
   var map_h = map_w / 2.5;
 
   var projection = d3.geo.mercator()
@@ -15,8 +15,9 @@ $(document).ready(function() {
       .on("zoom", redraw);
 
   var svg_map = d3.select("#map").append("svg")
-      .attr("width", map_w)
-      .attr("height", map_h)
+      .attr("viewBox", "0 0 900 360" )
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .attr("pointer-events", "all")
       .call(zoom)
       .append("g");
 
@@ -42,9 +43,9 @@ $(document).ready(function() {
     .call(xAxis);
 
   // Tip box for country names
-  var maphovertip = d3.select(".right").append("div")
-      .attr("class", "maphovertip")
-      .style("opacity", 0);
+  // var maphovertip = d3.select(".right").append("div")
+  //     .attr("class", "maphovertip")
+  //     .style("opacity", 0);
 
   // Tip box for people names 
   var infotip = d3.select("body").append("span") 
@@ -289,7 +290,8 @@ $(document).ready(function() {
         // Parse results into an origin node 
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
-        var img_width = $("#map").width();
+        //var img_width = $("#namebox").width();
+        var img_width = 100;
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
         var personinfo = "<img class='biopic' src='" + img_url + "'><h1>" + person.name + "</h1><p>" 
           + "<strong>Lived:</strong> " + person.dob + " to " + person.dod 

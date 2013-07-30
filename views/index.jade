@@ -1,26 +1,26 @@
 extends layout 
 
 block content
-	.navbar.navbar-fixed-top
-		.navbar-inner
-			.container-fluid
-				form.navbar-search.pull-left
-					input#fbinput.search-query(type='text', placeholder='Search for Historical Figure', autofocus='')
-				ul.nav
-					li.divider-vertical
-					li.active
-						a(href='#') Influences
-					li
-						a(href='#') Contemporaries
-					li
-						a(href='#') Works
-					li
-						a(href='#') Article
-				.brand VisiWiki
-	.row-fluid
-		.span10
-			#map
-		.span2
-			#namebox.thumbnail
+	.navbar
+		.container
+			.navbar-brand.pull-left VisiWiki
+			form.navbar-form.pull-left
+				input#fbinput.form-control(type='text', placeholder='Search for Historical Figure', autofocus='')
+			ul.nav.navbar-nav
+				li.active
+					a(href='#') Influences
+				li
+					a(href='#') Contemporaries
+				li
+					a(href='#') Works
+				li
+					a(href='#') Article
+	.container
+		.row
+			.col-sm-9
+				#map
+			.col-sm-3
+				#options
+				#namebox
 	#timeline
 		
