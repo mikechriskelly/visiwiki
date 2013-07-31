@@ -43,9 +43,9 @@ $(document).ready(function() {
     .call(xAxis);
 
   // Tip box for country names
-  // var maphovertip = d3.select(".right").append("div")
-  //     .attr("class", "maphovertip")
-  //     .style("opacity", 0);
+    var maphovertip = d3.select("#map").append("span")
+        .attr("class", "maphovertip")
+        .style("opacity", 0);
 
   // Tip box for people names 
   var infotip = d3.select("body").append("span") 
