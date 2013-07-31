@@ -43,9 +43,23 @@ $(document).ready(function() {
   queue()
       .defer(d3.json, "/data/world.json")
       .defer(d3.tsv, "/data/world-country-names.tsv")
+      .defer(d3.csv, "/data/philosophers.csv")
       .await(ready);
 
-  function ready(error, world, names) {
+  function ready(error, world, names, philosophers) {
+    // Read in the data and construct the timeline
+    timeline("#timeline")
+        .data(philosophers)
+        .band("mainBand", 0.82)
+        .band("naviBand", 0.08)
+        .xAxis("mainBand")
+        .tooltips("mainBand")
+        .xAxis("naviBand")
+        .labels("mainBand")
+        .labels("naviBand")
+        .brush("naviBand", ["mainBand"])
+        .redraw();
+
     var countries = topojson.object(world, world.objects.countries).geometries;
     var n = countries.length;
 
