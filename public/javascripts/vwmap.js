@@ -2,7 +2,7 @@ $(document).ready(function() {
   // ****************** Render SVG Map & Timeline ******************************* //
   // Map Setup
   var map_w  = $("#map").width();
-  var map_h = map_w / 2.5;
+  var map_h = map_w / 3;
 
   var projection = d3.geo.mercator()
                   .translate([map_w / 2, map_h / 1.5])
@@ -50,8 +50,8 @@ $(document).ready(function() {
     // Read in the data and construct the timeline
     timeline("#timeline")
         .data(philosophers)
-        .band("mainBand", 0.95)
-        .band("naviBand", 0.05)
+        .band("mainBand", 0.7)
+        .band("naviBand", 0.10)
         .xAxis("mainBand")
         .tooltips("mainBand")
         .xAxis("naviBand")
