@@ -50,8 +50,8 @@ $(document).ready(function() {
     // Read in the data and construct the timeline
     timeline("#timeline")
         .data(philosophers)
-        .band("mainBand", 0.82)
-        .band("naviBand", 0.08)
+        .band("mainBand", 0.95)
+        .band("naviBand", 0.05)
         .xAxis("mainBand")
         .tooltips("mainBand")
         .xAxis("naviBand")
