@@ -25,22 +25,7 @@ $(document).ready(function() {
       svg_map.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
 
-  // Timeline Setup
-  var timeline_w = $(document).width();
-  var timeline_h = timeline_w / 3;
-  var svg_timeline = d3.select("#timeline").append("svg")
-      .attr("width", timeline_w)
-      .attr("height", timeline_h);
   var thisYear = new Date().getFullYear();
-  var xScale = d3.scale.linear()
-               .domain([-1000, thisYear])
-               .range([12, timeline_w]);
-  var xAxis = d3.svg.axis().scale(xScale).ticks(15);
-
-  svg_timeline.append("g")
-    .attr("class", "timeline")
-    .attr("transform", "translate(0,-4)")
-    .call(xAxis);
 
   // Tip box for country names
     var maphovertip = d3.select("#map").append("span")
@@ -188,8 +173,8 @@ $(document).ready(function() {
   }
   function getPersonInfo(id, drawLine) {
     $('#namebox').empty();
-    $('#namebox').append("<h1><small>Loading...</small></h1>");
-    console.log(id);
+    $('#namebox').append("<h3>Loading...</h3>");
+    //console.log(id);
 
     var queryInfluence = {
       "id": id,
@@ -261,10 +246,10 @@ $(document).ready(function() {
     $.getJSON(service_url, {query:JSON.stringify(queryInfluence)}, function(q) {
 
       $('#namebox').empty();
-      console.dir(q.result);
+      //console.dir(q.result);
       
       if(q.result == null) {
-        $('#namebox').append("<h1><small>Sorry, not enough data to map this person.<small></h1>");
+        $('#namebox').append("<h3>Sorry, not enough data to map this person.</h3>");
       } else {
         if(drawLine) {
           svg_map
@@ -283,14 +268,10 @@ $(document).ready(function() {
         svg_map.selectAll(".degree_0").remove();
         svg_map.selectAll(".degree_1").remove();
         svg_map.selectAll(".degree_2").remove();
-        svg_timeline.selectAll(".degree_0").remove();
-        svg_timeline.selectAll(".degree_1").remove();
-        svg_timeline.selectAll(".degree_2").remove();
 
         // Parse results into an origin node 
         var person = createPersonNode(q.result, 0);
         // Add namebox with basic info  
-        //var img_width = $("#namebox").width();
         var img_width = 64;
         var img_url = freebase_url + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + api_key;
         var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h3 class='media-heading'>"
@@ -304,7 +285,7 @@ $(document).ready(function() {
         }        
 
         // Sends objects to put on map: origin, infld array, and infld_by array
-        console.dir(person);
+        //console.dir(person);
         plotOnMap(person.infld_by, 2);
         plotOnMap(person.infld, 1);
         plotOnMap([person], 0);
@@ -365,20 +346,5 @@ $(document).ready(function() {
       .transition()
       .duration(500)
       .attr("r", function() { if(degree === 0) { return 3; } else { return 1.25; } });
-
-    // Draw lifespans on timeline
-    svg_timeline
-      .selectAll(".degree_" + degree)
-      .data(person)
-      .enter()
-      .append("rect")
-      .attr("class", "degree_" + degree)
-      .attr("title", function(d) { return d.name; })
-      .attr("x", function(d) { return xScale(d.lived[0]); })
-      .attr("y", 20)
-      .attr("width", function(d) { return xScale(d.lived[1]) - xScale(d.lived[0]); })
-      .attr("height", 30)
-      .attr("fill", function(d) { return d.color; })
-      .attr("opacity", 0.8);
   }
 })
