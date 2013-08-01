@@ -10,7 +10,7 @@ $(document).ready(function() {
 	var path = d3.geo.path().projection(projection);
 
 	var zoom = d3.behavior.zoom()
-		.scaleExtent([1,9])
+		.scaleExtent([1,10])
 		.on("zoom", redraw);
 
 	var mapSVG = d3.select("#map").append("svg")
@@ -297,10 +297,18 @@ $(document).ready(function() {
 				}        
 
 				// Sends objects to put on map: origin, infld array, and infld_by array
-				//console.dir(person);
+				plotOnMap([person], 0);
 				plotOnMap(person.infld_by, 2);
 				plotOnMap(person.infld, 1);
-				plotOnMap([person], 0);
+
+				var zoomScale = 5;
+				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
+				mapSVG
+					.transition()
+					.duration(450)
+					.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")scale(" + zoomScale + ")");
+				zoom.scale(zoomScale);
+				zoom.translate([trans[0], trans[1]]);
 			}
 		});
 	}
@@ -354,9 +362,6 @@ $(document).ready(function() {
 					.style("opacity", 0); 
 			})
 			.on("click", function(d) { getPersonInfo(d.id, [d.x, d.y]); })
-			.attr("r", 10)
-			.transition()
-			.duration(500)
-			.attr("r", function() { if(degree === 0) { return 3; } else { return 1.25; } });
+			.attr("r", function() { if(degree === 0) { return 2.5; } else { return 0.9; } });
 	}
 })

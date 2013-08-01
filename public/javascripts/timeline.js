@@ -172,7 +172,7 @@ function timeline(domElement) {
 		band.y = bandY;
 		band.w = width;
 		band.h = height * (sizeFactor || 1);
-		band.trackOffset = 4;
+		band.trackOffset = 0;
 		// Prevent tracks from getting too high
 		band.trackHeight = Math.min((band.h - band.trackOffset) / data.nTracks, 20);
 		band.itemHeight = band.trackHeight * 0.8,
