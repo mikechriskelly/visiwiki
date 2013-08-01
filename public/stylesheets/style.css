@@ -7,9 +7,9 @@ body {
 .container { margin-right: 0px; margin-left: 0px; }
 .grid > * { margin:1em 0; }
 @media all and (min-width:675px) {
-  .grid { padding-right:25em; overflow:hidden; }
+  .grid { padding-right:26em; overflow:hidden; }
   .grid > .section { float:left; width:100%; margin:0; }
-  .grid > .aside { width:25em; float:right; margin:0; margin-right:-25em; }
+  .grid > .aside { width:26em; float:right; margin:0; margin-right:-26em; }
 }
 .hidden { display: none; }
 div:empty { display: none; }
@@ -36,7 +36,7 @@ svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
   line-height: 26px;
 }
 .navbar-nav > li {
-  font-size: 16px;
+  font-size: 12px;
   float: left;
 }
 .navbar-nav > .active > a,
@@ -44,9 +44,9 @@ svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
 .navbar-nav > .active > a:focus {
   color: #555555;
   background-color: #d5d5d5;
-  box-shadow: inset -1px 1px 1px rgba(0,0,0,0.1);
-  -webkit-box-shadow: inset -1px 1px 1px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset -1px 1px 1px rgba(0,0,0,0.1);
+  box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
+  -webkit-box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
+  -moz-box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
 }
 .navbar-brand {
   display: inline;
@@ -56,8 +56,8 @@ svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
   padding: 7px 14px;
   margin-right: auto;
   margin-left: auto;
-  font-size: 26px;
-  font-weight: 400;
+  font-size: 24px;
+  font-weight: 200;
   line-height: 26px;
 }
 .navbar-form {
