@@ -2,11 +2,10 @@ $(document).ready(function() {
 	//--------------------------------------------------------------------------
 	// Render SVG map
 	var mapW  = $("#map").width();
-	var mapH = mapW / 3;
+	var mapH = mapW / 2.25;
+	console.log("mapW: " + mapW);
 
 	var projection = d3.geo.mercator()
-		.translate([mapW / 2, mapH / 1.5])
-		.scale(mapW / 6);
 
 	var path = d3.geo.path().projection(projection);
 
@@ -15,7 +14,7 @@ $(document).ready(function() {
 		.on("zoom", redraw);
 
 	var mapSVG = d3.select("#map").append("svg")
-		.attr("viewBox", "0 0 900 360" )
+		.attr("viewBox", "0 0 900 400" )
 		.attr("preserveAspectRatio", "xMidYMid meet")
 		.attr("pointer-events", "all")
 		.call(zoom)
