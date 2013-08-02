@@ -84,7 +84,7 @@ svg { display: block; width: 100%; margin: 0 auto; }
 }
 
 #fulltime {
-	padding: 0px 10px;
+	padding: 0px;
 	z-index: 100;
   position: fixed;
   bottom: 0px;

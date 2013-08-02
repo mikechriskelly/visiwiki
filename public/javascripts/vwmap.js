@@ -59,18 +59,18 @@
 $(document).ready(function() {
 	//--------------------------------------------------------------------------
 	// Render SVG map
-	var mapW  = $("#map").width() || $(document).width();
-	var mapH = mapW / 2.25;
-	var projection = d3.geo.mercator()
+	var mapW  = 800,
+		mapH = 480;
+	var projection = d3.geo.mercator().translate([mapW / 2, mapH / 1.5])
 	var path = d3.geo.path().projection(projection);
 	var zoom = d3.behavior.zoom()
 		.scaleExtent([1,10])
 		.on("zoom", redraw);
 
 	var mapSVG = d3.select("#map").append("svg")
-		.attr("width", mapW)
-		.attr("height", mapH)
-		.attr("viewBox", "0 0 900 450" )
+		.attr("width", "100%")
+		.attr("height", "60%")
+		.attr("viewBox", "0 0 " + mapW + " " + mapH )
 		.attr("preserveAspectRatio", "xMidYMid meet")
 		.attr("pointer-events", "all")
 		.call(zoom)
@@ -81,9 +81,10 @@ $(document).ready(function() {
 	}
 
 	// Timeline Setup
+	var nearFuture = new Date().getUTCFullYear()+50;
 	var timeline = {};
-	timeline.start = new Date (-1000, 1, 1);
-	timeline.end = new Date();
+	timeline.start = new Date (-1400, 1, 1);
+	timeline.end = new Date(nearFuture, 1, 1);
 	timeline.w = $(document).width();
 	timeline.h = 50;
 
@@ -94,17 +95,17 @@ $(document).ready(function() {
 		.attr("pointer-events", "all")
 	var xScale = d3.scale.linear()
 		.domain([timeline.start, timeline.end])
-		.range([0, timeline.w]);
+		.range([10, timeline.w-10]);
 	var axis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom")
 		.ticks(10)
-		.tickSize(4,4,0)
-		.tickSubdivide(4)
+		.tickSize(6,3,0)
+		.tickSubdivide(3)
 		.tickFormat(function (d) { console.log(toYear(d)); return toYear(d); });
 	var xAxis = timelineSVG.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0, 22)");
+		.attr("transform", "translate(0, 25)");
 
 	xAxis.call(axis);
 
@@ -117,7 +118,7 @@ $(document).ready(function() {
 	var infotip = d3.select("body").append("span") 
 			.attr("class", "infotip")       
 			.style("position", "absolute")
-			.style("z-index", "10")
+			.style("z-index", "12")
 			.style("opacity", 0);
 
 	// Load map paths and country names
@@ -389,7 +390,7 @@ $(document).ready(function() {
 				plotOnMap(person.infld, 1);
 
 				var zoomScale = 5;
-				var trans = [(-person.x * zoomScale + 900/2),(-person.y * zoomScale + 450/2)];
+				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
 				mapSVG
 					.transition()
 					.duration(450)
