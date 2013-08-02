@@ -80,7 +80,7 @@ $(document).ready(function() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
 
-	// Timeline Setup
+	// Timeline Setup - full timeline
 	var nearFuture = new Date().getUTCFullYear()+50;
 	var timeline = {};
 	timeline.start = new Date (-1400, 1, 1);
@@ -108,6 +108,27 @@ $(document).ready(function() {
 		.attr("transform", "translate(0, 25)");
 
 	xAxis.call(axis);
+
+	// Timeline Setup - zoomed timeline
+	var labelTestData = [
+		{label: "person a", times: [{"starting_time": new Date(1500,1,1).valueOf(), "ending_time": new Date(1550,1,1).valueOf()}]},
+		{label: "person b", times: [{"starting_time": new Date(-800,1,1).valueOf(), "ending_time": new Date(-750,1,1).valueOf()}]},
+		{label: "person c", times: [{"starting_time": new Date(1950,1,1).valueOf(), "ending_time": new Date(2013,1,1).valueOf()}]},
+	];
+
+	var zoomtime = d3.timeline()
+		.width(timeline.w*6)
+		.display("circle")
+		.margin({left:20, right:20, top:20, bottom:20})
+		.click(function (d, i, datum) {
+			alert(datum.label);
+		})
+		.scroll(function (x, scale) {
+			$("#scrolled_date").text(scale.invert(x) + " to " + scale.invert(x+width));
+		});
+
+	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w).attr("height", "30%")
+		.datum(labelTestData).call(zoomtime);
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -452,7 +473,7 @@ $(document).ready(function() {
 			.on("click", function(d) { getPersonInfo(d.id, [d.x, d.y]); })
 			.attr("r", function() { if(degree === 0) { return 2.5; } else { return 0.9; } });
 
-    // Draw lifespans on timeline
+		// Draw lifespans on timeline
 		timelineSVG
 			.selectAll(".degree-" + degree)
 			.data(person)

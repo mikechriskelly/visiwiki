@@ -11,23 +11,22 @@
         orient = "bottom",
         width = null,
         height = null,
-        tickFormat = { format: d3.time.format("%I %p"), 
-          tickTime: d3.time.hours, 
-          tickNumber: 1, 
-          tickSize: 6 },
+        tickFormat = { format: d3.time.format("%Y"), 
+          tickTime: d3.time.years, 
+          tickNumber: 10, 
+          tickSize: 3 },
         colorCycle = d3.scale.category20(),
         colorPropertyName = null,
         display = "rect",
-        beginning = 0,
-        ending = 0,
+        beginning = new Date(-1300,1,1).valueOf(),
+        ending = new Date(2030,1,1).valueOf(),
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
-        itemHeight = 20,
+        itemHeight = 50,
         itemMargin = 5,
         showTodayLine = false
-        showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle}
-      ;
+        showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
 
     function timeline (gParent) {
       var g = gParent.append("g");
