@@ -172,7 +172,7 @@ function timeline(domElement) {
 		band.y = bandY;
 		band.w = width;
 		band.h = height * (sizeFactor || 1);
-		band.trackOffset = 0;
+		band.trackOffset = 4;
 		// Prevent tracks from getting too high
 		band.trackHeight = Math.min((band.h - band.trackOffset) / data.nTracks, 20);
 		band.itemHeight = band.trackHeight * 0.8,
@@ -427,60 +427,6 @@ function timeline(domElement) {
 			component.redraw();
 		})
 	};
-
-	//--------------------------------------------------------------------------
-	// Utility functions
-
-	function parseDate(dateString) {
-		// 'dateString' must either conform to the ISO date format YYYY-MM-DD
-		// or be a full year without month and day.
-		// AD years may not contain letters, only digits '0'-'9'!
-		// Invalid AD years: '10 AD', '1234 AD', '500 CE', '300 n.Chr.'
-		// Valid AD years: '1', '99', '2013'
-		// BC years must contain letters or negative numbers!
-		// Valid BC years: '1 BC', '-1', '12 BCE', '10 v.Chr.', '-384'
-		// A dateString of '0' will be converted to '1 BC'.
-		// Because JavaScript can't define AD years between 0..99,
-		// these years require a special treatment.
-
-		var format = d3.time.format("%Y-%m-%d"),
-			date,
-			year;
-
-		date = format.parse(dateString);
-		if (date !== null) return date;
-
-		// BC yearStrings are not numbers!
-		if (isNaN(dateString)) { // Handle BC year
-			// Remove non-digits, convert to negative number
-			year = -(dateString.replace(/[^0-9]/g, ""));
-		} else { // Handle AD year
-			// Convert to positive number
-			year = +dateString;
-		}
-		if (year < 0 || year > 99) { // 'Normal' dates
-			date = new Date(year, 6, 1);
-		} else if (year == 0) { // Year 0 is '1 BC'
-			date = new Date (-1, 6, 1);
-		} else { // Create arbitrary year and then set the correct year
-			// For full years, I chose to set the date to mid year (1st of July).
-			date = new Date(year, 6, 1);
-			date.setUTCFullYear(("0000" + year).slice(-4));
-		}
-		// Finally create the date
-		return date;
-	}
-
-	function toYear(date, bcString) {
-		// bcString is the prefix or postfix for BC dates.
-		// If bcString starts with '-' (minus),
-		// if will be placed in front of the year.
-		bcString = bcString || " BC" // With blank!
-		var year = date.getUTCFullYear();
-		if (year > 0) return year.toString();
-		if (bcString[0] == '-') return bcString + (-year);
-		return (-year) + bcString;
-	}
 
 	return timeline;
 }

@@ -1,3 +1,60 @@
+	//--------------------------------------------------------------------------
+	// Utility functions
+
+	function parseDate(dateString) {
+		// 'dateString' must either conform to the ISO date format YYYY-MM-DD
+		// or be a full year without month and day.
+		// AD years may not contain letters, only digits '0'-'9'!
+		// Invalid AD years: '10 AD', '1234 AD', '500 CE', '300 n.Chr.'
+		// Valid AD years: '1', '99', '2013'
+		// BC years must contain letters or negative numbers!
+		// Valid BC years: '1 BC', '-1', '12 BCE', '10 v.Chr.', '-384'
+		// A dateString of '0' will be converted to '1 BC'.
+		// Because JavaScript can't define AD years between 0..99,
+		// these years require a special treatment.
+
+		var format = d3.time.format("%Y-%m-%d"),
+			date,
+			year;
+		if (dateString === null) return null;
+		date = format.parse(dateString);
+		if (date !== null) return date;
+
+		// BC yearStrings are not numbers!
+		if (isNaN(dateString)) { // Handle BC year
+			// Remove non-digits, convert to negative number
+			year = -(dateString.replace(/[^0-9]/g, ""));
+		} else { // Handle AD year
+			// Convert to positive number
+			year = +dateString;
+		}
+		if (year < 0 || year > 99) { // 'Normal' dates
+			date = new Date(year, 6, 1);
+		} else if (year == 0) { // Year 0 is '1 BC'
+			date = new Date (-1, 6, 1);
+		} else { // Create arbitrary year and then set the correct year
+			// For full years, I chose to set the date to mid year (1st of July).
+			date = new Date(year, 6, 1);
+			date.setUTCFullYear(("0000" + year).slice(-4));
+		}
+		// Finally create the date
+		return date;
+	}
+
+	function toYear(date, bcString) {
+		// bcString is the prefix or postfix for BC dates.
+		// If bcString starts with '-' (minus),
+		// if will be placed in front of the year.
+		if (date === null) return null;
+		bcString = bcString || " BC" // With blank!
+		var year = date.getUTCFullYear();
+		if (year > 0) return year.toString();
+		if (bcString[0] == '-') return bcString + (-year);
+		return (-year) + bcString;
+	}
+
+
+
 $(document).ready(function() {
 	//--------------------------------------------------------------------------
 	// Render SVG map
@@ -23,8 +80,6 @@ $(document).ready(function() {
 	function redraw() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
-
-	var thisYear = new Date().getFullYear();
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -138,9 +193,26 @@ $(document).ready(function() {
 			person.profession = queryResult["/people/person/profession"];
 			person.nationality = queryResult["/people/person/nationality"];
 			person.city = queryResult["/people/person/place_of_birth"]["name"];
-			person.dob = queryResult["/people/person/date_of_birth"] || "Unknown";
-			person.dod = queryResult["/people/deceased_person/date_of_death"] || "Unknown";    
-			
+			person.dob = parseDate(queryResult["/people/person/date_of_birth"] || null);
+			person.dod = parseDate(queryResult["/people/deceased_person/date_of_death"] || null);
+
+			// Estimate lifespan if DOB or DOD unknown.
+			var today = new Date(),
+				yearMillis = 31622400000;
+			person.lived = []
+			if(person.dob === null) { 
+				person.lived[0] = "Unknown"; 
+				if(person.dod !== null) { person.dob = person.dod-(yearMillis*70); }
+			} else {
+				person.lived[0] = toYear(person.dob);
+			}
+			if(person.dod === null) {
+				(today-person.dob < yearMillis*100)? person.lived[1] = "Present" : person.lived[1] = "Unknown";
+				if(person.dob !== null) { person.dod = person.dob+(yearMillis*70); }
+			} else {
+				person.lived[1] = toYear(person.dod);
+			}
+						
 			// Save standard geocoordinates
 			person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
 														queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]];
@@ -148,18 +220,6 @@ $(document).ready(function() {
 			// Translate geocoordinates into map coordinates
 			person.x = projection(person.coordinates)[0];
 			person.y = projection(person.coordinates)[1];
-
-			// Filter DOB and DOD to YYYY format for timeline chart
-			person.lived = [parseInt(person.dob.match(/[\-]?\d{4}/), 10),
-											parseInt(person.dod.match(/[\-]?\d{4}/), 10)];
-
-			// Estimate lifespan if DOB or DOD unknown. Set to 0 if both unknown.
-			if(isNaN(person.lived[0])) { person.lived[0] = (person.lived[1] - 80) || 0; }
-			if(isNaN(person.lived[1])) { person.lived[1] = (person.lived[0] + 80) || 0; }
-			if(person.lived[1] > thisYear) { person.lived[1] = thisYear; }
-
-			// Change Unknown to Present if the person is probably still alive
-			if((thisYear - person.lived[0]) < 100 && person.dod === "Unknown") { person.dod = "Present"; } 
 
 			// Create empty influence lists as default
 			person.infld = [];
@@ -258,7 +318,7 @@ $(document).ready(function() {
 		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
 
 			$('#namebox').empty();
-			//console.dir(q.result);
+			console.dir(q.result);
 			
 			if(q.result == null) {
 				$('#namebox').append("<h3>Sorry, not enough data to map this person.</h3>");
@@ -283,11 +343,12 @@ $(document).ready(function() {
 
 				// Parse results into an origin node 
 				var person = createPersonNode(q.result, 0);
+				console.dir(person);
 				// Add namebox with basic info  
 				var img_width = 64;
 				var img_url = fbURL + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + fbKey;
 				var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h3 class='media-heading'>"
-				+ person.name + "</h3><label class='label label-info'>" + person.dob + " to " + person.dod + "</label></div></div>" 
+				+ person.name + "</h3><label class='label label-info'>" + person.lived[0] + " to " + person.lived[1] + "</label></div></div>" 
 				+ "<table class='table table-condensed' id='namebox-prof'></table>";
 
 				$('#namebox').append(personinfo);
