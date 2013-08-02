@@ -226,7 +226,7 @@ div.fbs-header {
 /* insure <strong> displays bold */
 .fbs-pane strong,
 .fbs-flyout-pane strong {
-  font-weight: bold;
+  font-weight: normal;
 }
 
 /*
@@ -288,7 +288,7 @@ li.fbs-more { padding: 0; background: transparent;}
 a.fbs-more-link {
     display: block;
     padding: 4px;
-    font-weight: bold;
+    font-weight: normal;
     font-size: 12px;
 }
 
@@ -297,7 +297,7 @@ a.fbs-more-link {
 }
 
 .fbs-header {
-    font-weight: bold;
+    font-weight: normal;
     padding: 4px 6px;
     margin: 2px 2px -2px 2px;
 }
@@ -324,7 +324,7 @@ a.fbs-more-link {
 
 /* result name */
 .fbs-item-name strong {
-    font-weight: bold;
+    font-weight: normal;
 }
 
 .fbs-item-type { 
@@ -365,7 +365,7 @@ li.fbs-nomatch {
 
 .fbs-nomatch-text {
     display: block;
-    font-weight: bold;
+    font-weight: normal;
     line-height: 1;
     font-size: .9em;
 }
@@ -377,7 +377,7 @@ ul.fbs-search-tips {
 }
 
 .fbs-nomatch h3 {
-    font-weight: bold;
+    font-weight: normal;
     font-size: 0.9em;
 }
 
