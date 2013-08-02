@@ -99,10 +99,10 @@ $(document).ready(function() {
 	var axis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom")
-		.ticks(10)
-		.tickSize(6,3,0)
-		.tickSubdivide(3)
-		.tickFormat(function (d) { console.log(toYear(d)); return toYear(d); });
+		.tickValues([new Date(-1000,1,1), new Date(-500,1,1), new Date(-1,1,1), new Date(500,1,1), new Date(1000,1,1), new Date(1500,1,1), new Date(2000,1,1)])
+		.tickSize(6,3,6)
+		.tickSubdivide(1)
+		.tickFormat(function (d) { return toYear(d); });
 	var xAxis = timelineSVG.append("g")
 		.attr("class", "axis")
 		.attr("transform", "translate(0, 25)");
@@ -111,23 +111,26 @@ $(document).ready(function() {
 
 	// Timeline Setup - zoomed timeline
 	var labelTestData = [
-		{label: "person a", times: [{"starting_time": new Date(1500,1,1).valueOf(), "ending_time": new Date(1550,1,1).valueOf()}]},
-		{label: "person b", times: [{"starting_time": new Date(-800,1,1).valueOf(), "ending_time": new Date(-750,1,1).valueOf()}]},
-		{label: "person c", times: [{"starting_time": new Date(1950,1,1).valueOf(), "ending_time": new Date(2013,1,1).valueOf()}]},
+		{label: "person a", times: [{"start": new Date(1500,1,1).valueOf(), "end": new Date(1550,1,1).valueOf()}]},
+		{label: "person b", times: [{"start": new Date(-800,1,1).valueOf(), "end": new Date(-750,1,1).valueOf()}]},
+		{label: "person c", times: [{"start": new Date(1950,1,1).valueOf(), "end": new Date(2013,1,1).valueOf()}]},
+		{label: "person d", times: [{"start": new Date(1700,1,1).valueOf(), "end": new Date(1730,1,1).valueOf()}]},
+		{label: "person e", times: [{"start": new Date(1820,1,1).valueOf(), "end": new Date(1870,1,1).valueOf()}]},
+		{label: "person f", times: [{"start": new Date(1980,1,1).valueOf(), "end": new Date(2013,1,1).valueOf()}]},
+		{label: "person g", times: [{"start": new Date(1230,1,1).valueOf(), "end": new Date(1300,1,1).valueOf()}]},
+		{label: "person h", times: [{"start": new Date(1600,1,1).valueOf(), "end": new Date(1645,1,1).valueOf()}]},
 	];
 
 	var zoomtime = d3.timeline()
 		.width(timeline.w*6)
+		.height(200)
 		.display("circle")
-		.margin({left:20, right:20, top:20, bottom:20})
+		.margin({left:00, right:0, top:0, bottom:0})
 		.click(function (d, i, datum) {
 			alert(datum.label);
-		})
-		.scroll(function (x, scale) {
-			$("#scrolled_date").text(scale.invert(x) + " to " + scale.invert(x+width));
 		});
 
-	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w).attr("height", "30%")
+	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w)
 		.datum(labelTestData).call(zoomtime);
 
 	// Tip box for country names

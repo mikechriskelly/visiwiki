@@ -13,11 +13,14 @@
         height = null,
         tickFormat = { format: d3.time.format("%Y"), 
           tickTime: d3.time.years, 
-          tickNumber: 10, 
-          tickSize: 3 },
+          tickNumber: 50, 
+          tickSize1: 6, 
+          tickSize2: 3,
+          tickSize3: 0,
+          tickSubdivide: 4 },
         colorCycle = d3.scale.category20(),
         colorPropertyName = null,
-        display = "rect",
+        display = "circle",
         beginning = new Date(-1300,1,1).valueOf(),
         ending = new Date(2030,1,1).valueOf(),
         margin = {left: 30, right:30, top: 30, bottom:30},
@@ -25,7 +28,7 @@
         rotateTicks = false,
         itemHeight = 50,
         itemMargin = 5,
-        showTodayLine = false
+        showTodayLine = false;
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
 
     function timeline (gParent) {
@@ -56,10 +59,10 @@
             // figure out beginning and ending times if they are unspecified
             if (ending == 0 && beginning == 0){
               datum.times.forEach(function (time, i) {
-                if (time.starting_time < minTime || minTime == 0)
-                  minTime = time.starting_time;
-                if (time.ending_time > maxTime)
-                  maxTime = time.ending_time;
+                if (time.start < minTime || minTime == 0)
+                  minTime = time.start;
+                if (time.end > maxTime)
+                  maxTime = time.end;
               });
             }
           });
@@ -83,11 +86,14 @@
         .orient(orient)
         .tickFormat(tickFormat.format)
         .ticks(tickFormat.tickTime, tickFormat.tickNumber)
-        .tickSize(tickFormat.tickSize);
+        .tickSize(tickFormat.tickSize1, tickFormat.tickSize2, tickFormat.tickSize3)
+        .tickSubdivide(tickFormat.tickSubdivide);
 
       g.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(" + 0 +","+(margin.top + (itemHeight + itemMargin) * maxStack)+")")
+        .attr("id", "zoom-axis")
+        //.attr("transform", "translate(" + 0 +","+(margin.top + (itemHeight + itemMargin) * maxStack)+")")
+        .attr("transform", "translate(" + 0 +","+(height/2)+")")
         .call(xAxis);
 
       // draw the chart
@@ -99,11 +105,11 @@
           g.selectAll("svg").data(data).enter()
             .append(display)
             .attr('x', getXPos)
-            .attr("y", getStackPosition)
+            .attr("y", function (d) { return Math.floor(Math.random() * height);}) // getStackPosition
             .attr("width", function (d, i) {
-              return (d.ending_time - d.starting_time) * scaleFactor;
+              return (d.end - d.start) * scaleFactor;
             })
-            .attr("cy", getStackPosition)
+            .attr("cy", function (d) { return Math.floor(Math.random() * height);}) // getStackPosition)
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
             .attr("height", itemHeight)
@@ -193,7 +199,7 @@
       }
 
       function getXPos(d, i) {
-        return margin.left + (d.starting_time - beginning) * scaleFactor;
+        return margin.left + (d.start - beginning) * scaleFactor;
       }
 
       function setHeight() {
