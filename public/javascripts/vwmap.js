@@ -46,6 +46,7 @@
 		// If bcString starts with '-' (minus),
 		// if will be placed in front of the year.
 		if (date === null) return null;
+		if (!(date instanceof Date)) { date = new Date(date); }
 		bcString = bcString || " BC" // With blank!
 		var year = date.getUTCFullYear();
 		if (year > 0) return year.toString();
@@ -58,20 +59,18 @@
 $(document).ready(function() {
 	//--------------------------------------------------------------------------
 	// Render SVG map
-	var mapW  = $("#map").width();
+	var mapW  = $("#map").width() || $(document).width();
 	var mapH = mapW / 2.25;
-	console.log("mapW: " + mapW);
-
 	var projection = d3.geo.mercator()
-
 	var path = d3.geo.path().projection(projection);
-
 	var zoom = d3.behavior.zoom()
 		.scaleExtent([1,10])
 		.on("zoom", redraw);
 
 	var mapSVG = d3.select("#map").append("svg")
-		.attr("viewBox", "0 0 900 400" )
+		.attr("width", mapW)
+		.attr("height", mapH)
+		.attr("viewBox", "0 0 900 450" )
 		.attr("preserveAspectRatio", "xMidYMid meet")
 		.attr("pointer-events", "all")
 		.call(zoom)
@@ -80,6 +79,34 @@ $(document).ready(function() {
 	function redraw() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
+
+	// Timeline Setup
+	var timeline = {};
+	timeline.start = new Date (-1000, 1, 1);
+	timeline.end = new Date();
+	timeline.w = $(document).width();
+	timeline.h = 50;
+
+	var timelineSVG = d3.select("#fulltime").append("svg")
+		.attr("width", timeline.w)
+		.attr("height", timeline.h)
+		.attr("preserveAspectRatio", "none")
+		.attr("pointer-events", "all")
+	var xScale = d3.scale.linear()
+		.domain([timeline.start, timeline.end])
+		.range([0, timeline.w]);
+	var axis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom")
+		.ticks(10)
+		.tickSize(4,4,0)
+		.tickSubdivide(4)
+		.tickFormat(function (d) { console.log(toYear(d)); return toYear(d); });
+	var xAxis = timelineSVG.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(0, 22)");
+
+	xAxis.call(axis);
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -97,23 +124,9 @@ $(document).ready(function() {
 	queue()
 			.defer(d3.json, "/data/world.json")
 			.defer(d3.tsv, "/data/world-country-names.tsv")
-			.defer(d3.csv, "/data/philosophers.csv")
 			.await(ready);
 
-	function ready(error, world, names, philosophers) {
-		// Read in the data and construct the timeline
-		timeline("#timeline")
-				.data(philosophers)
-				.band("mainBand", 0.7)
-				.band("naviBand", 0.10)
-				.xAxis("mainBand")
-				.tooltips("mainBand")
-				.xAxis("naviBand")
-				.labels("mainBand")
-				.labels("naviBand")
-				.brush("naviBand", ["mainBand"])
-				.redraw();
-
+	function ready(error, world, names) {
 		var countries = topojson.object(world, world.objects.countries).geometries;
 		var n = countries.length;
 
@@ -189,30 +202,40 @@ $(document).ready(function() {
 			var person = {};
 			person.id = queryResult["id"];
 			person.name = queryResult["name"];
+			person.label = queryResult["name"];
 			person.degree = degree;
 			person.profession = queryResult["/people/person/profession"];
 			person.nationality = queryResult["/people/person/nationality"];
 			person.city = queryResult["/people/person/place_of_birth"]["name"];
-			person.dob = parseDate(queryResult["/people/person/date_of_birth"] || null);
-			person.dod = parseDate(queryResult["/people/deceased_person/date_of_death"] || null);
+			person.start = parseDate(queryResult["/people/person/date_of_birth"] || null);
+			person.end = parseDate(queryResult["/people/deceased_person/date_of_death"] || null);
+			person.instant = false;
 
 			// Estimate lifespan if DOB or DOD unknown.
 			var today = new Date(),
 				yearMillis = 31622400000;
-			person.lived = []
-			if(person.dob === null) { 
+			person.lived = [];
+			
+			if(person.start === null) { 
 				person.lived[0] = "Unknown"; 
-				if(person.dod !== null) { person.dob = person.dod-(yearMillis*70); }
+				if(person.end !== null) { person.start = new Date(person.end-(yearMillis*70)); }
 			} else {
-				person.lived[0] = toYear(person.dob);
+				person.lived[0] = toYear(person.start);
 			}
-			if(person.dod === null) {
-				(today-person.dob < yearMillis*100)? person.lived[1] = "Present" : person.lived[1] = "Unknown";
-				if(person.dob !== null) { person.dod = person.dob+(yearMillis*70); }
+			if(person.end === null) {
+				if(person.start !== null) { 
+					if(today-person.start < yearMillis*100) {
+						person.lived[1] = "Present" 
+						person.end = today;
+					} else {
+						person.lived[1] = "Unknown";
+						person.end = new Date(person.start+(yearMillis*70)); 
+					}
+				}
 			} else {
-				person.lived[1] = toYear(person.dod);
+				person.lived[1] = toYear(person.end);
 			}
-						
+
 			// Save standard geocoordinates
 			person.coordinates = [queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
 														queryResult["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]];
@@ -318,7 +341,7 @@ $(document).ready(function() {
 		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
 
 			$('#namebox').empty();
-			console.dir(q.result);
+			//console.dir(q.result);
 			
 			if(q.result == null) {
 				$('#namebox').append("<h3>Sorry, not enough data to map this person.</h3>");
@@ -340,6 +363,9 @@ $(document).ready(function() {
 				mapSVG.selectAll(".degree-0").remove();
 				mapSVG.selectAll(".degree-1").remove();
 				mapSVG.selectAll(".degree-2").remove();
+				timelineSVG.selectAll(".degree-0").remove();
+				timelineSVG.selectAll(".degree-1").remove();
+				timelineSVG.selectAll(".degree-2").remove();
 
 				// Parse results into an origin node 
 				var person = createPersonNode(q.result, 0);
@@ -363,7 +389,7 @@ $(document).ready(function() {
 				plotOnMap(person.infld, 1);
 
 				var zoomScale = 5;
-				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
+				var trans = [(-person.x * zoomScale + 900/2),(-person.y * zoomScale + 450/2)];
 				mapSVG
 					.transition()
 					.duration(450)
@@ -424,5 +450,20 @@ $(document).ready(function() {
 			})
 			.on("click", function(d) { getPersonInfo(d.id, [d.x, d.y]); })
 			.attr("r", function() { if(degree === 0) { return 2.5; } else { return 0.9; } });
+
+    // Draw lifespans on timeline
+		timelineSVG
+			.selectAll(".degree-" + degree)
+			.data(person)
+			.enter()
+			.append("rect")
+			.attr("class", "degree-" + degree)
+			.attr("title", function(d) { return d.name; })
+			.attr("x", function(d) { return xScale(d.start); })
+			.attr("y", 10)
+			.attr("width", function(d) { return xScale(d.end) - xScale(d.start); })
+			.attr("height", 10)
+			.attr("fill", function(d) { return d.color; })
+			.attr("opacity", 0.6);
 	}
 })

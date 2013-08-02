@@ -3,7 +3,7 @@ function timeline(domElement) {
 	// chart
 
 	// chart geometry
-	var width = $("#timeline").width(),
+	var width = $("#zoomtime").width(),
 		height = width / 3;
 
 	// global timeline variables
@@ -45,7 +45,6 @@ function timeline(domElement) {
 	// data
 
 	timeline.data = function(items) {
-
 		var today = new Date(),
 			tracks = [],
 			yearMillis = 31622400000,
@@ -127,27 +126,6 @@ function timeline(domElement) {
 				sortBackward();
 		}
 
-		// Convert yearStrings into dates
-		data.items.forEach(function (item){
-			item.start = parseDate(item.start);
-			if (item.end == "") {
-				//console.log("1 item.start: " + item.start);
-				//console.log("2 item.end: " + item.end);
-				item.end = new Date(item.start.getTime() + instantOffset);
-				//console.log("3 item.end: " + item.end);
-				item.instant = true;
-			} else {
-				//console.log("4 item.end: " + item.end);
-				item.end = parseDate(item.end);
-				item.instant = false;
-			}
-			// The timeline never reaches into the future.
-			// This is an arbitrary decision.
-			// Comment out, if dates in the future should be allowed.
-			if (item.end > today) { item.end = today};
-		});
-
-		//calculateTracks(data.items);
 		// Show patterns
 		//calculateTracks(data.items, "ascending", "backward");
 		//calculateTracks(data.items, "descending", "forward");
@@ -180,7 +158,7 @@ function timeline(domElement) {
 		band.instantWidth = 100; // arbitray value
 
 		band.xScale = d3.time.scale()
-			.domain([data.minDate, data.maxDate])
+			.domain([new Date (-1000, 1, 1), new Date()])
 			.range([0, band.w]);
 
 		band.yScale = function (track) {

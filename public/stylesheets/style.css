@@ -14,7 +14,7 @@ body {
 .hidden { display: none; }
 div:empty { display: none; }
 
-svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
+svg { display: block; width: 100%; margin: 0 auto; }
 
 .navbar {
 	border-bottom: 1px solid #ccc;
@@ -23,9 +23,6 @@ svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
 	padding-left: 0px;
 	margin: 0px;
 	border-radius: 0;
-	box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
-	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 }
 .navbar-nav {
 	float: left;
@@ -77,17 +74,30 @@ svg { display: block; width: 100%; height: 40%; margin: 0 auto; }
 	background: #85cdff;
 	border-right: 1px solid #ccc;
 }
-#timeline {
+.timeline {
 	width: 100%;
-	padding: 6px;
+	margin: 0px;
+	padding: 0px;
 	border-top: 1px solid #ccc;
 	font-size: 8px;
 	background: #fff;
 }
-#timeline path {
-	fill: none;
-	stroke: #ccc;
-	stroke-width: 2px;
+
+#fulltime {
+	padding: 0px 10px;
+	z-index: 100;
+  position: fixed;
+  bottom: 0px;
+	border-top: 1px solid #ccc;
+  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+}
+#zoomtime {
+	border-top: 1px solid #ccc;
+  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 }
 .country {
 	fill: #F7F7F7;
