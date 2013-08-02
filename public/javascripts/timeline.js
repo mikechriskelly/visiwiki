@@ -26,7 +26,7 @@
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
-        itemHeight = 50,
+        itemHeight = 20,
         itemMargin = 5,
         showTodayLine = false;
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
@@ -134,12 +134,12 @@
           ;
 
           // add the label
-          if (hasLabel) {
-            gParent.append('text')
-              .attr("class", "timeline-label")
-              .attr("transform", "translate("+ 0 +","+ (itemHeight/2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index])+")")
-              .text(hasLabel ? datum.label : datum.id);
-          }
+          // if (hasLabel) {
+          //   gParent.append('text')
+          //     .attr("class", "timeline-label")
+          //     .attr("transform", "translate("+ 0 +","+ (itemHeight/2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index])+")")
+          //     .text(hasLabel ? datum.label : datum.id);
+          // }
           
           if (typeof(datum.icon) != "undefined") {
             gParent.append('image')

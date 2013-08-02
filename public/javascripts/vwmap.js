@@ -105,33 +105,20 @@ $(document).ready(function() {
 		.tickFormat(function (d) { return toYear(d); });
 	var xAxis = timelineSVG.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0, 25)");
+		.attr("transform", "translate(0, 28)");
 
 	xAxis.call(axis);
 
 	// Timeline Setup - zoomed timeline
-	var labelTestData = [
-		{label: "person a", times: [{"start": new Date(1500,1,1).valueOf(), "end": new Date(1550,1,1).valueOf()}]},
-		{label: "person b", times: [{"start": new Date(-800,1,1).valueOf(), "end": new Date(-750,1,1).valueOf()}]},
-		{label: "person c", times: [{"start": new Date(1950,1,1).valueOf(), "end": new Date(2013,1,1).valueOf()}]},
-		{label: "person d", times: [{"start": new Date(1700,1,1).valueOf(), "end": new Date(1730,1,1).valueOf()}]},
-		{label: "person e", times: [{"start": new Date(1820,1,1).valueOf(), "end": new Date(1870,1,1).valueOf()}]},
-		{label: "person f", times: [{"start": new Date(1980,1,1).valueOf(), "end": new Date(2013,1,1).valueOf()}]},
-		{label: "person g", times: [{"start": new Date(1230,1,1).valueOf(), "end": new Date(1300,1,1).valueOf()}]},
-		{label: "person h", times: [{"start": new Date(1600,1,1).valueOf(), "end": new Date(1645,1,1).valueOf()}]},
-	];
-
 	var zoomtime = d3.timeline()
 		.width(timeline.w*6)
 		.height(200)
-		.display("circle")
 		.margin({left:00, right:0, top:0, bottom:0})
 		.click(function (d, i, datum) {
-			alert(datum.label);
+			//alert(datum.label);
 		});
 
 	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w)
-		.datum(labelTestData).call(zoomtime);
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -391,6 +378,7 @@ $(document).ready(function() {
 				timelineSVG.selectAll(".degree-0").remove();
 				timelineSVG.selectAll(".degree-1").remove();
 				timelineSVG.selectAll(".degree-2").remove();
+				zoomtimeSVG.selectAll("g").remove();
 
 				// Parse results into an origin node 
 				var person = createPersonNode(q.result, 0);
@@ -412,7 +400,7 @@ $(document).ready(function() {
 				plotOnMap([person], 0);
 				plotOnMap(person.infld_by, 2);
 				plotOnMap(person.infld, 1);
-
+				
 				var zoomScale = 5;
 				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
 				mapSVG
@@ -421,6 +409,17 @@ $(document).ready(function() {
 					.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")scale(" + zoomScale + ")");
 				zoom.scale(zoomScale);
 				zoom.translate([trans[0], trans[1]]);
+
+				var i = 0;
+				var timelineData = [{label: person.name, times: [{"start": person.start, "end": person.end}]}];
+				for(i = 0; i < person.infld_by.length; i++) {
+					timelineData.push({label: person.infld_by[i].name, times: [{"start": person.infld_by[i].start, "end": person.infld_by[i].end}]});
+				}
+				for(i = 0; i < person.infld.length; i++) {
+					timelineData.push({label: person.infld[i].name, times: [{"start": person.infld[i].start, "end": person.infld[i].end}]});
+				}
+
+				zoomtimeSVG.datum(timelineData).call(zoomtime);
 			}
 		});
 	}
@@ -485,7 +484,7 @@ $(document).ready(function() {
 			.attr("class", "degree-" + degree)
 			.attr("title", function(d) { return d.name; })
 			.attr("x", function(d) { return xScale(d.start); })
-			.attr("y", 10)
+			.attr("y", 12)
 			.attr("width", function(d) { return xScale(d.end) - xScale(d.start); })
 			.attr("height", 10)
 			.attr("fill", function(d) { return d.color; })
