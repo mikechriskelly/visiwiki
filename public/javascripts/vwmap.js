@@ -139,6 +139,10 @@ $(document).ready(function() {
 			.await(ready);
 
 	function ready(error, world, names) {
+
+		$('#namebox').empty();
+		$('#namebox').append("<h3>A visual map of historical people, events, and ideas.</h3>");
+
 		var countries = topojson.object(world, world.objects.countries).geometries;
 		var n = countries.length;
 
