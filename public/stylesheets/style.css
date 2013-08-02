@@ -14,7 +14,7 @@ body {
 .hidden { display: none; }
 div:empty { display: none; }
 
-svg { display: block; width: 100%; margin: 0 auto; }
+svg { display: block; margin: 0 auto; }
 
 .navbar {
 	border-bottom: 1px solid #ccc;
@@ -84,6 +84,7 @@ svg { display: block; width: 100%; margin: 0 auto; }
 }
 
 #fulltime {
+	background-color: #eeeeee; 
 	padding: 0px;
 	z-index: 100;
   position: fixed;
@@ -94,10 +95,12 @@ svg { display: block; width: 100%; margin: 0 auto; }
 	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 }
 #zoomtime {
+	overflow: scroll;
+	background-color: #fff; 
 	border-top: 1px solid #ccc;
-  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
-	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
+	-webkit-box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
+	-moz-box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
 }
 .country {
 	fill: #F7F7F7;
@@ -152,90 +155,12 @@ span.infotip:after {
 	left: -24px;
 }
 
-/* axis */
-.axis { /* axis labels */
-		fill: #808080;
-		font-family: sans-serif;
-		font-size: 10px;
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
 }
-.axis line{ /* axis tick marks */
-		stroke-width : 1;
-		stroke: grey;
-		shape-rendering: crispEdges;
-}
-.axis path { /* axis line */
-		stroke-width : 1;
-		stroke: grey;
-		shape-rendering: crispEdges;
-}
-
-/* timeline band */
-.band { /* band background */
-		fill: #FAFAFA;
-}
-
-/* labels */
-.bandLabel {
-		fill: #F0F0F0;
-		font: 10px sans-serif;
-		font-weight: bold;
-}
-.bandMinMaxLabel {
-		fill: blue;
-		font: 10px sans-serif;
-		font-weight: bold;
-}
-.bandMidLabel {
-		fill: red;
-		font: 10px sans-serif;
-		font-style: italic;
-		font-weight: bold;
-}
-
-/* brush */
-.brush .extent {
-		stroke: gray;
-		fill: blue;
-		fill-opacity: .1;
-}
-.chart {
-		fill: #EEEEEE;
-}
-.interval {
-		fill: #1B567A;
-		stroke-width: 6;
-		cursor : default;
-		pointer-events: true;
-}
-.instant {
-		fill: #FFAAFF;
-		stroke-width: 6;
-		cursor : default;
-		/*pointer-events: true;*/
-}
-.instantLabel {
-		fill : #666;
-		font: 10px sans-serif;
-		shape-rendering: crispEdges;
-}
-.intervalLabel {
-		fill : #fff;
-		font: 10px sans-serif;
-		shape-rendering: crispEdges;
-}
-.item {
-		cursor : default;
-		pointer-events: auto;
-}
-.tooltip {
-		width: auto;
-		position: absolute;
-		visibility: hidden;
-		color : black;
-		cursor:default;
-		background-color: #FFFFEE;
-		border: 1px solid;
-		padding: 4px;
-		shape-rendering: crispEdges;
-		pointer-events: none;
+.axis text {
+	font-family: sans-serif;
+	font-size: 10px;
 }

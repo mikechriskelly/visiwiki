@@ -80,7 +80,7 @@ $(document).ready(function() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
 
-	// Timeline Setup
+	// Timeline Setup - full timeline
 	var nearFuture = new Date().getUTCFullYear()+50;
 	var timeline = {};
 	timeline.start = new Date (-1400, 1, 1);
@@ -99,15 +99,26 @@ $(document).ready(function() {
 	var axis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom")
-		.ticks(10)
-		.tickSize(6,3,0)
-		.tickSubdivide(3)
-		.tickFormat(function (d) { console.log(toYear(d)); return toYear(d); });
+		.tickValues([new Date(-1000,1,1), new Date(-500,1,1), new Date(-1,1,1), new Date(500,1,1), new Date(1000,1,1), new Date(1500,1,1), new Date(2000,1,1)])
+		.tickSize(6,3,6)
+		.tickSubdivide(1)
+		.tickFormat(function (d) { return toYear(d); });
 	var xAxis = timelineSVG.append("g")
 		.attr("class", "axis")
-		.attr("transform", "translate(0, 25)");
+		.attr("transform", "translate(0, 28)");
 
 	xAxis.call(axis);
+
+	// Timeline Setup - zoomed timeline
+	var zoomtime = d3.timeline()
+		.width(timeline.w*6)
+		.height(200)
+		.margin({left:00, right:0, top:0, bottom:0})
+		.click(function (d, i, datum) {
+			//alert(datum.label);
+		});
+
+	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w)
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -367,6 +378,7 @@ $(document).ready(function() {
 				timelineSVG.selectAll(".degree-0").remove();
 				timelineSVG.selectAll(".degree-1").remove();
 				timelineSVG.selectAll(".degree-2").remove();
+				zoomtimeSVG.selectAll("g").remove();
 
 				// Parse results into an origin node 
 				var person = createPersonNode(q.result, 0);
@@ -388,7 +400,7 @@ $(document).ready(function() {
 				plotOnMap([person], 0);
 				plotOnMap(person.infld_by, 2);
 				plotOnMap(person.infld, 1);
-
+				
 				var zoomScale = 5;
 				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
 				mapSVG
@@ -397,6 +409,17 @@ $(document).ready(function() {
 					.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")scale(" + zoomScale + ")");
 				zoom.scale(zoomScale);
 				zoom.translate([trans[0], trans[1]]);
+
+				var i = 0;
+				var timelineData = [{label: person.name, times: [{"start": person.start, "end": person.end}]}];
+				for(i = 0; i < person.infld_by.length; i++) {
+					timelineData.push({label: person.infld_by[i].name, times: [{"start": person.infld_by[i].start, "end": person.infld_by[i].end}]});
+				}
+				for(i = 0; i < person.infld.length; i++) {
+					timelineData.push({label: person.infld[i].name, times: [{"start": person.infld[i].start, "end": person.infld[i].end}]});
+				}
+
+				zoomtimeSVG.datum(timelineData).call(zoomtime);
 			}
 		});
 	}
@@ -452,7 +475,7 @@ $(document).ready(function() {
 			.on("click", function(d) { getPersonInfo(d.id, [d.x, d.y]); })
 			.attr("r", function() { if(degree === 0) { return 2.5; } else { return 0.9; } });
 
-    // Draw lifespans on timeline
+		// Draw lifespans on timeline
 		timelineSVG
 			.selectAll(".degree-" + degree)
 			.data(person)
@@ -461,7 +484,7 @@ $(document).ready(function() {
 			.attr("class", "degree-" + degree)
 			.attr("title", function(d) { return d.name; })
 			.attr("x", function(d) { return xScale(d.start); })
-			.attr("y", 10)
+			.attr("y", 12)
 			.attr("width", function(d) { return xScale(d.end) - xScale(d.start); })
 			.attr("height", 10)
 			.attr("fill", function(d) { return d.color; })
