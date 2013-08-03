@@ -20,7 +20,7 @@
           tickSubdivide: 4 },
         colorCycle = d3.scale.category20(),
         colorPropertyName = null,
-        display = "circle",
+        display = "rect",
         beginning = new Date(-1300,1,1).valueOf(),
         ending = new Date(2030,1,1).valueOf(),
         margin = {left: 30, right:30, top: 30, bottom:30},

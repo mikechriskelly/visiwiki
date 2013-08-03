@@ -111,7 +111,7 @@ $(document).ready(function() {
 
 	// Timeline Setup - zoomed timeline
 	var zoomtime = d3.timeline()
-		.width(timeline.w*6)
+		.width(timeline.w*20)
 		.height(200)
 		.margin({left:00, right:0, top:0, bottom:0})
 		.click(function (d, i, datum) {
