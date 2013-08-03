@@ -20,14 +20,14 @@
           tickSubdivide: 4 },
         colorCycle = d3.scale.category20(),
         colorPropertyName = null,
-        display = "rect",
+        display = "circle",
         beginning = new Date(-1300,1,1).valueOf(),
         ending = new Date(2030,1,1).valueOf(),
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
         itemHeight = 20,
-        itemMargin = 5,
+        itemMargin = 6,
         showTodayLine = false;
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
 
