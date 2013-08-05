@@ -30,7 +30,7 @@
 		}
 		if (year < 0 || year > 99) { // 'Normal' dates
 			date = new Date(year, 6, 1);
-		} else if (year == 0) { // Year 0 is '1 BC'
+		} else if (year === 0) { // Year 0 is '1 BC'
 			date = new Date (-1, 6, 1);
 		} else { // Create arbitrary year and then set the correct year
 			// For full years, I chose to set the date to mid year (1st of July).
@@ -47,7 +47,7 @@
 		// if will be placed in front of the year.
 		if (date === null) return null;
 		if (!(date instanceof Date)) { date = new Date(date); }
-		bcString = bcString || " BC" // With blank!
+		bcString = bcString || " BC"; // With blank!
 		var year = date.getUTCFullYear();
 		if (year > 0) return year.toString();
 		if (bcString[0] == '-') return bcString + (-year);
@@ -61,7 +61,7 @@ $(document).ready(function() {
 	// Render SVG map
 	var mapW  = 800,
 		mapH = 480;
-	var projection = d3.geo.mercator().translate([mapW / 2, mapH / 1.5])
+	var projection = d3.geo.mercator().translate([mapW / 2, mapH / 1.5]);
 	var path = d3.geo.path().projection(projection);
 	var zoom = d3.behavior.zoom()
 		.scaleExtent([1,10])
@@ -92,7 +92,7 @@ $(document).ready(function() {
 		.attr("width", timeline.w)
 		.attr("height", timeline.h)
 		.attr("preserveAspectRatio", "none")
-		.attr("pointer-events", "all")
+		.attr("pointer-events", "all");
 	var xScale = d3.scale.linear()
 		.domain([timeline.start, timeline.end])
 		.range([10, timeline.w-10]);
@@ -113,12 +113,12 @@ $(document).ready(function() {
 	var zoomtime = d3.timeline()
 		.width(timeline.w*20)
 		.height(200)
-		.margin({left:00, right:0, top:0, bottom:0})
+		.margin({left:0, right:0, top:0, bottom:0})
 		.click(function (d, i, datum) {
 			//alert(datum.label);
 		});
 
-	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w)
+	var zoomtimeSVG = d3.select("#zoomtime").append("svg").attr("width", timeline.w);
 
 	// Tip box for country names
 	var maphovertip = d3.select("#map").append("span")
@@ -159,7 +159,7 @@ $(document).ready(function() {
 		var country = mapSVG.selectAll(".country").data(countries);
 
 		country
-		 .enter()
+			.enter()
 			.insert("path")
 			.attr("class", "country")    
 			.attr("title", function(d,i) { return d.name; })
@@ -241,7 +241,7 @@ $(document).ready(function() {
 			if(person.end === null) {
 				if(person.start !== null) { 
 					if(today-person.start < yearMillis*100) {
-						person.lived[1] = "Present" 
+						person.lived[1] = "Present";
 						person.end = today;
 					} else {
 						person.lived[1] = "Unknown";
@@ -359,7 +359,7 @@ $(document).ready(function() {
 			$('#namebox').empty();
 			//console.dir(q.result);
 			
-			if(q.result == null) {
+			if(q.result === null) {
 				$('#namebox').append("<h3>Sorry, not enough data to map this person.</h3>");
 			} else {
 				if(drawLine) {
@@ -373,7 +373,7 @@ $(document).ready(function() {
 						.attr("y2", drawLine[1]);
 					mapSVG
 						.selectAll(".degree-0")
-						.attr("class", "degree-10")
+						.attr("class", "degree-10");
 				}
 				// Clear existing results from map, except old origin node (degree-10)
 				mapSVG.selectAll(".degree-0").remove();
@@ -390,21 +390,19 @@ $(document).ready(function() {
 				// Add namebox with basic info  
 				var img_width = 64;
 				var img_url = fbURL + "/image" + person.id +  "?maxwidth=" + img_width + "&key=" + fbKey;
-				var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h3 class='media-heading'>"
-				+ person.name + "</h3><label class='label label-info'>" + person.lived[0] + " to " + person.lived[1] + "</label></div></div>" 
-				+ "<table class='table table-condensed' id='namebox-prof'></table>";
+				var personinfo = "<div class='media'><img class='media-object pull-left' src='" + img_url + "'><div class='media-body'><h3 class='media-heading'>" + person.name + "</h3><label class='label label-info'>" + person.lived[0] + " to " + person.lived[1] + "</label></div></div>" + "<table class='table table-condensed' id='namebox-prof'></table>";
 
 				$('#namebox').append(personinfo);
 
 				for (var i in person.profession) {
-					 $('#namebox-prof').append('<tr><td>' + person.profession[i] + '</td></tr>');
-				}        
+					$('#namebox-prof').append('<tr><td>' + person.profession[i] + '</td></tr>');
+				}
 
 				// Sends objects to put on map: origin, infld array, and infld_by array
 				plotOnMap([person], 0);
 				plotOnMap(person.infld_by, 2);
 				plotOnMap(person.infld, 1);
-				
+
 				var zoomScale = 5;
 				var trans = [(-person.x * zoomScale + mapW/2),(-person.y * zoomScale + mapH/2)];
 				mapSVG
@@ -414,7 +412,6 @@ $(document).ready(function() {
 				zoom.scale(zoomScale);
 				zoom.translate([trans[0], trans[1]]);
 
-				var i = 0;
 				var timelineData = [{label: person.name, times: [{"start": person.start, "end": person.end}]}];
 				for(i = 0; i < person.infld_by.length; i++) {
 					timelineData.push({label: person.infld_by[i].name, times: [{"start": person.infld_by[i].start, "end": person.infld_by[i].end}]});
@@ -453,7 +450,7 @@ $(document).ready(function() {
 				infotip
 					.style("opacity", 1)
 					.text(resized_name);
-				if(d.city != null) {
+				if(d.city !== null) {
 					maphovertip
 						.html(d.city)
 						.style("opacity", 0.6);
@@ -470,7 +467,7 @@ $(document).ready(function() {
 				infotip
 					.style("opacity", 0)
 					.text("")
-					.style("width", "1px")
+					.style("width", "1px");
 				d3.select(this)
 					.attr("opacity", function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
 				maphovertip
@@ -494,4 +491,4 @@ $(document).ready(function() {
 			.attr("fill", function(d) { return d.color; })
 			.attr("opacity", 0.6);
 	}
-})
+});

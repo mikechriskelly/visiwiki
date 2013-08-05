@@ -46,7 +46,7 @@
 
       // check how many stacks we're gonna need
       // do this here so that we can draw the axis before the graph
-      if (stacked || (ending == 0 && beginning == 0)) {
+      if (stacked || (ending === 0 && beginning === 0)) {
         g.each(function (d, i) {
           d.forEach(function (datum, index) {
 
@@ -57,9 +57,9 @@
             }
 
             // figure out beginning and ending times if they are unspecified
-            if (ending == 0 && beginning == 0){
+            if (ending === 0 && beginning === 0){
               datum.times.forEach(function (time, i) {
-                if (time.start < minTime || minTime == 0)
+                if (time.start < minTime || minTime === 0)
                   minTime = time.start;
                 if (time.end > maxTime)
                   maxTime = time.end;
@@ -68,7 +68,7 @@
           });
         });
 
-        if (ending == 0 && beginning == 0) {
+        if (ending === 0 && beginning === 0) {
           beginning = minTime;
           ending = maxTime;
         }
@@ -115,7 +115,7 @@
             .attr("height", itemHeight)
             .style("fill", function(d, i){ 
               if( colorPropertyName ){ 
-                return colorCycle( datum[colorPropertyName] ) 
+                return colorCycle( datum[colorPropertyName] ); 
               } 
               return colorCycle(index);  
             })
@@ -239,7 +239,7 @@
       if (!arguments.length) return margin;
       margin = p;
       return timeline;
-    }
+    };
 
     timeline.orient = function (orientation) {
       if (!arguments.length) return orient;
@@ -251,13 +251,13 @@
       if (!arguments.length) return itemHeight;
       itemHeight = h;
       return timeline;
-    }
+    };
 
     timeline.itemMargin = function (h) {
       if (!arguments.length) return itemMargin;
       itemMargin = h;
       return timeline;
-    }
+    };
 
     timeline.height = function (h) {
       if (!arguments.length) return height;
@@ -311,7 +311,7 @@
       if (!arguments.length) return scroll;
       scroll = scrollFunc;
       return timeline;
-    }
+    };
 
     timeline.colors = function (colorFormat) {
       if (!arguments.length) return colorCycle;
@@ -334,7 +334,7 @@
     timeline.rotateTicks = function (degrees) {
       rotateTicks = degrees;
       return timeline;
-    }
+    };
 
     timeline.stack = function () {
       stacked = !stacked;
@@ -350,13 +350,13 @@
       if (!arguments.length) return showTodayFormat;
       showTodayFormat = todayFormat;
       return timeline;
-    }
+    };
 
     timeline.colorProperty = function(colorProp) {
       if (!arguments.length) return colorPropertyName;
       colorPropertyName = colorProp;
       return timeline;
-    }
+    };
     
     return timeline;
   };
