@@ -7,7 +7,8 @@ var express = require('express')
   , routes = require('./routes')
   , http = require('http')
   , path = require('path')
-  , jshare = require('jshare');
+  , jshare = require('jshare')
+  , enchilada = require('enchilada');
 
 var app = express();
 
@@ -22,6 +23,12 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(jshare());
 app.use(app.router);
+app.use(enchilada({
+    src: path.join(__dirname + 'public'),
+    cache: false, // use true for production to disable file watching
+    compress: false, // default false
+    debug: true, // default false (enable sourcemap output with bundle)
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.locals.pretty = true;
 
