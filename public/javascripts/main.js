@@ -207,6 +207,7 @@ $(document).ready(function() {
 			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
 				getPersonInfo("/" + jshare.id.join("/"));
 			}
+			getProfession();
 	}
 	// FreeBase Search Box 
 	$(function() {
@@ -288,9 +289,11 @@ $(document).ready(function() {
 	}
 
 	function getProfession(id) {
+		updateNamebox("<h3>Loading...</h3>");
 		var queryProfession = {
 			"id": "/m/02h6fbs",
 			"name": null,
+			"/common/topic/description": null,
 			"/people/profession/people_with_this_profession": [{
 				"id": null,
 				"name": null,
@@ -305,9 +308,26 @@ $(document).ready(function() {
 				"/people/person/profession": [],
 				"/people/person/date_of_birth": null,
 				"/people/deceased_person/date_of_death": null,
-				"limit": 1
+				"limit": 100
 			}]
 		};
+		// Async Query Request
+		$.getJSON(fbCall, {query:JSON.stringify(queryProfession)}, function(q) {
+			if(q.result === null) {
+				updateNamebox("<h3>Sorry, not enough data to map people in this profession.</h3>");
+			} else {
+				clearAllNodes();
+				var people = newPeople((q.result["/people/profession/people_with_this_profession"] || []), 1);
+
+				// Add namebox with basic info  
+				var imgWidth = 64;
+				var imgURL = fbURL + "/image" + q.result.id +  "?maxwidth=" + imgWidth + "&key=" + fbKey;
+				var personInfo = "<div class='media'><img class='media-object pull-left' src='" + imgURL + "'><div class='media-body'><h3 class='media-heading'>" + q.result.name + "</h3></div></div><p>" +   q.result["/common/topic/description"] + "</p>";
+				updateNamebox(personInfo);
+				plotOnMap(people);
+				plotOnTimeline(people);
+			}
+		});
 	}
 
 	function getInfluences(id) {
@@ -355,15 +375,14 @@ $(document).ready(function() {
 				"/people/person/profession": [],
 				"/people/person/date_of_birth": null,
 				"/people/deceased_person/date_of_death": null
-			}]};
-
+			}]
+		};
 		// Async Query Request
 		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
 			if(q.result === null) {
 				updateNamebox("<h3>Sorry, not enough data to map influences for this person.</h3>");
 			} else {
 				clearAllNodes();
-				// Parse results into an origin node 
 				var origin = newPeople([q.result], 0);
 				var influenced = newPeople((q.result["/influence/influence_node/influenced"] || []), 1);
 				var influencedBy = newPeople((q.result["/influence/influence_node/influenced_by"] || []), 2);
@@ -373,7 +392,6 @@ $(document).ready(function() {
 				var imgWidth = 64;
 				var imgURL = fbURL + "/image" + people[0].id +  "?maxwidth=" + imgWidth + "&key=" + fbKey;
 				var personInfo = "<div class='media'><img class='media-object pull-left' src='" + imgURL + "'><div class='media-body'><h3 class='media-heading'>" + people[0].name + "</h3><label class='label label-info'>" + people[0].lived[0] + " to " + people[0].lived[1] + "</label></div></div>" + "<table class='table table-condensed' id='namebox-prof'></table>";
-
 				updateNamebox(personInfo);
 
 				for (var i in people[0].profession) {
