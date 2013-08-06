@@ -1,5 +1,4 @@
-topojson = (function() {
-
+module.exports = (function() {
   function merge(topology, arcs) {
     var arcsByEnd = {},
         fragmentByStart = {},

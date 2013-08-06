@@ -1,5 +1,6 @@
-var d3 = require('./d3.v3.min.js');
 d3.timeline = require('./timeline.js');
+var queue = require('./queue.v1.min.js');
+var topojson = require('./topojson.js');
 
 //--------------------------------------------------------------------------
 // Utility functions

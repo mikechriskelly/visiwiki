@@ -1,6 +1,4 @@
-(function() {
-  
-  d3.timeline = function() {
+module.exports = function() {
     var DISPLAY_TYPES = ["circle", "rect"];
 
     var hover = function () {},
@@ -359,5 +357,4 @@
     };
     
     return timeline;
-  };
-})();
+};
