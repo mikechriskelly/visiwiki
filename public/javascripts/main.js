@@ -380,32 +380,40 @@ $(document).ready(function() {
 					$('#namebox-prof').append('<tr><td>' + people[0].profession[i] + '</td></tr>');
 				}
 
-				// Sends objects to put on map: origin, infld array, and infld_by array
 				plotOnMap(people);
-
-				var zoomScale = 5;
-				var trans = [(-people[0].x * zoomScale + mapW/2),(-people[0].y * zoomScale + mapH/2)];
-				mapSVG
-					.transition()
-					.duration(450)
-					.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")scale(" + zoomScale + ")");
-				zoom.scale(zoomScale);
-				zoom.translate([trans[0], trans[1]]);
-
-				var timelineData = [];
-				for(i = 0; i < people.length; i++) {
-					timelineData.push({label: people[i].name, times: [{"start": people[i].start, "end": people[i].end}]});
-				}
-				zoomtimeSVG.datum(timelineData).call(zoomtime);
+				plotOnTimeline(people);
 			}
 		});
 	}
 
-	function plotOnMap(person) {
+	function plotOnTimeline(people) {
+		// Full Timeline
+		timelineSVG
+			.selectAll("circle")
+			.data(people)
+			.enter()
+			.append("rect")
+			.attr("class", function(d) { return "degree-" + d.degree; })
+			.attr("title", function(d) { return d.name; })
+			.attr("x", function(d) { return xScale(d.start); })
+			.attr("y", 12)
+			.attr("width", function(d) { return xScale(d.end) - xScale(d.start); })
+			.attr("height", 10)
+			.attr("fill", function(d) { return d.color; })
+			.attr("opacity", 0.6);
+
+		// Zoom Timeline		
+		var timelineData = [];
+		for(i = 0; i < people.length; i++) {
+			timelineData.push({label: people[i].name, times: [{"start": people[i].start, "end": people[i].end}]});
+		}
+		zoomtimeSVG.datum(timelineData).call(zoomtime);
+	}
+	function plotOnMap(people) {
 		// Draw nodes on map
 		mapSVG
 			.selectAll("circle")
-			.data(person)
+			.data(people)
 			.enter()
 			.append("circle")
 			.attr("class", function(d) { return "degree-" + d.degree; })
@@ -452,19 +460,15 @@ $(document).ready(function() {
 			.on("click", function(d) { getInfluences(d.id); })
 			.attr("r", function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
-		// Draw lifespans on timeline
-		timelineSVG
-			.selectAll("circle")
-			.data(person)
-			.enter()
-			.append("rect")
-			.attr("class", function(d) { return "degree-" + d.degree; })
-			.attr("title", function(d) { return d.name; })
-			.attr("x", function(d) { return xScale(d.start); })
-			.attr("y", 12)
-			.attr("width", function(d) { return xScale(d.end) - xScale(d.start); })
-			.attr("height", 10)
-			.attr("fill", function(d) { return d.color; })
-			.attr("opacity", 0.6);
+		if(people[0].degree === 0) {
+			var zoomScale = 5;
+			var trans = [(-people[0].x * zoomScale + mapW/2),(-people[0].y * zoomScale + mapH/2)];
+			mapSVG
+				.transition()
+				.duration(450)
+				.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")scale(" + zoomScale + ")");
+			zoom.scale(zoomScale);
+			zoom.translate([trans[0], trans[1]]);
+		}
 	}
 });
