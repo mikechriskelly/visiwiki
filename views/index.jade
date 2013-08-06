@@ -2,7 +2,6 @@ extends layout
 block content
 	.navbar
 		.container
-			.navbar-brand.pull-left VisiWiki
 			form.navbar-form.pull-left
 				input#fbinput.form-control(type='text', placeholder='Search...', autofocus='')
 			ul.nav.navbar-nav
@@ -12,11 +11,12 @@ block content
 					a(href='#') Peers
 				li
 					a(href='#') Works
+			.navbar-brand.pull-right VisiWiki
 	.container
 		.grid
-			#map.section
 			#namebox.aside 
 				h3 A visual map of historical people and connections.
+			#map.section
 	#zoomtime.timeline
 	#fulltime.timeline
 	script(src='/javascripts/main.js')

@@ -106,6 +106,7 @@ li.fbs-nomatch,
 .fbs-pane,
 .fbs-flyout-pane {
     margin-top: 6px;
+    margin-left: -10px;
     padding: 0px;
 }
 
@@ -243,8 +244,8 @@ Freebase Suggest Structure
 .fbs-flyout-content { margin-bottom: 0; }
 .fbs-attribution    { margin-top: 0; }
 
-.fbs-pane        { width: 325px; } /* results list container */
-.fbs-flyout-pane { width: 319px; margin-left: 3px; } /* flyout container, 3px narrower on each side to create drawer appearance */
+.fbs-pane        { width: 300px; } /* results list container */
+.fbs-flyout-pane { width: 296px; margin-left: 3px; } /* flyout container, 3px narrower on each side to create drawer appearance */
 
 ul.fbs-list {    
     max-height: 320px;  
