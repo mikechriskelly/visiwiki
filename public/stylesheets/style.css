@@ -16,7 +16,7 @@ div:empty { display: none; }
 
 svg { display: block; margin: 0 auto; }
 h1 { font-weight: 100; font-size: 38px; padding-left: 10px;}
-h3 { font-weight: 100; font-size: 26px;}
+h3 { font-weight: 100; font-size: 26px; padding-left: 10px;}
 .navbar {
 	border-bottom: 1px solid #ccc;
 	min-height: 40px;
@@ -66,6 +66,9 @@ h3 { font-weight: 100; font-size: 26px;}
 	margin: 5px 0px;
 	padding: 0px 10px;
 	width: 300px;
+}
+.nav-stacked {
+	margin-top: 30px;
 }
 .form-control {
 	height: 30px;

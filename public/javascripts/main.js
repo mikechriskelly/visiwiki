@@ -15,7 +15,7 @@ var fbCall = fbURL + "/mqlread?key=" + fbKey + "&callback=?";
 var colors = ["#332412", "#1B567A", "#C2412D"];
 
 //--------------------------------------------------------------------------
-// Utility functions
+// Utility Functions
 
 function parseDate(dateString) {
 	// 'dateString' must either conform to the ISO date format YYYY-MM-DD
@@ -89,6 +89,7 @@ $(document).ready(function() {
 		.call(zoom)
 		.append("g");
 
+
 	function redraw() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
@@ -96,7 +97,7 @@ $(document).ready(function() {
 	// Timeline Setup - full timeline
 	var nearFuture = new Date().getUTCFullYear()+50;
 	var timeline = {};
-	timeline.start = new Date (-1400, 1, 1);
+	timeline.start = new Date(-1400, 1, 1);
 	timeline.end = new Date(nearFuture, 1, 1);
 	timeline.w = $(document).width();
 	timeline.h = 50;
@@ -157,13 +158,6 @@ $(document).ready(function() {
 		timelineSVG.selectAll(".degree-2").remove();
 		zoomtimeSVG.selectAll("g").remove();
 	}
-
-	// Load map paths and country names
-	queue()
-			.defer(d3.json, "/data/world.json")
-			.defer(d3.tsv, "/data/world-country-names.tsv")
-			.await(ready);
-
 	function ready(error, world, names) {
 
 		var countries = topojson.object(world, world.objects.countries).geometries;
@@ -207,8 +201,13 @@ $(document).ready(function() {
 			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
 				getPersonInfo("/" + jshare.id.join("/"));
 			}
-			getProfession();
+			//getProfession();
 	}
+	// Load map paths and country names
+	queue()
+		.defer(d3.json, "/data/world.json")
+		.defer(d3.tsv, "/data/world-country-names.tsv")
+		.await(ready);
 	// FreeBase Search Box 
 	$(function() {
 		$("#fbinput")
@@ -216,14 +215,9 @@ $(document).ready(function() {
 				"key": fbKey,
 				filter: "(all type:/people/person)",
 				animate: "false"})
-
 			// Search Result Selected - Trigger Query
 			.bind("fb-select", function(e, data) {
-				// Clear existing results from map -- including origin node
-				mapSVG.selectAll("circle").remove();
-				mapSVG.selectAll("circle").remove();
-				mapSVG.selectAll("line").remove();
-				// Query and parse one person's info; On completion calls plotOnMap
+				clearAllNodes();
 				getInfluences(data.id);
 			});
 	});
@@ -287,7 +281,6 @@ $(document).ready(function() {
 		}
 		return people;
 	}
-
 	function getProfession(id) {
 		updateNamebox("<h3>Loading...</h3>");
 		var queryProfession = {
@@ -329,7 +322,6 @@ $(document).ready(function() {
 			}
 		});
 	}
-
 	function getInfluences(id) {
 		updateNamebox("<h3>Loading...</h3>");
 		var queryInfluence = {
@@ -403,7 +395,6 @@ $(document).ready(function() {
 			}
 		});
 	}
-
 	function plotOnTimeline(people) {
 		// Full Timeline
 		timelineSVG
