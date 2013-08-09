@@ -194,7 +194,7 @@ $(document).ready(function() {
 			people[i].name = queryResult[i]["name"] || null;
 			people[i].label = queryResult[i]["name"] || null;
 			people[i].degree = degree || 0;
-			people[i].profession = queryResult[i]["/people/person/profession"] || null;
+			people[i].profession = queryResult[i]["/people/person/profession"] || [];
 			people[i].nationality = queryResult[i]["/people/person/nationality"] || null;
 			people[i].city = queryResult[i]["/people/person/place_of_birth"]["name"] || null;
 			people[i].start = parseDate(queryResult[i]["/people/person/date_of_birth"] || null);
@@ -257,7 +257,7 @@ $(document).ready(function() {
 	}
 	function getProfession(id) {
 		updateNamebox("<h3>Loading...</h3>");
-		var queryProfession = {
+		var query = {
 			"id": "/m/02h6fbs",
 			"name": null,
 			"/common/topic/description": null,
@@ -279,7 +279,7 @@ $(document).ready(function() {
 			}]
 		};
 		// Async Query Request
-		$.getJSON(fbCall, {query:JSON.stringify(queryProfession)}, function(q) {
+		$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
 			if(q.result === null) {
 				updateNamebox("<h3>Sorry, not enough data to map people in this profession.</h3>");
 			} else {
@@ -298,7 +298,7 @@ $(document).ready(function() {
 	}
 	function getPerson(id) {
 		updateNamebox("<h3>Loading...</h3>");
-		var queryPerson = {
+		var query = {
 			"id": id,
 			"name": null,
 			"/common/topic/description": null,
@@ -312,27 +312,27 @@ $(document).ready(function() {
 			"/people/person/profession": [],
 			"/people/person/date_of_birth": null,
 			"/people/deceased_person/date_of_death": null,
-			"/influence/influence_node/influenced_by": [{
+			"c:/influence/influence_node/influenced_by": [{
 				"return": "count",
 				"optional": true
 			}],
-			"/influence/influence_node/influenced": [{
+			"c:/influence/influence_node/influenced": [{
 				"return": "count",
 				"optional": true
 			}],
-			"/influence/influence_node/peers": [{
+			"c:/influence/influence_node/peers": [{
 				"return": "count",
 				"optional": true
 			}],
-			"/book/author/works_written": [{
+			"c:/book/author/works_written": [{
 				"optional": true,
 				"return": "count"
 			}],
-			"/visual_art/visual_artist/artworks": [{
+			"c:/visual_art/visual_artist/artworks": [{
 				"optional": true,
 				"return": "count"
 			}],
-			"/law/inventor/inventions": [{
+			"c:/law/inventor/inventions": [{
 				"optional": true,
 				"return": "count"
 			}],
@@ -340,13 +340,13 @@ $(document).ready(function() {
 			"/book/author/school_or_movement": []
 		};
 		// Async Query Request
-		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
+		$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
 			if(q.result === null) {
 				updateNamebox("<h3>Sorry, not enough data about this person.</h3>");
 			} else {
 				clearAllNodes();
-				var person = newPeople([q.result], 0);
-
+				var person = newPeople([q.result], 0)[0];
+				console.dir(person);
 				updateNameboxPerson(person);
 				plotOnMap([person]);
 				plotOnTimeline([person]);
@@ -355,7 +355,7 @@ $(document).ready(function() {
 	}
 	function getInfluences(id) {
 		updateNamebox("<h3>Loading...</h3>");
-		var queryInfluence = {
+		var query = {
 			"id": id,
 			"name": null,
 			"/common/topic/description": null,
@@ -402,7 +402,7 @@ $(document).ready(function() {
 			}]
 		};
 		// Async Query Request
-		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
+		$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
 			if(q.result === null) {
 				updateNamebox("<h3>Sorry, not enough data to map influences for this person.</h3>");
 			} else {
@@ -545,10 +545,10 @@ $(document).ready(function() {
 
 			// If received ID from URL then start query
 			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
-				getInfluences("/" + jshare.id.join("/"));
+				getPerson("/" + jshare.id.join("/"));
 			}
 			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
-				getInfluences("/" + jshare.id.join("/"));
+				getPerson("/" + jshare.id.join("/"));
 			}
 			//getProfession();
 	}
