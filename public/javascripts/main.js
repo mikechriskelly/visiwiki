@@ -11,8 +11,8 @@ var fbURL = "https://www.googleapis.com/freebase/v1";
 var fbCall = fbURL + "/mqlread?key=" + fbKey + "&callback=?";
 
 // Node Colors
-// origin = black, influenced = blue, influenced_by = orange
-var colors = ["#332412", "#1B567A", "#C2412D"];
+// origin = black, influenced = blue, influenced_by = orange, placeslived = light brown
+var colors = ["#332412", "#1B567A", "#C2412D", "#332412"];
 
 //--------------------------------------------------------------------------
 // Utility Functions
@@ -151,8 +151,8 @@ $(document).ready(function() {
 	}
 	function updateNameboxPerson(person) {
 		$('#namebox').empty();
-		var imgHeight = 80;
-		var imgURL = fbURL + "/image" + person.id +  "?maxwidth=" + imgHeight + "&key=" + fbKey;
+		var w = 75;
+		var imgURL = fbURL + "/image" + person.id +  "?maxwidth=" + w + "&key=" + fbKey;
 		var personInfo = "<div class='media'><img class='media-object pull-left' src='" + imgURL + "'><div class='media-body'><h3 class='media-heading'>" + person.name + "</h3>";
 
 		var i;
@@ -166,13 +166,25 @@ $(document).ready(function() {
 			personInfo += "<span class='label label-warning'>" + person.movements[i] + "</span>";
 		}
 		personInfo += "<br><span class='label label-info'>" + person.lived[0] + " - " + person.lived[1] + "</span></div></div>";
-		if(typeof person.description === "string") {
-			personInfo += "<p>" + person.description.substring(0,270) + "</p>";
-		}
+		// if(typeof person.description === "string") {
+		// 	personInfo += "<p>" + person.description.substring(0,270) + "</p>";
+		// }
 		$('#namebox').append(personInfo);
 
-		var navInfo = "<ul class='nav nav-pills nav-stacked'><li class='active'><a href='#'>Influences<span class='badge pull-right'>0</span></a></li></u>";
-		$('#namebox').append(navInfo);
+		// Display Influences, Peers, Written Works, Art Works, and Inventions if found
+		$('#namebox').append("<ul class='nav nav-pills nav-stacked' id='nameboxnav'></ul>");
+		if(person.countInfluenced > 0) 
+			$('#nameboxnav').append("<li class='active'><a href='#'>Places Lived<span class='badge pull-right'>" + person.countPlacesLived + "</span></a></li>");
+		if(person.countInfluenced > 0) 
+			$('#nameboxnav').append("<li><a href='#'>Influences<span class='badge pull-right'>" + person.countInfluenced + "</span></a></li>");
+		if(person.countPeers > 0) 
+				$('#nameboxnav').append("<li><a href='#'>Peers<span class='badge pull-right'>" + person.countPeers + "</span></a></li>");
+		if(person.countWritWorks > 0)
+				$('#nameboxnav').append("<li><a href='#'>Written Works<span class='badge pull-right'>" + person.countWritWorks + "</span></a></li>");
+		if(person.countArtWorks > 0) 
+				$('#nameboxnav').append("<li><a href='#'>Art Works<span class='badge pull-right'>" + person.countArtWorks + "</span></a></li>");
+		if(person.countInventions > 0) 
+				$('#nameboxnav').append("<li><a href='#'>Inventions<span class='badge pull-right'>" + person.countInventions + "</span></a></li>");
 	}
 	function clearAllNodes() {
 		// Clear existing results from map and timelinea
@@ -201,13 +213,14 @@ $(document).ready(function() {
 			people[i].end = parseDate(queryResult[i]["/people/deceased_person/date_of_death"] || null);
 			people[i].description = queryResult[i]["/common/topic/description"] || null;
 
-			people[i].countInfluenced = queryResult[i]["c:/influence/influence_node/influenced"] || 0;
-			people[i].countInfluencedBy = queryResult[i]["c:/influence/influence_node/influenced_by"] || 0;
-			people[i].countPeers = queryResult[i]["c:/influence/influence_node/peers"] || 0;
-			people[i].countWritWorks = queryResult[i]["c:/book/author/works_written"] || 0;
-			people[i].countArtWorks = queryResult[i]["c:/visual_art/visual_artist/artworks"] || 0;
-			people[i].countInventions = queryResult[i]["c:/law/inventor/inventions"] || 0;
-	
+			people[i].countInfluenced = parseInt(queryResult[i]["c:/influence/influence_node/influenced"] || 0);
+			people[i].countInfluencedBy = parseInt(queryResult[i]["c:/influence/influence_node/influenced_by"] || 0);
+			people[i].countPeers = parseInt(queryResult[i]["c:/influence/influence_node/peers"] || 0);
+			people[i].countWritWorks = parseInt(queryResult[i]["c:/book/author/works_written"] || 0);
+			people[i].countArtWorks = parseInt(queryResult[i]["c:/visual_art/visual_artist/artworks"] || 0);
+			people[i].countInventions = parseInt(queryResult[i]["c:/law/inventor/inventions"] || 0);
+			people[i].countPlacesLived = queryResult[i]["/people/person/places_lived"].length || 1;
+
 			var movementA = queryResult[i]["/visual_art/visual_artist/associated_periods_or_movements"] || [];
 			var movementB = queryResult[i]["/book/author/school_or_movement"] || [];
 			people[i].movements = movementA.concat(movementB);
@@ -241,7 +254,7 @@ $(document).ready(function() {
 
 			// Save standard geocoordinates
 			people[i].coordinates = [queryResult[i]["/people/person/place_of_birth"]["/location/location/geolocation"]["longitude"],
-														queryResult[i]["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]] || [0,0];
+															queryResult[i]["/people/person/place_of_birth"]["/location/location/geolocation"]["latitude"]] || [0,0];
 
 			// Translate geocoordinates into map coordinates
 			people[i].x = projection(people[i].coordinates)[0];
@@ -254,6 +267,25 @@ $(document).ready(function() {
 			people[i].color = colors[degree];
 		}
 		return people;
+	}
+	function newPlaces(queryResult) {
+		var places = [];
+		for (var i = 0; i < queryResult.length; i++) {
+			places[i] = {};
+			places[i].name = queryResult[i]["location"]["name"] || "Unknown";
+			places[i].city = places[i].name;
+			places[i].degree = 3;
+			places[i].color = colors[3];
+
+			// Save standard geocoordinates
+			places[i].coordinates = [queryResult[i]["location"]["/location/location/geolocation"]["longitude"],
+																		queryResult[i]["location"]["/location/location/geolocation"]["latitude"]] || [0,0];
+
+			// Translate geocoordinates into map coordinates
+			places[i].x = projection(places[i].coordinates)[0];
+			places[i].y = projection(places[i].coordinates)[1];
+		}
+		return places;
 	}
 	function getProfession(id) {
 		updateNamebox("<h3>Loading...</h3>");
@@ -309,6 +341,16 @@ $(document).ready(function() {
 					"longitude": null
 				}
 			},
+			"/people/person/places_lived": [{
+				"location": {
+					"name": null,
+					"/location/location/geolocation": {
+						"latitude": null,
+						"longitude": null
+					}
+				},
+				"optional": true
+			}],
 			"/people/person/profession": [],
 			"/people/person/date_of_birth": null,
 			"/people/deceased_person/date_of_death": null,
@@ -346,9 +388,13 @@ $(document).ready(function() {
 			} else {
 				clearAllNodes();
 				var person = newPeople([q.result], 0)[0];
-				console.dir(person);
+				var places = newPlaces([q.result][0]["/people/person/places_lived"]);
 				updateNameboxPerson(person);
-				plotOnMap([person]);
+				if(places.length > 0) {
+					plotOnMap([person].concat(places));
+				} else {
+					plotOnMap([person]);
+				}
 				plotOnTimeline([person]);
 			}
 		});
@@ -489,7 +535,7 @@ $(document).ready(function() {
 				maphovertip
 					.style("opacity", 0); 
 			})
-			.on("click", function(d) { getInfluences(d.id); })
+			.on("click", function(d) { if(d.degree !== 3) getInfluences(d.id); })
 			.attr("r", function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
 		// Zoom to origin node
@@ -569,7 +615,7 @@ $(document).ready(function() {
 			// Search Result Selected - Trigger Query
 			.bind("fb-select", function(e, data) {
 				clearAllNodes();
-				getInfluences(data.id);
+				getPerson(data.id);
 			});
 	});
 });
