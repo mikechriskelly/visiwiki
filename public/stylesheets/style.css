@@ -16,7 +16,8 @@ div:empty { display: none; }
 
 svg { display: block; margin: 0 auto; }
 h1 { font-weight: 100; font-size: 38px; padding-left: 10px;}
-h3 { font-weight: 100; font-size: 26px; padding-left: 10px;}
+h3 { font-weight: 100; font-size: 24px; margin-bottom: 0px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
+span.label { display: inline; margin-right: 2px;}
 .navbar {
 	border-bottom: 1px solid #ccc;
 	min-height: 40px;
@@ -121,6 +122,12 @@ h3 { font-weight: 100; font-size: 26px; padding-left: 10px;}
 #namebox-prof {
 	margin-top: 10px;
 } 
+.media {
+	margin-bottom: 15px;
+}
+.media-body {
+	overflow: auto;
+}
 .maphovertip {
 	z-index: 1;
 	position: absolute;

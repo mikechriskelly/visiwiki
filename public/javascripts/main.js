@@ -89,7 +89,6 @@ $(document).ready(function() {
 		.call(zoom)
 		.append("g");
 
-
 	function redraw() {
 		mapSVG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}
@@ -125,7 +124,7 @@ $(document).ready(function() {
 
 	// Timeline Setup - zoomed timeline
 	var zoomtime = d3.timeline()
-		.width(timeline.w*20)
+		.width(timeline.w*6)
 		.height(200)
 		.margin({left:0, right:0, top:0, bottom:0})
 		.click(function (d, i, datum) {
@@ -148,7 +147,32 @@ $(document).ready(function() {
 
 	function updateNamebox(content) {
 		$('#namebox').empty();
-		if(content !== undefined) $('#namebox').append(content);		
+		if(typeof content !== undefined) $('#namebox').append(content);		
+	}
+	function updateNameboxPerson(person) {
+		$('#namebox').empty();
+		var imgHeight = 80;
+		var imgURL = fbURL + "/image" + person.id +  "?maxwidth=" + imgHeight + "&key=" + fbKey;
+		var personInfo = "<div class='media'><img class='media-object pull-left' src='" + imgURL + "'><div class='media-body'><h3 class='media-heading'>" + person.name + "</h3>";
+
+		var i;
+		// List professions labels (max 3)
+		for (i = 0; i < person.profession.length && i < 3; i++) {
+			personInfo += "<span class='label label-success'>" + person.profession[i] + "</span>";
+		}
+		// List school or movement or period labels (max 3)
+		for (i = 0; i < person.movements.length && i < 3; i++) {
+			if(i === 0) personInfo += "<br>";
+			personInfo += "<span class='label label-warning'>" + person.movements[i] + "</span>";
+		}
+		personInfo += "<br><span class='label label-info'>" + person.lived[0] + " - " + person.lived[1] + "</span></div></div>";
+		if(typeof person.description === "string") {
+			personInfo += "<p>" + person.description.substring(0,270) + "</p>";
+		}
+		$('#namebox').append(personInfo);
+
+		var navInfo = "<ul class='nav nav-pills nav-stacked'><li class='active'><a href='#'>Influences<span class='badge pull-right'>0</span></a></li></u>";
+		$('#namebox').append(navInfo);
 	}
 	function clearAllNodes() {
 		// Clear existing results from map and timelinea
@@ -158,69 +182,6 @@ $(document).ready(function() {
 		timelineSVG.selectAll(".degree-2").remove();
 		zoomtimeSVG.selectAll("g").remove();
 	}
-	function ready(error, world, names) {
-
-		var countries = topojson.object(world, world.objects.countries).geometries;
-		var n = countries.length;
-
-		countries.forEach(function(d) {
-			var tryit = names.filter(function(n) { return d.id == n.id; })[0];
-			if (typeof tryit === "undefined"){
-				d.name = "Undefined";
-				//console.log(d);
-			} else {
-				d.name = tryit.name; 
-			}
-		});
-
-		var country = mapSVG.selectAll(".country").data(countries);
-
-		country
-			.enter()
-			.insert("path")
-			.attr("class", "country")    
-			.attr("title", function(d,i) { return d.name; })
-			.attr("d", path);
-
-		// Display and Hide country name tooltip
-		country
-			.on("mousemove", function(d) {
-				maphovertip
-					.html(d.name)
-					.style("opacity", 0.6);  
-			})
-			.on("mouseout",  function() {
-				maphovertip
-					.style("opacity", 0);  
-			});
-
-			// If received ID from URL then start query
-			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
-				getPersonInfo("/" + jshare.id.join("/"));
-			}
-			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
-				getPersonInfo("/" + jshare.id.join("/"));
-			}
-			//getProfession();
-	}
-	// Load map paths and country names
-	queue()
-		.defer(d3.json, "/data/world.json")
-		.defer(d3.tsv, "/data/world-country-names.tsv")
-		.await(ready);
-	// FreeBase Search Box 
-	$(function() {
-		$("#fbinput")
-			.suggest({
-				"key": fbKey,
-				filter: "(all type:/people/person)",
-				animate: "false"})
-			// Search Result Selected - Trigger Query
-			.bind("fb-select", function(e, data) {
-				clearAllNodes();
-				getInfluences(data.id);
-			});
-	});
 
 	//--------------------------------------------------------------------------
 	// Parse query results into new object
@@ -238,6 +199,19 @@ $(document).ready(function() {
 			people[i].city = queryResult[i]["/people/person/place_of_birth"]["name"] || null;
 			people[i].start = parseDate(queryResult[i]["/people/person/date_of_birth"] || null);
 			people[i].end = parseDate(queryResult[i]["/people/deceased_person/date_of_death"] || null);
+			people[i].description = queryResult[i]["/common/topic/description"] || null;
+
+			people[i].countInfluenced = queryResult[i]["c:/influence/influence_node/influenced"] || 0;
+			people[i].countInfluencedBy = queryResult[i]["c:/influence/influence_node/influenced_by"] || 0;
+			people[i].countPeers = queryResult[i]["c:/influence/influence_node/peers"] || 0;
+			people[i].countWritWorks = queryResult[i]["c:/book/author/works_written"] || 0;
+			people[i].countArtWorks = queryResult[i]["c:/visual_art/visual_artist/artworks"] || 0;
+			people[i].countInventions = queryResult[i]["c:/law/inventor/inventions"] || 0;
+	
+			var movementA = queryResult[i]["/visual_art/visual_artist/associated_periods_or_movements"] || [];
+			var movementB = queryResult[i]["/book/author/school_or_movement"] || [];
+			people[i].movements = movementA.concat(movementB);
+
 			people[i].instant = false;
 
 			// Estimate lifespan if DOB or DOD unknown.
@@ -322,11 +296,69 @@ $(document).ready(function() {
 			}
 		});
 	}
+	function getPerson(id) {
+		updateNamebox("<h3>Loading...</h3>");
+		var queryPerson = {
+			"id": id,
+			"name": null,
+			"/common/topic/description": null,
+			"/people/person/place_of_birth": {
+				"name": null,
+				"/location/location/geolocation": {
+					"latitude": null,
+					"longitude": null
+				}
+			},
+			"/people/person/profession": [],
+			"/people/person/date_of_birth": null,
+			"/people/deceased_person/date_of_death": null,
+			"/influence/influence_node/influenced_by": [{
+				"return": "count",
+				"optional": true
+			}],
+			"/influence/influence_node/influenced": [{
+				"return": "count",
+				"optional": true
+			}],
+			"/influence/influence_node/peers": [{
+				"return": "count",
+				"optional": true
+			}],
+			"/book/author/works_written": [{
+				"optional": true,
+				"return": "count"
+			}],
+			"/visual_art/visual_artist/artworks": [{
+				"optional": true,
+				"return": "count"
+			}],
+			"/law/inventor/inventions": [{
+				"optional": true,
+				"return": "count"
+			}],
+			"/visual_art/visual_artist/associated_periods_or_movements": [],
+			"/book/author/school_or_movement": []
+		};
+		// Async Query Request
+		$.getJSON(fbCall, {query:JSON.stringify(queryInfluence)}, function(q) {
+			if(q.result === null) {
+				updateNamebox("<h3>Sorry, not enough data about this person.</h3>");
+			} else {
+				clearAllNodes();
+				var person = newPeople([q.result], 0);
+
+				updateNameboxPerson(person);
+				plotOnMap([person]);
+				plotOnTimeline([person]);
+			}
+		});
+	}
 	function getInfluences(id) {
 		updateNamebox("<h3>Loading...</h3>");
 		var queryInfluence = {
 			"id": id,
 			"name": null,
+			"/common/topic/description": null,
 			"/people/person/place_of_birth": {
 				"name": null,
 				"/location/location/geolocation": {
@@ -380,16 +412,7 @@ $(document).ready(function() {
 				var influencedBy = newPeople((q.result["/influence/influence_node/influenced_by"] || []), 2);
 				var people = origin.concat(influenced).concat(influencedBy);
 
-				// Add namebox with basic info  
-				var imgWidth = 64;
-				var imgURL = fbURL + "/image" + people[0].id +  "?maxwidth=" + imgWidth + "&key=" + fbKey;
-				var personInfo = "<div class='media'><img class='media-object pull-left' src='" + imgURL + "'><div class='media-body'><h3 class='media-heading'>" + people[0].name + "</h3><label class='label label-info'>" + people[0].lived[0] + " to " + people[0].lived[1] + "</label></div></div>" + "<table class='table table-condensed' id='namebox-prof'></table>";
-				updateNamebox(personInfo);
-
-				for (var i in people[0].profession) {
-					$('#namebox-prof').append('<tr><td>' + people[0].profession[i] + '</td></tr>');
-				}
-
+				updateNameboxPerson(people[0]);
 				plotOnMap(people);
 				plotOnTimeline(people);
 			}
@@ -469,6 +492,7 @@ $(document).ready(function() {
 			.on("click", function(d) { getInfluences(d.id); })
 			.attr("r", function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
+		// Zoom to origin node
 		if(people[0].degree === 0) {
 			var zoomScale = 5;
 			var trans = [(-people[0].x * zoomScale + mapW/2),(-people[0].y * zoomScale + mapH/2)];
@@ -480,4 +504,72 @@ $(document).ready(function() {
 			zoom.translate([trans[0], trans[1]]);
 		}
 	}
+
+	//--------------------------------------------------------------------------
+	// Main execution when everything is loaded
+	function ready(error, world, names) {
+
+		var countries = topojson.object(world, world.objects.countries).geometries;
+		var n = countries.length;
+
+		countries.forEach(function(d) {
+			var tryit = names.filter(function(n) { return d.id == n.id; })[0];
+			if (typeof tryit === "undefined"){
+				d.name = "Undefined";
+				//console.log(d);
+			} else {
+				d.name = tryit.name; 
+			}
+		});
+
+		var country = mapSVG.selectAll(".country").data(countries);
+
+		country
+			.enter()
+			.insert("path")
+			.attr("class", "country")    
+			.attr("title", function(d,i) { return d.name; })
+			.attr("d", path);
+
+		// Display and Hide country name tooltip
+		country
+			.on("mousemove", function(d) {
+				maphovertip
+					.html(d.name)
+					.style("opacity", 0.6);  
+			})
+			.on("mouseout",  function() {
+				maphovertip
+					.style("opacity", 0);  
+			});
+
+			// If received ID from URL then start query
+			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
+				getInfluences("/" + jshare.id.join("/"));
+			}
+			if(typeof jshare !== "undefined" && jshare.id.length === 2) {
+				getInfluences("/" + jshare.id.join("/"));
+			}
+			//getProfession();
+	}
+
+	// Load map paths and country names
+	queue()
+		.defer(d3.json, "/data/world.json")
+		.defer(d3.tsv, "/data/world-country-names.tsv")
+		.await(ready);
+
+	// FreeBase Search Box 
+	$(function() {
+		$("#fbinput")
+			.suggest({
+				"key": fbKey,
+				filter: "(all type:/people/person)",
+				animate: "false"})
+			// Search Result Selected - Trigger Query
+			.bind("fb-select", function(e, data) {
+				clearAllNodes();
+				getInfluences(data.id);
+			});
+	});
 });

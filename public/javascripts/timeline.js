@@ -18,14 +18,14 @@ module.exports = function() {
           tickSubdivide: 4 },
         colorCycle = d3.scale.category20(),
         colorPropertyName = null,
-        display = "circle",
+        display = "rect",
         beginning = new Date(-1300,1,1).valueOf(),
-        ending = new Date(2030,1,1).valueOf(),
+        ending = new Date(2013,1,1).valueOf(),
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
-        itemHeight = 20,
-        itemMargin = 6,
+        itemHeight = 2,
+        itemMargin = 3,
         showTodayLine = false;
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
 
@@ -103,11 +103,11 @@ module.exports = function() {
           g.selectAll("svg").data(data).enter()
             .append(display)
             .attr('x', getXPos)
-            .attr("y", function (d) { return Math.floor(Math.random() * height);}) // getStackPosition
+            .attr("y", function (d) { return height/2 + Math.floor(Math.random() * height/2 - height/4);}) // getStackPosition
             .attr("width", function (d, i) {
               return (d.end - d.start) * scaleFactor;
             })
-            .attr("cy", function (d) { return Math.floor(Math.random() * height);}) // getStackPosition)
+            .attr("cy", function (d) { height/2 + Math.floor(Math.random() * height/2 - height/4);}) // getStackPosition)
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
             .attr("height", itemHeight)

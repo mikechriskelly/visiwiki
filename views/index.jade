@@ -14,8 +14,17 @@ block content
 			.navbar-brand.pull-right VisiWiki
 	.container
 		.grid
-			#namebox.aside 
-				h3 A visual map of historical people and connections.
+			#namebox.aside
+				div.media
+					img.media-object.pull-left(src="https://www.googleapis.com/freebase/v1/image/en/georg_wilhelm_friedrich_hegel?maxheight=100&key=AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY")
+					div.media-body
+						h3.media-heading Georg Wilhelm Friedrich Hegel
+						span.label.label-success Mathematician
+						span.label.label-success Scientist
+						span.label.label-success Philosopher
+						br
+						span.label.label-info 1452-1519
+				p Raffaello Sanzio da Urbino, better known simply as Raphael, was an Italian painter and architect of the High Renaissance. His work is admired for its clarity of form and ease of composition and for its visual achievement of the Neoplatonic ideal of human grandeur. &rsaquo;&rsaquo;
 				ul.nav.nav-pills.nav-stacked
 					li.active
 						a(href='#') 
@@ -24,7 +33,7 @@ block content
 					li
 						a(href='#') 
 							span.badge.pull-right 100+
-							| Contemporaries
+							| Peers
 					li
 						a(href='#') 
 							span.badge.pull-right 2
