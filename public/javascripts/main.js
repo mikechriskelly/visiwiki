@@ -290,7 +290,6 @@ function newPlaces(queryResult) {
 }
 function getProfession(id) {
 	updateNamebox('<h3>Loading...</h3>');
-	id = '/en/' + id;
 	var query = {
 		'id': id,
 		'name': null,
@@ -533,7 +532,7 @@ function plotOnMap(people) {
 			maphovertip
 				.style('opacity', 0); 
 		})
-		.on('click', function(d) { if(d.degree !== 3) getInfluences(d.id); })
+		.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
 	// Zoom to origin node
@@ -560,7 +559,6 @@ function ready(error, world, names) {
 		var tryit = names.filter(function(n) { return d.id == n.id; })[0];
 		if (typeof tryit === 'undefined'){
 			d.name = 'Undefined';
-			//console.log(d);
 		} else {
 			d.name = tryit.name; 
 		}
@@ -611,7 +609,6 @@ $(function() {
 			animate: 'false'})
 		// Search Result Selected - Trigger Query
 		.bind('fb-select', function(e, data) {
-			console.dir(data);
 			clearAllNodes();
 			if(data.notable.id === '/people/profession') {
 				getProfession(data.id);
@@ -647,7 +644,7 @@ $(document).on('click', 'a.namenavlink', function(e) {
 			// getInventions(queryid);
 			break;
 		case 'profession':
-			getProfession(queryid);
+			getProfession('/en/' + queryid);
 			break;
 		default:
 			break;
