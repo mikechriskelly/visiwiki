@@ -15,6 +15,7 @@ body {
 div:empty { display: none; }
 
 svg { display: block; margin: 0 auto; }
+a:hover { text-decoration: none; }
 h1 { font-weight: 100; font-size: 38px; padding-left: 10px;}
 h3 { font-weight: 100; font-size: 24px; margin-bottom: 0px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
 h5 { font-weight: 100; font-size: 16px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
