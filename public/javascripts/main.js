@@ -175,17 +175,21 @@ function updateNameboxPerson(person) {
 	// Display Influences, Peers, Written Works, Art Works, and Inventions if found
 	$('#namebox').append('<ul class="nav nav-pills nav-stacked" id="nameboxnav"></ul>');
 	if(person.countInfluenced > 0) 
-		$('#nameboxnav').append('<li class="active"><a href="#" id="placeslived" class="namenavlink" data-id="' + person.id + '">Places Lived<span class="badge pull-right">' + person.countPlacesLived + '</span></a></li>');
+		$('#nameboxnav').append('<li class="active"><a href="#" id="placeslived" class="namenavlink" data-id="' + person.id + '">Places Lived<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPlacesLived + '</span></a></li>');
 	if(person.countInfluenced > 0) 
-		$('#nameboxnav').append('<li><a href="#" id="influences" class="namenavlink" data-id="' + person.id + '">Influences<span class="badge pull-right">' + person.countInfluenced + '</span></a></li>');
+		$('#nameboxnav').append('<li><a href="#" id="influences" class="namenavlink" data-id="' + person.id + '">Influences<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInfluenced + '</span></a></li>');
 	if(person.countPeers > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="peers" class="namenavlink" data-id="' + person.id + '">Peers<span class="badge pull-right">' + person.countPeers + '</span></a></li>');
+			$('#nameboxnav').append('<li><a href="#" id="peers" class="namenavlink" data-id="' + person.id + '">Peers<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPeers + '</span></a></li>');
 	if(person.countWritWorks > 0)
-			$('#nameboxnav').append('<li><a href="#" id="writworks" class="namenavlink" data-id="' + person.id + '">Written Works<span class="badge pull-right">' + person.countWritWorks + '</span></a></li>');
+			$('#nameboxnav').append('<li><a href="#" id="writworks" class="namenavlink" data-id="' + person.id + '">Written Works<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countWritWorks + '</span></a></li>');
 	if(person.countArtWorks > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="artworks" class="namenavlink" data-id="' + person.id + '">Art Works<span class="badge pull-right">' + person.countArtWorks + '</span></a></li>');
+			$('#nameboxnav').append('<li><a href="#" id="artworks" class="namenavlink" data-id="' + person.id + '">Art Works<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countArtWorks + '</span></a></li>');
 	if(person.countInventions > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="inventions" class="namenavlink" data-id="' + person.id + '">Inventions<span class="badge pull-right">' + person.countInventions + '</span></a></li>');
+			$('#nameboxnav').append('<li><a href="#" id="inventions" class="namenavlink" data-id="' + person.id + '">Inventions<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInventions + '</span></a></li>');
+}
+function toggleLoading(link, isLoading) {
+	$('#' + link + ' span').toggle(!isLoading); // Count Badge
+	$('#' + link + ' img').toggle(isLoading); // Loading animation
 }
 function clearAllNodes() {
 	// Clear existing results from map and timelinea
@@ -329,8 +333,8 @@ function getProfession(id) {
 		}
 	});
 }
-function getPerson(id) {
-	updateNamebox('<h3>Loading...</h3>');
+function getPerson(id, updateNamebox) {
+	updateNamebox = updateNamebox || true;
 	var query = {
 		'id': id,
 		'name': null,
@@ -390,13 +394,18 @@ function getPerson(id) {
 			clearAllNodes();
 			var person = newPeople([q.result], 0)[0];
 			var places = newPlaces([q.result][0]['/people/person/places_lived']);
-			updateNameboxPerson(person);
 			if(places.length > 0) {
 				plotOnMap([person].concat(places));
 			} else {
 				plotOnMap([person]);
 			}
 			plotOnTimeline([person]);
+			if(updateNamebox) {
+				updateNameboxPerson(person);
+			} else {
+				toggleLoading('placeslived', false);
+			}
+
 		}
 	});
 }
@@ -404,7 +413,6 @@ function getInfluences(id) {
 	var query = {
 		'id': id,
 		'name': null,
-		'/common/topic/description': null,
 		'/people/person/place_of_birth': {
 			'name': null,
 			'/location/location/geolocation': {
@@ -412,8 +420,6 @@ function getInfluences(id) {
 				'longitude': null
 			}
 		},
-		'/people/person/nationality': [],
-		'/people/person/profession': [],
 		'/people/person/date_of_birth': null,
 		'/people/deceased_person/date_of_death': null,
 		'/influence/influence_node/influenced_by': [{
@@ -426,8 +432,6 @@ function getInfluences(id) {
 					'longitude': null
 				}
 			},
-			'/people/person/nationality': [],
-			'/people/person/profession': [],
 			'/people/person/date_of_birth': null,
 			'/people/deceased_person/date_of_death': null
 		}],
@@ -441,11 +445,10 @@ function getInfluences(id) {
 					'longitude': null
 				}
 			},
-			'/people/person/nationality': [],
-			'/people/person/profession': [],
 			'/people/person/date_of_birth': null,
 			'/people/deceased_person/date_of_death': null
-		}]
+		}],
+		'limit': 150
 	};
 	// Async Query Request
 	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
@@ -455,10 +458,50 @@ function getInfluences(id) {
 			var influenced = newPeople((q.result['/influence/influence_node/influenced'] || []), 1);
 			var influencedBy = newPeople((q.result['/influence/influence_node/influenced_by'] || []), 2);
 			var people = origin.concat(influenced).concat(influencedBy);
-
 			plotOnMap(people);
 			plotOnTimeline(people);
 		}
+		toggleLoading('influences', false);
+	});
+}
+function getPeers(id) {
+	var query = {
+		'id': id,
+		'name': null,
+		'/people/person/place_of_birth': {
+			'name': null,
+			'/location/location/geolocation': {
+				'latitude': null,
+				'longitude': null
+			}
+		},
+		'/people/person/date_of_birth': null,
+		'/people/deceased_person/date_of_death': null,
+		'/influence/influence_node/peers': [{
+			'id': null,
+			'name': null,
+			'/people/person/place_of_birth': {
+				'name': null,
+				'/location/location/geolocation': {
+					'latitude': null,
+					'longitude': null
+				}
+			},
+			'/people/person/date_of_birth': null,
+			'/people/deceased_person/date_of_death': null
+		}]
+	};
+	// Async Query Request
+	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
+		if(q.result !== null) {
+			clearAllNodes();
+			var origin = newPeople([q.result], 0);
+			var peers = newPeople((q.result['/influence/influence_node/peers'] || []), 1);
+			var people = origin.concat(peers);
+			plotOnMap(people);
+			plotOnTimeline(people);
+		}
+		toggleLoading('peers', false);
 	});
 }
 function plotOnTimeline(people) {
@@ -610,6 +653,7 @@ $(function() {
 		// Search Result Selected - Trigger Query
 		.bind('fb-select', function(e, data) {
 			clearAllNodes();
+			updateNamebox('<h3>Loading...</h3>');
 			if(data.notable.id === '/people/profession') {
 				getProfession(data.id);
 			} else {
@@ -626,22 +670,28 @@ $(document).on('click', 'a.namenavlink', function(e) {
 	$('#' + linkid).parent('li').addClass('active');   
 	switch (linkid) {
 		case 'placeslived':
-			getPerson(queryid);
+			toggleLoading('placeslived', true);
+			getPerson(queryid, false);
 			break;
 		case 'influences':
+			toggleLoading('influences', true);
 			getInfluences(queryid);
 			break;
 		case 'peers':
-			// getPeers(queryid);
+			toggleLoading('peers', true);
+			getPeers(queryid);  
 			break;
 		case 'writworks':
 			// getWritWorks(queryid);
+			$('#' + linkid).parent('li').removeClass('active');  
 			break;
 		case 'artworks':
 			// getArtWorks(queryid);
+			$('#' + linkid).parent('li').removeClass('active');  
 			break;
 		case 'inventions':
 			// getInventions(queryid);
+			$('#' + linkid).parent('li').removeClass('active');  
 			break;
 		case 'profession':
 			getProfession('/en/' + queryid);
