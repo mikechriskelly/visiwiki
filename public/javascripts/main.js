@@ -131,7 +131,7 @@ var zoomtime = d3.timeline()
 		//alert(datum.label);
 	});
 
-var zoomtimeSVG = d3.select('#zoomtime').append('svg').attr('width', timeline.w);
+var zoomtimeSVG = d3.select('#zoomtime').append('svg').attr('width', timeline.w).attr('id', 'zoomtimeSVG');
 
 // Tip box for country names
 var maphovertip = d3.select('#map').append('span')
@@ -291,6 +291,68 @@ function newPlaces(queryResult) {
 		places[i].y = projection(places[i].coordinates)[1];
 	}
 	return places;
+}
+function getMovement(id) {
+	updateNamebox('<h3>Loading...</h3>');
+	var query = {
+		'id': id,
+		'name': null,
+		'/common/topic/description': null,
+		'/book/school_or_movement/associated_period': [{
+			'start': null,
+			'end': null,
+			'optional': true
+		}],
+		'/visual_art/art_period_movement/began_approximately': null,
+		'/visual_art/art_period_movement/ended_approximately': null,
+		'/time/event/start_date': null,
+		'/time/event/end_date': null,
+		'/visual_art/art_period_movement/associated_artists': [{
+			'id': null,
+			'name': null,
+			'/people/person/place_of_birth': {
+				'name': null,
+				'/location/location/geolocation': {
+					'latitude': null,
+					'longitude': null
+				}
+			},
+			'/people/person/date_of_birth': null,
+			'/people/deceased_person/date_of_death': null,
+			'optional': true
+		}],
+		'/book/school_or_movement/associated_authors': [{
+			'id': null,
+			'name': null,
+			'/people/person/place_of_birth': {
+				'name': null,
+				'/location/location/geolocation': {
+					'latitude': null,
+					'longitude': null
+				}
+			},
+			'/people/person/date_of_birth': null,
+			'/people/deceased_person/date_of_death': null,
+			'optional': true
+		}]
+	};
+	// Async Query Request
+	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
+		if(q.result === null) {
+			updateNamebox('<h3>Sorry, not enough data.</h3>');
+		} else {
+			clearAllNodes();
+			var people = newPeople((q.result['/book/school_or_movement/associated_authors'] || []), 1);
+			var description = q.result['/common/topic/description'] || '';
+			// Add namebox with basic info  
+			var imgWidth = 64;
+			var imgURL = fbURL + '/image' + q.result.id +  '?maxwidth=' + imgWidth + '&key=' + fbKey;
+			var personInfo = '<div class="media"><img class="media-object pull-left" src="' + imgURL + '"><div class="media-body"><h3 class="media-heading">' + q.result.name + '</h3></div></div><p>' + description + '</p>';
+			updateNamebox(personInfo);
+			plotOnMap(people);
+			plotOnTimeline(people);
+		}
+	});
 }
 function getProfession(id) {
 	updateNamebox('<h3>Loading...</h3>');
@@ -523,9 +585,10 @@ function plotOnTimeline(people) {
 	// Zoom Timeline		
 	var timelineData = [];
 	for(i = 0; i < people.length; i++) {
-		timelineData.push({label: people[i].name, times: [{'start': people[i].start, 'end': people[i].end}]});
+		timelineData.push({label: people[i].name, times: [{'start': people[i].start, 'end': people[i].end, 'degree': people[i].degree}]});
 	}
 	zoomtimeSVG.datum(timelineData).call(zoomtime);
+	$('#zoomtimeG').attr('transform', 'translate(' + ($('#zoomtime .degree-0').attr('x') * -1 + $(document).width()/2) + ', 0)');
 }
 function plotOnMap(people) {
 	// Draw nodes on map
@@ -534,7 +597,7 @@ function plotOnMap(people) {
 		.data(people)
 		.enter()
 		.append('circle')
-		.attr('class', function(d) { return 'degree-' + d.degree; })
+		.attr('class', function(d) { return 'node degree-' + d.degree; })
 		.attr('cx', function(d) { return d.x; })
 		.attr('cy', function(d) { return d.y; })
 		.attr('title', function(d) { return d.name; })

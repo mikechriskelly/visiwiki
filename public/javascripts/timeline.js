@@ -30,7 +30,7 @@ module.exports = function() {
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle};
 
     function timeline (gParent) {
-      var g = gParent.append("g");
+      var g = gParent.append("g").attr("height", "300").attr("id", "zoomtimeG");
       var gParentSize = gParent[0][0].getBoundingClientRect();
 
       var gParentItem = d3.select(gParent[0][0]);
@@ -111,6 +111,7 @@ module.exports = function() {
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
             .attr("height", itemHeight)
+            .attr("class", function(d) { return "degree-" + d.degree; })
             .style("fill", function(d, i){ 
               if( colorPropertyName ){ 
                 return colorCycle( datum[colorPropertyName] ); 

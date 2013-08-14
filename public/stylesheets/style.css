@@ -84,6 +84,10 @@ span.badge { margin-right: 7px;}
 	background: #85cdff;
 	border-left: 1px solid #ccc;
 }
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}
 .timeline {
 	width: 100%;
 	margin: 0px;
@@ -92,25 +96,30 @@ span.badge { margin-right: 7px;}
 	font-size: 8px;
 	background: #fff;
 }
-
 #fulltime {
 	background-color: #eeeeee; 
 	padding: 0px;
 	z-index: 100;
-  position: fixed;
-  bottom: 0px;
+	position: fixed;
+	bottom: 0px;
 	border-top: 1px solid #ccc;
-  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 	-moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
 }
 #zoomtime {
+	position: relative;
+	width: 100%;
+	overflow: auto;
 	height: 200px;
 	background-color: #fff; 
 	border-top: 1px solid #ccc;
 	box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
 	-webkit-box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
 	-moz-box-shadow: inset 0px 2px 3px rgba(0,0,0,0.1);
+}
+#zoomtimeSVG {
+	position: absolute;
 }
 .country {
 	fill: #F7F7F7;
