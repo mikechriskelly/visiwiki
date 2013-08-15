@@ -123,7 +123,7 @@ span.badge { margin-right: 7px;}
 	position: absolute;
 }
 rect.pane {
-	cursor: move;
+	cursor: auto;
 	fill: none;
 	pointer-events: all;
 }
@@ -143,9 +143,12 @@ rect.pane {
 	font-size: 10px;
 }
 .eventlabels text {
-	font-size: 9px;
+	font-size: 10px;
 	fill: #fff;
-	font-weight: 200;
+	font-weight: 400;
+}
+.node text {
+	font-size: 2px;
 }
 .country {
 	fill: #F7F7F7;

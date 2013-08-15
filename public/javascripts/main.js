@@ -186,7 +186,7 @@ function redrawZoomtime() {
 		.attr('x', function(d, i) { return zoomtime.x(d.start); })
 		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); });
 	zoomtime.eventlabels.selectAll('text')
-		.attr('x', function(d, i) { return zoomtime.x(d.start); })
+		.attr('x', function(d, i) { return zoomtime.x(d.start) + 4; })
 		.attr('opacity', function() { return (zoomtime.zoom.scale() > 5) ? 1 : 0; });
 }
 
@@ -652,12 +652,15 @@ function plotOnTimeline(people) {
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5)
 		.attr('y', function(d, i) { return 5 + (i % zoomtime.numrows) * (zoomtime.itemh+2); });
+		// .on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
+		// .on('mouseover', function() { d3.select(this).attr('opacity', 1); })
+		// .on('mouseout', function() { d3.select(this).attr('opacity', 0.5); });
 
 	zoomtime.eventlabels
 		.selectAll('text')
 		.data(people)
 		.enter().append('text')
-		.attr('y', function(d, i) { return 5 + zoomtime.itemh + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
+		.attr('y', function(d, i) { return 4 + zoomtime.itemh + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
@@ -724,6 +727,15 @@ function plotOnMap(people) {
 		.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
+	// mapSVG
+	// 	.selectAll('text')
+	// 	.data(people)
+	// 	.enter().append('text')
+	// 	.attr('class', function(d) { return 'node degree-' + d.degree; })
+	// 	.attr('x', function(d) { return d.x + 5; })
+	// 	.attr('y', function(d) { return d.y; })
+	// 	.text(function(d) { return d.name; });
+		
 	// Zoom to origin node
 	if(people[0].degree === 0) {
 		var zoomScale = 5;
