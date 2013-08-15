@@ -17,11 +17,7 @@ var colors = ['#332412', '#1B567A', '#C2412D', '#332412'];
 // Utility Functions
 
 function parseDate(dateString) {
-	// 'dateString' must either conform to the ISO date format YYYY-MM-DD
-	// or be a full year without month and day.
-	// AD years may not contain letters, only digits '0'-'9'!
-	// Invalid AD years: '10 AD', '1234 AD', '500 CE', '300 n.Chr.'
-	// Valid AD years: '1', '99', '2013'
+	// Accept ISO date format YYYY-MM-DD or try to parse date from string
 	// BC years must contain letters or negative numbers!
 	// Valid BC years: '1 BC', '-1', '12 BCE', '10 v.Chr.', '-384'
 	// A dateString of '0' will be converted to '1 BC'.
@@ -31,17 +27,18 @@ function parseDate(dateString) {
 	var format = d3.time.format('%Y-%m-%d'),
 		date,
 		year;
+
 	if (dateString === null) return null;
 	date = format.parse(dateString);
-	if (date !== null) return date;
+	if (date instanceof Date && isFinite(date)) return date;
 
 	// BC yearStrings are not numbers!
-	if (isNaN(dateString)) { // Handle BC year
+	if (isNaN(dateString) && dateString.match(/(BC|bc|Bc)/) !== null) { // Handle BC year
 		// Remove non-digits, convert to negative number
-		year = -(dateString.replace(/[^0-9]/g, ''));
+		year = -(dateString.match(/[0-9]{4}/g, ''));
 	} else { // Handle AD year
 		// Convert to positive number
-		year = +dateString;
+		year = +(dateString.match(/[0-9]{4}/g, ''));
 	}
 	if (year < 0 || year > 99) { // 'Normal' dates
 		date = new Date(year, 6, 1);
@@ -53,6 +50,9 @@ function parseDate(dateString) {
 		date.setUTCFullYear(('0000' + year).slice(-4));
 	}
 	// Finally create the date
+	console.log('datestring: ' + dateString + ', date: ' + typeof(date));
+	console.log(date instanceof Date);
+	console.log(isFinite(date));
 	return date;
 }
 function toYear(date, bcString) {
@@ -182,9 +182,6 @@ function redrawZoomtime() {
 	zoomtime.events.selectAll('rect')
 		.attr('x', function(d, i) { return zoomtime.x(d.start); })
 		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); });
-	console.log( d3.select('rect degree-0').x * zoomtime.zoom.scale());
-	console.log(zoomtime.zoom.scale());
-	console.log(zoomtime.zoom.translate());
 }
 
 // Tip box for country names
@@ -575,6 +572,7 @@ function getInfluences(id) {
 			plotOnMap(people);
 			plotOnTimeline(people);
 		}
+		console.dir(people);
 		toggleLoading('influences', false);
 	});
 }
@@ -648,6 +646,17 @@ function plotOnTimeline(people) {
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5)
 		.attr('y', function(d, i) { return 5 + i%20 * zoomtime.itemh+2; } );
+
+	var zoomScale = 8;
+	var centerTime = new Date(people[0].start.getUTCFullYear()-200, 1, 1);
+	var trans = [zoomtime.x(centerTime) * -zoomScale, 0];
+	zoomtimeSVG
+		.transition()
+		.duration(200)
+		.attr('transform', 'translate(' + trans[0] + ',' + trans[1] + ')scale(' + zoomScale + ')');
+	zoomtime.zoom.scale(zoomScale);
+	zoomtime.zoom.translate([trans[0], trans[1]]);
+
 	redrawZoomtime();
 }
 function plotOnMap(people) {
