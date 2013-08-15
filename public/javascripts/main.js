@@ -131,7 +131,7 @@ zoomtime.marginbottom = 20;
 zoomtime.w = timeline.w;
 zoomtime.h = 200 - zoomtime.marginbottom;
 zoomtime.itemh = 10;
-zoomtime.numrows = 15
+zoomtime.numrows = 14;
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -579,7 +579,6 @@ function getInfluences(id) {
 			plotOnMap(people);
 			plotOnTimeline(people);
 		}
-		console.dir(people);
 		toggleLoading('influences', false);
 	});
 }
