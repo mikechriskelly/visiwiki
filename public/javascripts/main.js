@@ -181,7 +181,10 @@ function redrawZoomtime() {
 	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
 	zoomtime.events.selectAll('rect')
 		.attr('x', function(d, i) { return zoomtime.x(d.start); })
-		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); })
+		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); });
+	console.log( d3.select('rect degree-0').x * zoomtime.zoom.scale());
+	console.log(zoomtime.zoom.scale());
+	console.log(zoomtime.zoom.translate());
 }
 
 // Tip box for country names
@@ -219,7 +222,7 @@ function updateNameboxPerson(person) {
 	}
 	personInfo += '<br><span class="label label-info">' + person.lived[0] + ' - ' + person.lived[1] + '</span></div></div>';
 	if(typeof person.description === 'string') {
-		personInfo += '<p>' + person.description.substring(0,250) + '</p>';
+		personInfo += '<p>' + person.description.substring(0,260) + '...</p>';
 	}
 	$('#namebox').append(personInfo);
 
@@ -336,8 +339,8 @@ function newPlaces(queryResult) {
 																	queryResult[i]['location']['/location/location/geolocation']['latitude']] || [0,0];
 
 		// Translate geocoordinates into map coordinates
-		places[i].x = projection(places[i].coordinates)[0];
-		places[i].y = projection(places[i].coordinates)[1];
+		places[i].x = map.projection(places[i].coordinates)[0];
+		places[i].y = map.projection(places[i].coordinates)[1];
 	}
 	return places;
 }
@@ -644,7 +647,7 @@ function plotOnTimeline(people) {
 		.attr('height', zoomtime.itemh)
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5)
-		.attr('y', function(d, i) { return 15 + i%20 * zoomtime.itemh+2; } );
+		.attr('y', function(d, i) { return 5 + i%20 * zoomtime.itemh+2; } );
 	redrawZoomtime();
 }
 function plotOnMap(people) {
