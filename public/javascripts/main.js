@@ -32,13 +32,12 @@ function parseDate(dateString) {
 	date = format.parse(dateString);
 	if (date instanceof Date && isFinite(date)) return date;
 
-	// BC yearStrings are not numbers!
-	if (isNaN(dateString) && dateString.match(/(BC|bc|Bc)/) !== null) { // Handle BC year
+	if (dateString.match(/(BC|bc|Bc|^-[0-9]{3,4})/) !== null) { // Handle BC year
 		// Remove non-digits, convert to negative number
-		year = -(dateString.match(/[0-9]{4}/g, ''));
+		year = -(dateString.match(/[0-9]{3,4}/g, ''));
 	} else { // Handle AD year
 		// Convert to positive number
-		year = +(dateString.match(/[0-9]{4}/g, ''));
+		year = +(dateString.match(/[0-9]{3,4}/g, ''));
 	}
 	if (year < 0 || year > 99) { // 'Normal' dates
 		date = new Date(year, 6, 1);
@@ -50,7 +49,7 @@ function parseDate(dateString) {
 		date.setUTCFullYear(('0000' + year).slice(-4));
 	}
 	// Finally create the date
-	console.log('datestring: ' + dateString + ', date: ' + typeof(date));
+	console.log('datestring: ' + dateString + ', date: ' + date);
 	console.log(date instanceof Date);
 	console.log(isFinite(date));
 	return date;
@@ -131,7 +130,8 @@ var zoomtime = {};
 zoomtime.marginbottom = 20;
 zoomtime.w = timeline.w;
 zoomtime.h = 200 - zoomtime.marginbottom;
-zoomtime.itemh = 8;
+zoomtime.itemh = 10;
+zoomtime.numrows = 15
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -151,6 +151,9 @@ var zoomtimeSVG = d3.select('#zoomtime').append('svg')
 
 zoomtime.events = zoomtimeSVG.append('g')
 	.attr('class', 'events');
+
+zoomtime.eventlabels = zoomtimeSVG.append('g')
+	.attr('class', 'eventlabels');
 
 zoomtime.zoom = d3.behavior.zoom()
 	.scaleExtent([1,30])
@@ -182,6 +185,9 @@ function redrawZoomtime() {
 	zoomtime.events.selectAll('rect')
 		.attr('x', function(d, i) { return zoomtime.x(d.start); })
 		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); });
+	zoomtime.eventlabels.selectAll('text')
+		.attr('x', function(d, i) { return zoomtime.x(d.start); })
+		.attr('opacity', function() { return (zoomtime.zoom.scale() > 5) ? 1 : 0; });
 }
 
 // Tip box for country names
@@ -247,6 +253,7 @@ function clearAllNodes() {
 	mapSVG.selectAll('circle').remove();
 	timelineSVG.selectAll('rect.events').remove();
 	zoomtimeSVG.selectAll('rect.events').remove();
+	zoomtimeSVG.selectAll('text.eventlabels').remove();
 }
 
 //--------------------------------------------------------------------------
@@ -645,8 +652,16 @@ function plotOnTimeline(people) {
 		.attr('height', zoomtime.itemh)
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5)
-		.attr('y', function(d, i) { return 5 + i%20 * zoomtime.itemh+2; } );
+		.attr('y', function(d, i) { return 5 + (i % zoomtime.numrows) * (zoomtime.itemh+2); });
 
+	zoomtime.eventlabels
+		.selectAll('text')
+		.data(people)
+		.enter().append('text')
+		.attr('y', function(d, i) { return 5 + zoomtime.itemh + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
+		.text(function (d) { return d.name; });
+
+	// Center timeline on origin node
 	var zoomScale = 8;
 	var centerTime = new Date(people[0].start.getUTCFullYear()-200, 1, 1);
 	var trans = [zoomtime.x(centerTime) * -zoomScale, 0];

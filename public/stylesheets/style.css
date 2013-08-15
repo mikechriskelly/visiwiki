@@ -142,6 +142,11 @@ rect.pane {
 #zoomtime .axis text {
 	font-size: 10px;
 }
+.eventlabels text {
+	font-size: 8px;
+	fill: #fff;
+	font-weight: 200;
+}
 .country {
 	fill: #F7F7F7;
 	stroke: #C9D1D3;
