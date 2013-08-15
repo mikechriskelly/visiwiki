@@ -72,28 +72,30 @@ function toYear(date, bcString) {
 
 //--------------------------------------------------------------------------
 // Map Setup
-var mapW  = 800,
-	mapH = 480;
-var projection = d3.geo.mercator().translate([mapW / 2, mapH / 1.5]);
-var path = d3.geo.path().projection(projection);
-var zoom = d3.behavior.zoom()
+var map = {};
+map.w  = 800,
+map.h = 480;
+map.projection = d3.geo.mercator().translate([map.w / 2, map.h / 1.5]);
+map.path = d3.geo.path().projection(map.projection);
+map.zoom = d3.behavior.zoom()
 	.scaleExtent([1,10])
-	.on('zoom', redraw);
+	.on('zoom', redrawMap);
 
 var mapSVG = d3.select('#map').append('svg')
 	.attr('width', '100%')
 	.attr('height', '60%')
-	.attr('viewBox', '0 0 ' + mapW + ' ' + mapH )
+	.attr('viewBox', '0 0 ' + map.w + ' ' + map.h )
 	.attr('preserveAspectRatio', 'xMidYMid meet')
 	.attr('pointer-events', 'all')
-	.call(zoom)
+	.call(map.zoom)
 	.append('g');
 
-function redraw() {
+function redrawMap() {
 	mapSVG.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
 }
 
-// Timeline Setup - full timeline
+//--------------------------------------------------------------------------
+// Timeline Setup - Full Timeline
 var nearFuture = new Date().getUTCFullYear()+50;
 var timeline = {};
 timeline.start = new Date(-1400, 1, 1);
@@ -106,32 +108,81 @@ var timelineSVG = d3.select('#fulltime').append('svg')
 	.attr('height', timeline.h)
 	.attr('preserveAspectRatio', 'none')
 	.attr('pointer-events', 'all');
-var xScale = d3.scale.linear()
+
+timeline.x= d3.scale.linear()
 	.domain([timeline.start, timeline.end])
 	.range([10, timeline.w-10]);
-var axis = d3.svg.axis()
-	.scale(xScale)
+
+timeline.axis = d3.svg.axis()
+	.scale(timeline.x)
 	.orient('bottom')
 	.tickValues([new Date(-1000,1,1), new Date(-500,1,1), new Date(-1,1,1), new Date(500,1,1), new Date(1000,1,1), new Date(1500,1,1), new Date(2000,1,1)])
 	.tickSize(6,3,6)
 	.tickSubdivide(1)
 	.tickFormat(function (d) { return toYear(d); });
-var xAxis = timelineSVG.append('g')
+timeline.xAxis = timelineSVG.append('g')
 	.attr('class', 'axis')
 	.attr('transform', 'translate(0, 28)');
 
-xAxis.call(axis);
+timeline.xAxis.call(timeline.axis);
 
-// Timeline Setup - zoomed timeline
-var zoomtime = d3.timeline()
-	.width(timeline.w*6)
-	.height(200)
-	.margin({left:0, right:0, top:0, bottom:0})
-	.click(function (d, i, datum) {
-		//alert(datum.label);
-	});
+//--------------------------------------------------------------------------
+// Timeline Setup - Zoom and Pan Timeline
+var zoomtime = {};
+zoomtime.marginbottom = 20;
+zoomtime.w = timeline.w;
+zoomtime.h = 200 - zoomtime.marginbottom;
 
-var zoomtimeSVG = d3.select('#zoomtime').append('svg').attr('width', timeline.w).attr('id', 'zoomtimeSVG');
+zoomtime.x = d3.time.scale()
+	.range([0, zoomtime.w]);
+
+zoomtime.y = d3.scale.linear()
+	.range([zoomtime.h, 0]);
+
+zoomtime.xAxis = d3.svg.axis()
+	.scale(zoomtime.x)
+	.orient('bottom')
+	.tickSize(-zoomtime.h, 0)
+	.tickPadding(6);
+
+var zoomtimeSVG = d3.select('#zoomtime').append('svg')
+	.attr('width', zoomtime.w)
+	.attr('height', zoomtime.h + zoomtime.marginbottom);
+
+zoomtime.events = zoomtimeSVG.append('g')
+	.attr('class', 'events');
+
+zoomtime.zoom = d3.behavior.zoom()
+	.scaleExtent([1,30])
+	.on('zoom', redrawZoomtime);
+
+zoomtimeSVG
+	.append('clipPath')
+	.attr('id', 'clip')
+	.append('rect')
+		.attr('x', zoomtime.x(0))
+		.attr('y', zoomtime.y(1))
+		.attr('width', zoomtime.x(1) - zoomtime.x(0))
+		.attr('height', zoomtime.y(0) - zoomtime.y(1));
+
+zoomtimeSVG
+	.append('g')
+		.attr('class', 'x axis')
+		.attr('transform', 'translate(0,' + zoomtime.h + ')');
+
+zoomtimeSVG
+	.append('rect')
+		.attr('class', 'pane')
+		.attr('width', zoomtime.w)
+		.attr('height', zoomtime.h)
+		.call(zoomtime.zoom);
+
+function redrawZoomtime() {
+	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
+	events.selectAll('rect')
+			.attr('x', function(d, i) { return zoomtime.x(d.date) - .5; })
+			.attr('y', function(d, i) { return i%20 * 9; } )
+}
 
 // Tip box for country names
 var maphovertip = d3.select('#map').append('span')
@@ -197,7 +248,7 @@ function clearAllNodes() {
 	timelineSVG.selectAll('.degree-0').remove();
 	timelineSVG.selectAll('.degree-1').remove();
 	timelineSVG.selectAll('.degree-2').remove();
-	zoomtimeSVG.selectAll('g').remove();
+	//zoomtimeSVG.selectAll('g').remove();
 }
 
 //--------------------------------------------------------------------------
@@ -262,8 +313,8 @@ function newPeople(queryResult, degree) {
 														queryResult[i]['/people/person/place_of_birth']['/location/location/geolocation']['latitude']] || [0,0];
 
 		// Translate geocoordinates into map coordinates
-		people[i].x = projection(people[i].coordinates)[0];
-		people[i].y = projection(people[i].coordinates)[1];
+		people[i].x = map.projection(people[i].coordinates)[0];
+		people[i].y = map.projection(people[i].coordinates)[1];
 
 		// Create empty influence lists as default
 		people[i].infld = [];
@@ -575,20 +626,15 @@ function plotOnTimeline(people) {
 		.append('rect')
 		.attr('class', function(d) { return 'degree-' + d.degree; })
 		.attr('title', function(d) { return d.name; })
-		.attr('x', function(d) { return xScale(d.start); })
+		.attr('x', function(d) { return timeline.x(d.start); })
 		.attr('y', 12)
-		.attr('width', function(d) { return xScale(d.end) - xScale(d.start); })
+		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
 		.attr('height', 10)
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.6);
 
 	// Zoom Timeline		
-	var timelineData = [];
-	for(i = 0; i < people.length; i++) {
-		timelineData.push({label: people[i].name, times: [{'start': people[i].start, 'end': people[i].end, 'degree': people[i].degree}]});
-	}
-	zoomtimeSVG.datum(timelineData).call(zoomtime);
-	$('#zoomtimeG').attr('transform', 'translate(' + ($('#zoomtime .degree-0').attr('x') * -1 + $(document).width()/2) + ', 0)');
+
 }
 function plotOnMap(people) {
 	// Draw nodes on map
@@ -644,13 +690,13 @@ function plotOnMap(people) {
 	// Zoom to origin node
 	if(people[0].degree === 0) {
 		var zoomScale = 5;
-		var trans = [(-people[0].x * zoomScale + mapW/2),(-people[0].y * zoomScale + mapH/2)];
+		var trans = [(-people[0].x * zoomScale + map.w/2),(-people[0].y * zoomScale + map.h/2)];
 		mapSVG
 			.transition()
 			.duration(450)
 			.attr('transform', 'translate(' + trans[0] + ',' + trans[1] + ')scale(' + zoomScale + ')');
-		zoom.scale(zoomScale);
-		zoom.translate([trans[0], trans[1]]);
+		map.zoom.scale(zoomScale);
+		map.zoom.translate([trans[0], trans[1]]);
 	}
 }
 
@@ -677,7 +723,7 @@ function ready(error, world, names) {
 		.insert('path')
 		.attr('class', 'country')    
 		.attr('title', function(d,i) { return d.name; })
-		.attr('d', path);
+		.attr('d', map.path);
 
 	// Display and Hide country name tooltip
 	country
