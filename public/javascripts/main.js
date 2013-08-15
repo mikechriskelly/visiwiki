@@ -100,7 +100,7 @@ var timeline = {};
 timeline.start = new Date(-1400, 1, 1);
 timeline.end = new Date(nearFuture, 1, 1);
 timeline.w = $(document).width();
-timeline.h = 50;
+timeline.h = 35;
 
 var timelineSVG = d3.select('#fulltime').append('svg')
 	.attr('width', timeline.w)
@@ -116,12 +116,12 @@ timeline.axis = d3.svg.axis()
 	.scale(timeline.x)
 	.orient('bottom')
 	.tickValues([new Date(-1000,1,1), new Date(-500,1,1), new Date(-1,1,1), new Date(500,1,1), new Date(1000,1,1), new Date(1500,1,1), new Date(2000,1,1)])
-	.tickSize(6,3,6)
+	.tickSize(2,0,2)
 	.tickSubdivide(1)
 	.tickFormat(function (d) { return toYear(d); });
 timeline.xAxis = timelineSVG.append('g')
 	.attr('class', 'axis')
-	.attr('transform', 'translate(0, 28)');
+	.attr('transform', 'translate(0, 18)');
 
 timeline.xAxis.call(timeline.axis);
 
@@ -131,6 +131,7 @@ var zoomtime = {};
 zoomtime.marginbottom = 20;
 zoomtime.w = timeline.w;
 zoomtime.h = 200 - zoomtime.marginbottom;
+zoomtime.itemh = 8;
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -180,7 +181,7 @@ function redrawZoomtime() {
 	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
 	zoomtime.events.selectAll('rect')
 		.attr('x', function(d, i) { return zoomtime.x(d.start); })
-		.attr('y', function(d, i) { return i%20 * 9; } )
+		.attr('width', function(d) { return zoomtime.x(d.end) - zoomtime.x(d.start); })
 }
 
 // Tip box for country names
@@ -625,7 +626,7 @@ function plotOnTimeline(people) {
 		.attr('x', function(d) { return timeline.x(d.start); })
 		.attr('y', 12)
 		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
-		.attr('height', 10)
+		.attr('height', 6)
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5);
 
@@ -640,10 +641,10 @@ function plotOnTimeline(people) {
 		.enter().append('rect')
 		.attr('class', function(d) { return 'events degree-' + d.degree; })
 		.attr('title', function(d) { return d.name; })
-		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
-		.attr('height', 8)
+		.attr('height', zoomtime.itemh)
 		.attr('fill', function(d) { return d.color; })
-		.attr('opacity', 0.5);
+		.attr('opacity', 0.5)
+		.attr('y', function(d, i) { return 15 + i%20 * zoomtime.itemh+2; } );
 	redrawZoomtime();
 }
 function plotOnMap(people) {

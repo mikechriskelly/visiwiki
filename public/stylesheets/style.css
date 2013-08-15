@@ -131,6 +131,17 @@ rect.pane {
 	stroke: #ccc;
 	stroke-opacity: .5;
 }
+.axis path,
+.axis line {
+	fill: none;
+	stroke: #ccc;
+}
+#fulltime .axis text {
+	font-size: 8px;
+}
+#zoomtime .axis text {
+	font-size: 10px;
+}
 .country {
 	fill: #F7F7F7;
 	stroke: #C9D1D3;
@@ -188,14 +199,4 @@ span.infotip:after {
 	border-color: transparent #60AC39 transparent transparent;
 	top: 0px;
 	left: -24px;
-}
-
-.axis path,
-.axis line {
-	fill: none;
-	stroke: black;
-}
-.axis text {
-	font-family: sans-serif;
-	font-size: 10px;
 }
