@@ -180,8 +180,8 @@ zoomtimeSVG
 function redrawZoomtime() {
 	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
 	zoomtime.events.selectAll('rect')
-			.attr('x', function(d, i) { return zoomtime.x(d.start) - 0.5; })
-			.attr('y', function(d, i) { return i%20 * 9; } );
+		.attr('x', function(d, i) { return zoomtime.x(d.start); })
+		.attr('y', function(d, i) { return i%20 * 9; } )
 }
 
 // Tip box for country names
@@ -245,10 +245,8 @@ function toggleLoading(link, isLoading) {
 function clearAllNodes() {
 	// Clear existing results from map and timelinea
 	mapSVG.selectAll('circle').remove();
-	timelineSVG.selectAll('.degree-0').remove();
-	timelineSVG.selectAll('.degree-1').remove();
-	timelineSVG.selectAll('.degree-2').remove();
-	//zoomtimeSVG.selectAll('g').remove();
+	timelineSVG.selectAll('rect.events').remove();
+	zoomtimeSVG.selectAll('rect.events').remove();
 }
 
 //--------------------------------------------------------------------------
@@ -622,29 +620,31 @@ function plotOnTimeline(people) {
 	timelineSVG
 		.selectAll('circle')
 		.data(people)
-		.enter()
-		.append('rect')
-		.attr('class', function(d) { return 'degree-' + d.degree; })
+		.enter().append('rect')
+		.attr('class', function(d) { return 'events degree-' + d.degree; })
 		.attr('title', function(d) { return d.name; })
 		.attr('x', function(d) { return timeline.x(d.start); })
 		.attr('y', 12)
 		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
 		.attr('height', 10)
 		.attr('fill', function(d) { return d.color; })
-		.attr('opacity', 0.6);
+		.attr('opacity', 0.5);
 
 	// Zoom Timeline		
-	var x = zoomtime.x
+	var x = zoomtime.x;
 	x.domain([new Date(-2000, 0, 1), new Date(2013, 0, 1)]);
 	zoomtime.zoom.x(x);
 
-	zoomtime.events.selectAll('rect')
+	zoomtime.events
+		.selectAll('rect')
 		.data(people)
-	.enter().append('rect')
-		.attr('width', function() { return Math.floor(Math.random() * 50); })
-		.attr('height', '8')
-		.attr('opacity', '0.3');
-
+		.enter().append('rect')
+		.attr('class', function(d) { return 'events degree-' + d.degree; })
+		.attr('title', function(d) { return d.name; })
+		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
+		.attr('height', 8)
+		.attr('fill', function(d) { return d.color; })
+		.attr('opacity', 0.5);
 	redrawZoomtime();
 }
 function plotOnMap(people) {
