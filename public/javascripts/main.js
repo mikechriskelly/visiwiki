@@ -1,6 +1,5 @@
 //--------------------------------------------------------------------------
 // Load Modules
-d3.timeline = require('./timeline.js');
 var queue = require('./queue.v1.min.js');
 var topojson = require('./topojson.js');
 
