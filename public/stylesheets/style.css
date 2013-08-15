@@ -121,6 +121,15 @@ span.badge { margin-right: 7px;}
 #zoomtimeSVG {
 	position: absolute;
 }
+rect.pane {
+	cursor: move;
+	fill: none;
+	pointer-events: all;
+}
+.x.axis line {
+	stroke: #ccc;
+	stroke-opacity: .5;
+}
 .country {
 	fill: #F7F7F7;
 	stroke: #C9D1D3;

@@ -73,7 +73,7 @@ function toYear(date, bcString) {
 //--------------------------------------------------------------------------
 // Map Setup
 var map = {};
-map.w  = 800,
+map.w  = 800;
 map.h = 480;
 map.projection = d3.geo.mercator().translate([map.w / 2, map.h / 1.5]);
 map.path = d3.geo.path().projection(map.projection);
@@ -179,9 +179,9 @@ zoomtimeSVG
 
 function redrawZoomtime() {
 	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
-	events.selectAll('rect')
-			.attr('x', function(d, i) { return zoomtime.x(d.date) - .5; })
-			.attr('y', function(d, i) { return i%20 * 9; } )
+	zoomtime.events.selectAll('rect')
+			.attr('x', function(d, i) { return zoomtime.x(d.start) - 0.5; })
+			.attr('y', function(d, i) { return i%20 * 9; } );
 }
 
 // Tip box for country names
@@ -634,7 +634,18 @@ function plotOnTimeline(people) {
 		.attr('opacity', 0.6);
 
 	// Zoom Timeline		
+	var x = zoomtime.x
+	x.domain([new Date(-2000, 0, 1), new Date(2013, 0, 1)]);
+	zoomtime.zoom.x(x);
 
+	zoomtime.events.selectAll('rect')
+		.data(people)
+	.enter().append('rect')
+		.attr('width', function() { return Math.floor(Math.random() * 50); })
+		.attr('height', '8')
+		.attr('opacity', '0.3');
+
+	redrawZoomtime();
 }
 function plotOnMap(people) {
 	// Draw nodes on map
