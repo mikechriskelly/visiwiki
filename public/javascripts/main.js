@@ -9,12 +9,13 @@ var fbKey = 'AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY';
 var fbURL = 'https://www.googleapis.com/freebase/v1';
 var fbCall = fbURL + '/mqlread?key=' + fbKey + '&callback=?';
 
+//--------------------------------------------------------------------------
 // Node Colors
 // origin = black, influenced = blue, influenced_by = orange, placeslived = light brown
 var colors = ['#332412', '#1B567A', '#C2412D', '#332412'];
 
 //--------------------------------------------------------------------------
-// Utility Functions
+// Time Functions
 
 function parseDate(dateString) {
 	// Accept ISO date format YYYY-MM-DD or try to parse date from string
@@ -28,16 +29,16 @@ function parseDate(dateString) {
 		date,
 		year;
 
-	if (dateString === null) return null;
+	if (dateString === null || dateString === undefined) return null;
 	date = format.parse(dateString);
 	if (date instanceof Date && isFinite(date)) return date;
 
 	if (dateString.match(/(BC|bc|Bc|^-[0-9]{3,4})/) !== null) { // Handle BC year
 		// Remove non-digits, convert to negative number
-		year = -(dateString.match(/[0-9]{3,4}/g, ''));
+		year = -(dateString.match(/[0-9]{3,4}/, ''));
 	} else { // Handle AD year
 		// Convert to positive number
-		year = +(dateString.match(/[0-9]{3,4}/g, ''));
+		year = +(dateString.match(/[0-9]{3,4}/, ''));
 	}
 	if (year < 0 || year > 99) { // 'Normal' dates
 		date = new Date(year, 6, 1);
@@ -48,16 +49,11 @@ function parseDate(dateString) {
 		date = new Date(year, 6, 1);
 		date.setUTCFullYear(('0000' + year).slice(-4));
 	}
-	// Finally create the date
-	console.log('datestring: ' + dateString + ', date: ' + date);
-	console.log(date instanceof Date);
-	console.log(isFinite(date));
 	return date;
 }
 function toYear(date, bcString) {
 	// bcString is the prefix or postfix for BC dates.
-	// If bcString starts with '-' (minus),
-	// if will be placed in front of the year.
+	// If bcString starts with '-' (minus), it will be placed in front of the year.
 	if (date === null) return null;
 	if (!(date instanceof Date)) { date = new Date(date); }
 	bcString = bcString || ' BC'; // With blank!
@@ -190,6 +186,8 @@ function redrawZoomtime() {
 		.attr('opacity', function() { return (zoomtime.zoom.scale() > 5) ? 1 : 0; });
 }
 
+//--------------------------------------------------------------------------
+// Infotip Boxes
 // Tip box for country names
 var maphovertip = d3.select('#map').append('span')
 		.attr('class', 'maphovertip')
@@ -216,12 +214,13 @@ function updateNameboxPerson(person) {
 	// List professions labels (max 3)
 	for (i = 0; i < person.profession.length && i < 3; i++) {
 		id = person.profession[i].toLowerCase().replace(/ /g,'_');
-		personInfo += '<a href="#" id="profession" class="namenavlink" data-id="' + id + '"><span class="label label-success">' + person.profession[i] + '</span></a>';
+		personInfo += '<a href="#" id="profession" class="namenavlink" data-id="/en/' + id + '"><span class="label label-success">' + person.profession[i] + '</span></a>';
 	}
 	// List school or movement or period labels (max 3)
 	for (i = 0; i < person.movements.length && i < 3; i++) {
 		if(i === 0) personInfo += '<br>';
-		personInfo += '<span class="label label-warning">' + person.movements[i] + '</span>';
+		id = person.movements[i].toLowerCase().replace(/ /g,'_');
+		personInfo += '<a href="#" id="movements" class="namenavlink" data-id="/en/' + id + '"><span class="label label-warning">' + person.movements[i] + '</span></a>';
 	}
 	personInfo += '<br><span class="label label-info">' + person.lived[0] + ' - ' + person.lived[1] + '</span></div></div>';
 	if(typeof person.description === 'string') {
@@ -252,13 +251,13 @@ function clearAllNodes() {
 	// Clear existing results from map and timelinea
 	mapSVG.selectAll('circle').remove();
 	timelineSVG.selectAll('rect.events').remove();
-	zoomtimeSVG.selectAll('rect.events').remove();
-	zoomtimeSVG.selectAll('text.eventlabels').remove();
+	zoomtime.events.selectAll('rect.events').remove();
+	zoomtime.eventlabels.selectAll('text.eventlabels').remove();
 }
 
 //--------------------------------------------------------------------------
 // Parse query results into new object
-// Degree 0 = origin node; 1 = influenced node; 2 = influenced_by node 
+// Degree 0 = origin node; 1 = influenced node; 2 = influenced_by node; 3 = city name only
 function newPeople(queryResult, degree) {
 	var people = [];
 	for (var i = 0; i < queryResult.length; i++) {
@@ -398,13 +397,25 @@ function getMovement(id) {
 			updateNamebox('<h3>Sorry, not enough data.</h3>');
 		} else {
 			clearAllNodes();
-			var people = newPeople((q.result['/book/school_or_movement/associated_authors'] || []), 1);
+			var artists = newPeople((q.result['/visual_art/art_period_movement/associated_artists'] || []), 1);
+			var authors = newPeople((q.result['/book/school_or_movement/associated_authors'] || []), 2);
 			var description = q.result['/common/topic/description'] || '';
 			// Add namebox with basic info  
 			var imgWidth = 64;
 			var imgURL = fbURL + '/image' + q.result.id +  '?maxwidth=' + imgWidth + '&key=' + fbKey;
-			var personInfo = '<div class="media"><img class="media-object pull-left" src="' + imgURL + '"><div class="media-body"><h3 class="media-heading">' + q.result.name + '</h3></div></div><p>' + description + '</p>';
-			updateNamebox(personInfo);
+
+			var start = toYear(parseDate(q.result['/time/event/start_date']) || parseDate(q.result['/visual_art/art_period_movement/began_approximately']) || parseDate(q.result['/book/school_or_movement/associated_period']['start']) || null);
+			var end = toYear(parseDate(q.result['/time/event/end_date']) || parseDate(q.result['/visual_art/art_period_movement/ended_approximately']) || parseDate(q.result['/book/school_or_movement/associated_period']['end']) || null);
+			
+			var movementInfo = '<div class="media"><img class="media-object pull-left" src="' + imgURL + '"><div class="media-body"><h3 class="media-heading">' + q.result.name + '</h3>';
+			if(start || end) {
+				movementInfo += '<span class="label label-info">' + (start || 'unknown') + ' - ' + (end || 'unknown') + '</span>';
+			}
+			movementInfo += '</div></div><p>' + description + '</p>';
+
+			var people = artists.concat(authors);
+
+			updateNamebox(movementInfo);
 			plotOnMap(people);
 			plotOnTimeline(people);
 		}
@@ -660,6 +671,7 @@ function plotOnTimeline(people) {
 		.selectAll('text')
 		.data(people)
 		.enter().append('text')
+		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
 		.attr('y', function(d, i) { return 4 + zoomtime.itemh + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
 		.text(function (d) { return d.name; });
 
@@ -727,6 +739,7 @@ function plotOnMap(people) {
 		.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
+	// Text labels on map
 	// mapSVG
 	// 	.selectAll('text')
 	// 	.data(people)
@@ -750,7 +763,7 @@ function plotOnMap(people) {
 }
 
 //--------------------------------------------------------------------------
-// Main execution when everything is loaded
+// Draw map once topoJSON is loaded
 function ready(error, world, names) {
 
 	var countries = topojson.object(world, world.objects.countries).geometries;
@@ -801,24 +814,34 @@ queue()
 	.defer(d3.tsv, '/data/world-country-names.tsv')
 	.await(ready);
 
+//--------------------------------------------------------------------------
 // Event Handler for FreeBase Search Box 
 $(function() {
 	$('#fbinput')
 		.suggest({
 			'key': fbKey,
-			filter: '(any type:/people/person type:/people/profession)',
+			filter: '(any type:/people/person type:/people/profession type:/visual_art/art_period_movement type:/book/school_or_movement)',
 			animate: 'false'})
 		// Search Result Selected - Trigger Query
 		.bind('fb-select', function(e, data) {
 			clearAllNodes();
 			updateNamebox('<h3>Loading...</h3>');
-			if(data.notable.id === '/people/profession') {
-				getProfession(data.id);
-			} else {
-				getPerson(data.id);
+			switch (data.notable.id) {
+				case '/people/profession':
+					getProfession(data.id);
+					break;
+				case '/visual_art/art_period_movement': // Fallthrough case
+				case '/book/school_or_movement':
+					getMovement(data.id);
+					break;
+				default:
+					getPerson(data.id);
+					break;
 			}
 		});
 });
+
+//--------------------------------------------------------------------------
 // Event Handler for namebox links
 $(document).on('click', 'a.namenavlink', function(e) {
 	e.preventDefault();
@@ -852,7 +875,10 @@ $(document).on('click', 'a.namenavlink', function(e) {
 			$('#' + linkid).parent('li').removeClass('active');  
 			break;
 		case 'profession':
-			getProfession('/en/' + queryid);
+			getProfession(queryid);
+			break;
+		case 'movements':
+			getMovement(queryid);
 			break;
 		default:
 			break;

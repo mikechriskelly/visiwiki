@@ -17,8 +17,8 @@ div:empty { display: none; }
 svg { display: block; margin: 0 auto; }
 a:hover { text-decoration: none; }
 h1 { font-weight: 100; font-size: 38px; padding-left: 10px;}
-h3 { font-weight: 100; font-size: 24px; margin-bottom: 0px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
-h5 { font-weight: 100; font-size: 16px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
+h3 { font-weight: 100; font-size: 26px; margin-bottom: 0px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
+h5 { font-weight: 100; font-size: 14px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
 span.label { margin-right: 2px; line-height: 2; font-size: 80%;}
 span.badge { margin-right: 7px;}
 .navbar {
@@ -146,9 +146,6 @@ rect.pane {
 	font-size: 10px;
 	fill: #fff;
 	font-weight: 400;
-}
-.node text {
-	font-size: 2px;
 }
 .country {
 	fill: #F7F7F7;
