@@ -1,17 +1,19 @@
 extends layout
 block content
-	.navbar
+	.navbar.navbar-fixed-top
 		.container
 			form.navbar-form.pull-left
 				input#fbinput.form-control(type='text', placeholder='Search...', autofocus='')
 			ul.nav.navbar-nav
 				li.active
-					a(href='#') Explore
+					a(href='#seemap') Map
 				li
-					a(href='#') Read
+					a(href='#seetime') Timeline
 				li
-					a(href='#') Help
+					a(href='#') About
 			.navbar-brand.pull-right VisiWiki
+	.anchor
+		a(name='seemap', id='seemap')
 	.container
 		.grid
 			#namebox.aside 
@@ -27,6 +29,8 @@ block content
 					li
 						a#movements.namenavlink(href='#', data-id='/m/01cd2k') Jazz Age
 			#map.section
+	.anchor
+		a(name='seetime', id='seetime')
 	#zoomtime.timeline
 	#fulltime.timeline
 	script(src='/javascripts/main.js')

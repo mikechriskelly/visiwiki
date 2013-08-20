@@ -124,7 +124,7 @@ timeline.xAxis.call(timeline.axis);
 // Timeline Setup - Zoom and Pan Timeline
 var zoomtime = {};
 zoomtime.w = timeline.w;
-zoomtime.h = 600;
+zoomtime.h = $(document).height();;
 zoomtime.itemh = 25;
 zoomtime.numrows = 20;
 
@@ -671,7 +671,7 @@ function plotOnTimeline(people) {
 		.data(people)
 		.enter().append('text')
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
-		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + zoomtime.itemh/2 + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
+		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + zoomtime.itemh/2 + 5 + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
@@ -841,7 +841,9 @@ $(function() {
 });
 
 //--------------------------------------------------------------------------
-// Event Handler for namebox links
+// Event Handler for navbar and namebox links
+$('body').scrollspy({ target: '.navbar', offset: 40 });
+
 $(document).on('click', 'a.namenavlink', function(e) {
 	e.preventDefault();
 	var linkid = $(this).attr('id');
