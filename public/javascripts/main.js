@@ -123,11 +123,10 @@ timeline.xAxis.call(timeline.axis);
 //--------------------------------------------------------------------------
 // Timeline Setup - Zoom and Pan Timeline
 var zoomtime = {};
-zoomtime.marginbottom = 20;
 zoomtime.w = timeline.w;
-zoomtime.h = 200 - zoomtime.marginbottom;
-zoomtime.itemh = 10;
-zoomtime.numrows = 14;
+zoomtime.h = 600;
+zoomtime.itemh = 25;
+zoomtime.numrows = 20;
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -137,13 +136,13 @@ zoomtime.y = d3.scale.linear()
 
 zoomtime.xAxis = d3.svg.axis()
 	.scale(zoomtime.x)
-	.orient('bottom')
+	.orient('top')
 	.tickSize(-zoomtime.h, 0)
 	.tickPadding(6);
 
 var zoomtimeSVG = d3.select('#zoomtime').append('svg')
 	.attr('width', zoomtime.w)
-	.attr('height', zoomtime.h + zoomtime.marginbottom);
+	.attr('height', zoomtime.h);
 
 zoomtime.events = zoomtimeSVG.append('g')
 	.attr('class', 'events');
@@ -167,7 +166,7 @@ zoomtimeSVG
 zoomtimeSVG
 	.append('g')
 		.attr('class', 'x axis')
-		.attr('transform', 'translate(0,' + zoomtime.h + ')');
+		.attr('transform', 'translate(0,' + zoomtime.itemh + ')');
 
 zoomtimeSVG
 	.append('rect')
@@ -662,7 +661,7 @@ function plotOnTimeline(people) {
 		.attr('height', zoomtime.itemh)
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', 0.5)
-		.attr('y', function(d, i) { return 5 + (i % zoomtime.numrows) * (zoomtime.itemh+2); });
+		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + (i % zoomtime.numrows) * (zoomtime.itemh+2); });
 		// .on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		// .on('mouseover', function() { d3.select(this).attr('opacity', 1); })
 		// .on('mouseout', function() { d3.select(this).attr('opacity', 0.5); });
@@ -672,7 +671,7 @@ function plotOnTimeline(people) {
 		.data(people)
 		.enter().append('text')
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
-		.attr('y', function(d, i) { return 4 + zoomtime.itemh + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
+		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + zoomtime.itemh/2 + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
