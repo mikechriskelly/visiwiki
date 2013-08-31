@@ -347,6 +347,7 @@ function newPlaces(queryResult) {
 	return places;
 }
 function getMovement(id) {
+	window.history.replaceState({}, 'VisiWiki', '/m' + id);
 	updateNamebox('<h3>Loading...</h3>');
 	var query = {
 		'id': id,
@@ -421,6 +422,7 @@ function getMovement(id) {
 	});
 }
 function getProfession(id) {
+	window.history.replaceState({}, 'VisiWiki', '/p' + id);
 	updateNamebox('<h3>Loading...</h3>');
 	var query = {
 		'id': id,
@@ -462,6 +464,7 @@ function getProfession(id) {
 	});
 }
 function getPerson(id, updateNamebox) {
+	window.history.replaceState({}, 'VisiWiki', '/r' + id);
 	updateNamebox = updateNamebox || true;
 	var query = {
 		'id': id,
@@ -799,11 +802,13 @@ function ready(error, world, names) {
 		});
 
 		// If received ID from URL then start query
-		if(typeof jshare !== 'undefined' && jshare.id.length === 2) {
-			getPerson('/' + jshare.id.join('/'));
-		}
-		if(typeof jshare !== 'undefined' && jshare.id.length === 2) {
-			getPerson('/' + jshare.id.join('/'));
+		if(typeof jshare !== 'undefined') {
+			if(jshare.id)
+				getPerson('/' + jshare.id.join('/'));
+			if(jshare.profession)
+				getProfession('/' + jshare.profession.join('/'));
+			if(jshare.movement)
+				getMovement('/' + jshare.movement.join('/'));
 		}
 }
 
@@ -842,7 +847,7 @@ $(function() {
 
 //--------------------------------------------------------------------------
 // Event Handler for navbar and namebox links
-$('body').scrollspy({ target: '.navbar', offset: 40 });
+$('body').scrollspy({ target: '.navbar', offset: 0 });
 
 $(document).on('click', 'a.namenavlink', function(e) {
 	e.preventDefault();
