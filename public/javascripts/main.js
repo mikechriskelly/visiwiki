@@ -847,7 +847,7 @@ $(function() {
 
 //--------------------------------------------------------------------------
 // Event Handler for navbar and namebox links
-$('body').scrollspy({ target: '.navbar', offset: 0 });
+$('body').scrollspy({ target: '.navbar', offset: 2 });
 
 $(document).on('click', 'a.namenavlink', function(e) {
 	e.preventDefault();
