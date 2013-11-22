@@ -703,7 +703,7 @@ function plotOnMap(people) {
 		.attr('title', function(d) { return d.name; })
 		.attr('fill', function(d) { return d.color; })
 		.attr('opacity', function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } })
-		.on('mouseover', function(d) {
+		.on('click', function(d) {
 			// If name length is too long display last name only
 			var resized_name = '';
 			if(d.name.length > 23) {
@@ -715,6 +715,9 @@ function plotOnMap(people) {
 			infotip
 				.style('opacity', 1)
 				.text(resized_name);
+				.style('width', '175px')
+				.style('top', (d3.event.pageY-10)+'px')
+				.style('left',(d3.event.pageX+28)+'px');
 			if(d.city !== null) {
 				maphovertip
 					.html(d.city)
@@ -723,22 +726,13 @@ function plotOnMap(people) {
 			d3.select(this)
 				.attr('opacity', 1);
 		})
-		.on('mousemove', function() { 
-			infotip
-				.style('width', '175px')
-				.style('top', (d3.event.pageY-10)+'px')
-				.style('left',(d3.event.pageX+28)+'px'); })
 		.on('mouseout',  function(d) {
-			infotip
-				.style('opacity', 0)
-				.text('')
-				.style('width', '1px');
 			d3.select(this)
 				.attr('opacity', function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
 			maphovertip
 				.style('opacity', 0); 
 		})
-		.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
+		//.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
 
 	// Text labels on map
