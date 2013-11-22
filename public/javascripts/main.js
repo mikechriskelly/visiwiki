@@ -714,7 +714,7 @@ function plotOnMap(people) {
 			}
 			infotip
 				.style('opacity', 1)
-				.text(resized_name);
+				.text(resized_name)
 				.style('width', '175px')
 				.style('top', (d3.event.pageY-10)+'px')
 				.style('left',(d3.event.pageX+28)+'px');
