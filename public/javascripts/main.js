@@ -125,8 +125,8 @@ timeline.xAxis.call(timeline.axis);
 var zoomtime = {};
 zoomtime.w = timeline.w;
 zoomtime.h = $(document).height();;
-zoomtime.itemh = 25;
-zoomtime.numrows = 20;
+zoomtime.itemh = 16;
+zoomtime.numrows = 32;
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -636,6 +636,23 @@ function getPeers(id) {
 	});
 }
 function plotOnTimeline(people) {
+	// Sort array by DOB
+	people.sort(function(a, b){
+    	return a.start - b.start;
+	});
+
+	var lastDeath = [];
+	function findRowPosition(d,i) {
+		for(var r = 0; r < zoomtime.numrows; r++) {
+			if(lastDeath[r] === undefined) { lastDeath[r] = new Date(-3000,1,1); }
+			if(d.start > lastDeath[r]) {
+				lastDeath[r] = d.end;
+				return zoomtime.itemh*1.2 + r * (zoomtime.itemh+2); 
+			}
+		}
+		return 0; 
+	}
+
 	// Full Timeline
 	timelineSVG
 		.selectAll('circle')
@@ -654,27 +671,30 @@ function plotOnTimeline(people) {
 	var x = zoomtime.x;
 	x.domain([new Date(-2000, 0, 1), new Date(2013, 0, 1)]);
 	zoomtime.zoom.x(x);
-
 	zoomtime.events
 		.selectAll('rect')
 		.data(people)
 		.enter().append('rect')
 		.attr('class', function(d) { return 'events degree-' + d.degree; })
 		.attr('title', function(d) { return d.name; })
-		.attr('height', zoomtime.itemh)
+		.attr('height', function() { return (d3.select(this).attr('y') == 0) ? 0 : zoomtime.itemh; })
 		.attr('fill', function(d) { return d.color; })
-		.attr('opacity', 0.5)
-		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + (i % zoomtime.numrows) * (zoomtime.itemh+2); });
-		// .on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
-		// .on('mouseover', function() { d3.select(this).attr('opacity', 1); })
-		// .on('mouseout', function() { d3.select(this).attr('opacity', 0.5); });
+		.attr('y', function(d,i) { return findRowPosition(d,i); })
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.5; });
+		//.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
+		//.on('mouseover', function() { d3.select(this).attr('opacity', 1); })
+		//.on('mouseout', function() { d3.select(this).attr('opacity', 0.5); });
+
+	// Clear row sorting tracker
+	lastDeath = [];
 
 	zoomtime.eventlabels
 		.selectAll('text')
 		.data(people)
 		.enter().append('text')
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
-		.attr('y', function(d, i) { return zoomtime.itemh*1.2 + zoomtime.itemh/2 + 5 + (i % zoomtime.numrows) * (zoomtime.itemh+2); })
+		.attr('y', function(d,i) { return findRowPosition(d, i) + zoomtime.itemh/2 + 5; })
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.5; })
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
