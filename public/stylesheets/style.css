@@ -208,6 +208,7 @@ rect.pane {
 }
 span.infotip {
 	position: absolute;
+	cursor: pointer;
 	width: 175px;
 	height: 24px;
 	line-height: 24px;

@@ -84,8 +84,21 @@ var mapSVG = d3.select('#map').append('svg')
 	.call(map.zoom)
 	.append('g');
 
+// Tip box for country names
+var maphovertip = d3.select('#map').append('span')
+		.attr('class', 'maphovertip')
+		.style('opacity', 0);
+
+// Tip box for people names 
+var infotip = d3.select('body').append('span') 
+		.attr('class', 'infotip')       
+		.style('position', 'absolute')
+		.style('z-index', '12')
+		.style('opacity', 0);
+
 function redrawMap() {
 	mapSVG.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
+	infotip.style('opacity', 0);
 }
 
 //--------------------------------------------------------------------------
@@ -186,18 +199,6 @@ function redrawZoomtime() {
 }
 
 //--------------------------------------------------------------------------
-// Infotip Boxes
-// Tip box for country names
-var maphovertip = d3.select('#map').append('span')
-		.attr('class', 'maphovertip')
-		.style('opacity', 0);
-
-// Tip box for people names 
-var infotip = d3.select('body').append('span') 
-		.attr('class', 'infotip')       
-		.style('position', 'absolute')
-		.style('z-index', '12')
-		.style('opacity', 0);
 
 function updateNamebox(content) {
 	$('#namebox').empty();
@@ -733,11 +734,17 @@ function plotOnMap(people) {
 				resized_name = d.name;
 			}
 			infotip
+				.attr('id', d.id)
 				.style('opacity', 1)
-				.text(resized_name)
+				.html(resized_name + ' <i class="fa fa-arrow-circle-right"></i>')
 				.style('width', '175px')
 				.style('top', (d3.event.pageY-10)+'px')
-				.style('left',(d3.event.pageX+28)+'px');
+				.style('left',(d3.event.pageX+18)+'px')
+				.on('click', function() { 
+					d3.select(this).style('opacity', 0);
+					d3.select(this).style('width', '1px');
+					getPerson(d3.select(this).attr('id')); 
+				});
 			if(d.city !== null) {
 				maphovertip
 					.html(d.city)
@@ -752,18 +759,7 @@ function plotOnMap(people) {
 			maphovertip
 				.style('opacity', 0); 
 		})
-		//.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
 		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
-
-	// Text labels on map
-	// mapSVG
-	// 	.selectAll('text')
-	// 	.data(people)
-	// 	.enter().append('text')
-	// 	.attr('class', function(d) { return 'node degree-' + d.degree; })
-	// 	.attr('x', function(d) { return d.x + 5; })
-	// 	.attr('y', function(d) { return d.y; })
-	// 	.text(function(d) { return d.name; });
 		
 	// Zoom to origin node
 	if(people[0].degree === 0) {
