@@ -21,18 +21,19 @@ block content
 				h5 Search for a well-known person, profession, or period. Or try an example below.
 				ul
 					li
-						a#placeslived.namenavlink(href='#', data-id='/en/plato') Plato
+						a#profession.namenavlink(href='#', data-id='/en/astronomer') Astronomers
+					li
+						a#movements.namenavlink(href='#', data-id='/en/beat_generation') Beat Generation
 					li
 						a#placeslived.namenavlink(href='#', data-id='/m/034bs') George Orwell
 					li
-						a#placeslived.namenavlink(href='#', data-id='/m/058w5') Michelangelo
-					li
-						a#profession.namenavlink(href='#', data-id='/en/astronomer') Astronomers
-					li
 						a#movements.namenavlink(href='#', data-id='/m/01cd2k') Jazz Age
 					li
-						a#movements.namenavlink(href='#', data-id='/en/beat_generation') Beat Generation
-						
+						a#placeslived.namenavlink(href='#', data-id='/m/058w5') Michelangelo
+					li
+						a#placeslived.namenavlink(href='#', data-id='/en/plato') Plato
+					li
+						a#placeslived.namenavlink(href='#', data-id='/en/walt_whitman') Walt Whitman	
 			#map.section
 	section#seetime
 	#zoomtime.timeline
@@ -43,5 +44,5 @@ block content
 		h2 pre-alpha
 		h3 a visual encyclopedia by Mike Kelly
 		h3 built with Node.js, D3, and jQuery
-		h3 data courtesy of freebase.com
+		h3 data courtesy of Wikipedia and freebase.com
 	script(src='/javascripts/main.js')
