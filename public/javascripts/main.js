@@ -579,6 +579,10 @@ function getPeers(id) {
 	});
 }
 function plotOnTimeline(people) {
+	// Prepare variables for zoom timeline
+	var zoomScale = 8;
+	var centerTime = new Date(people[0].start.getUTCFullYear()-200, 1, 1);
+
 	// Sort array by DOB
 	people.sort(function(a, b){
     	return a.start - b.start;
@@ -638,8 +642,6 @@ function plotOnTimeline(people) {
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
-	var zoomScale = 8;
-	var centerTime = new Date(people[0].start.getUTCFullYear()-200, 1, 1);
 	var trans = [zoomtime.x(centerTime) * -zoomScale, 0];
 	zoomtimeSVG
 		.transition()
