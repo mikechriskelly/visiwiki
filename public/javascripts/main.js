@@ -22,7 +22,7 @@ function getWikiText(name) {
 		dataType: 'jsonp',
 		success: function(qr) {
 			$.each(qr.query.pages, function(key, val) {
-				$('#nameboxnav').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
+				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
 				return false;
 			}); 
 		},
@@ -248,22 +248,6 @@ function updateNameboxPerson(person) {
 	}
 	$('#namebox').append(personInfo);
 
-	// Display Influences, Peers, Written Works, Art Works, and Inventions if found
-	$('#namebox').append('<ul class="nav nav-pills nav-stacked" id="nameboxnav"></ul>');
-	if(person.countInfluenced > 0) 
-		$('#nameboxnav').append('<li class="active"><a href="#" id="placeslived" class="namenavlink" data-id="' + person.id + '">Places Lived<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPlacesLived + '</span></a></li>');
-	if(person.countInfluenced > 0) 
-		$('#nameboxnav').append('<li><a href="#" id="influences" class="namenavlink" data-id="' + person.id + '">Influences<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInfluenced + '</span></a></li>');
-/*	Incomplete Features
-	if(person.countPeers > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="peers" class="namenavlink" data-id="' + person.id + '">Peers<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPeers + '</span></a></li>');
-	if(person.countWritWorks > 0)
-			$('#nameboxnav').append('<li><a href="#" id="writworks" class="namenavlink" data-id="' + person.id + '">Written Works<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countWritWorks + '</span></a></li>');
-	if(person.countArtWorks > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="artworks" class="namenavlink" data-id="' + person.id + '">Art Works<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countArtWorks + '</span></a></li>');
-	if(person.countInventions > 0) 
-			$('#nameboxnav').append('<li><a href="#" id="inventions" class="namenavlink" data-id="' + person.id + '">Inventions<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInventions + '</span></a></li>');
-*/
 }
 function toggleLoading(link, isLoading) {
 	$('#' + link + ' span').toggle(!isLoading); // Count Badge
@@ -491,7 +475,6 @@ function getProfession(id) {
 }
 function getPerson(id, changeNamebox) {
 	window.history.replaceState({}, 'VisiWiki', '/r' + id);
-	changeNamebox = changeNamebox || true;
 	var query = {
 		'id': id,
 		'name': null,
@@ -516,7 +499,8 @@ function getPerson(id, changeNamebox) {
 				}
 			},
 			'/people/person/date_of_birth': null,
-			'/people/deceased_person/date_of_death': null
+			'/people/deceased_person/date_of_death': null,
+			'optional': true
 		}],
 		'/influence/influence_node/influenced': [{
 			'id': null,
@@ -529,7 +513,8 @@ function getPerson(id, changeNamebox) {
 				}
 			},
 			'/people/person/date_of_birth': null,
-			'/people/deceased_person/date_of_death': null
+			'/people/deceased_person/date_of_death': null,
+			'optional': true
 		}],
 		'limit': 100
 	};
@@ -550,11 +535,7 @@ function getPerson(id, changeNamebox) {
 			getWikiText(origin.name)
 
 		}
-		if(changeNamebox) {
-			updateNameboxPerson(origin);
-		} else {
-			toggleLoading('influences', false);
-		}
+		updateNameboxPerson(origin);
 	});
 }
 function getPeers(id) {
@@ -627,7 +608,7 @@ function plotOnTimeline(people) {
 		.attr('width', function(d) { return timeline.x(d.end) - timeline.x(d.start); })
 		.attr('height', 6)
 		.attr('fill', function(d) { return d.color; })
-		.attr('opacity', 0.5);
+		.attr('opacity', 0.4);
 
 	// Zoom Timeline		
 	var x = zoomtime.x;
@@ -642,10 +623,7 @@ function plotOnTimeline(people) {
 		.attr('height', function() { return (d3.select(this).attr('y') == 0) ? 0 : zoomtime.itemh; })
 		.attr('fill', function(d) { return d.color; })
 		.attr('y', function(d,i) { return findRowPosition(d,i); })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.5; });
-		//.on('click', function(d) { if(d.degree !== 3) getPerson(d.id); })
-		//.on('mouseover', function() { d3.select(this).attr('opacity', 1); })
-		//.on('mouseout', function() { d3.select(this).attr('opacity', 0.5); });
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.6; })
 
 	// Clear row sorting tracker
 	lastDeath = [];
@@ -656,7 +634,7 @@ function plotOnTimeline(people) {
 		.enter().append('text')
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
 		.attr('y', function(d,i) { return findRowPosition(d, i) + zoomtime.itemh/2 + 5; })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.5; })
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 1; })
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
@@ -720,7 +698,7 @@ function plotOnMap(people) {
 			maphovertip
 				.style('opacity', 0); 
 		})
-		.attr('r', function(d) { if(d.degree === 0) { return 2.5; } else { return 0.9; } });
+		.attr('r', function(d) { if(d.degree === 0) { return 2.3; } else { return 0.9; } });
 		
 	// Zoom to origin node
 	if(people[0].degree === 0) {
