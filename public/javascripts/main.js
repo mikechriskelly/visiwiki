@@ -9,6 +9,26 @@ var fbKey = 'AIzaSyDkle0NnqmA1_SRl0tfj4MOEQbTigNZkdY';
 var fbURL = 'https://www.googleapis.com/freebase/v1';
 var fbCall = fbURL + '/mqlread?key=' + fbKey + '&callback=?';
 
+// Wiki API Settings and AJAX
+var wikiCall = 'http://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exchars=630&exintro&explaintext&titles=';
+
+function setHeader(xhr) {
+	xhr.setRequestHeader('user_agent', 'VisiWiki (http://visiwiki.herokuapp.com; mikechriskelly@gmail.com)');
+}
+function getWikiText(name) {
+	$.ajax({
+		url: wikiCall + name,
+		type: 'GET',
+		dataType: 'jsonp',
+		success: function(qr) {
+			$.each(qr.query.pages, function(key, val) {
+				$('#nameboxnav').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
+				return false;
+			}); 
+		},
+		error: function() { console.log('Wikipedia AJAX failed'); },
+	});
+}
 //--------------------------------------------------------------------------
 // Node Colors
 // origin = black, influenced = blue, influenced_by = orange, placeslived = light brown
@@ -234,6 +254,7 @@ function updateNameboxPerson(person) {
 		$('#nameboxnav').append('<li class="active"><a href="#" id="placeslived" class="namenavlink" data-id="' + person.id + '">Places Lived<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPlacesLived + '</span></a></li>');
 	if(person.countInfluenced > 0) 
 		$('#nameboxnav').append('<li><a href="#" id="influences" class="namenavlink" data-id="' + person.id + '">Influences<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInfluenced + '</span></a></li>');
+/*	Incomplete Features
 	if(person.countPeers > 0) 
 			$('#nameboxnav').append('<li><a href="#" id="peers" class="namenavlink" data-id="' + person.id + '">Peers<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countPeers + '</span></a></li>');
 	if(person.countWritWorks > 0)
@@ -242,6 +263,7 @@ function updateNameboxPerson(person) {
 			$('#nameboxnav').append('<li><a href="#" id="artworks" class="namenavlink" data-id="' + person.id + '">Art Works<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countArtWorks + '</span></a></li>');
 	if(person.countInventions > 0) 
 			$('#nameboxnav').append('<li><a href="#" id="inventions" class="namenavlink" data-id="' + person.id + '">Inventions<img src="/images/loading.gif" class="pull-right" style="display: none"><span class="badge pull-right">' + person.countInventions + '</span></a></li>');
+*/
 }
 function toggleLoading(link, isLoading) {
 	$('#' + link + ' span').toggle(!isLoading); // Count Badge
@@ -416,6 +438,9 @@ function getMovement(id) {
 
 			var people = artists.concat(authors);
 
+			// Wikipedia Bio
+			getWikiText(q.result.name)
+
 			updateNamebox(movementInfo);
 			plotOnMap(people);
 			plotOnTimeline(people);
@@ -464,13 +489,12 @@ function getProfession(id) {
 		}
 	});
 }
-function getPerson(id, updateNamebox) {
+function getPerson(id, changeNamebox) {
 	window.history.replaceState({}, 'VisiWiki', '/r' + id);
-	updateNamebox = updateNamebox || true;
+	changeNamebox = changeNamebox || true;
 	var query = {
 		'id': id,
 		'name': null,
-		'/common/topic/description': null,
 		'/people/person/place_of_birth': {
 			'name': null,
 			'/location/location/geolocation': {
@@ -478,81 +502,8 @@ function getPerson(id, updateNamebox) {
 				'longitude': null
 			}
 		},
-		'/people/person/places_lived': [{
-			'location': {
-				'name': null,
-				'/location/location/geolocation': {
-					'latitude': null,
-					'longitude': null
-				}
-			},
-			'optional': true
-		}],
+		'/people/person/date_of_birth': null,
 		'/people/person/profession': [],
-		'/people/person/date_of_birth': null,
-		'/people/deceased_person/date_of_death': null,
-		'c:/influence/influence_node/influenced_by': [{
-			'return': 'count',
-			'optional': true
-		}],
-		'c:/influence/influence_node/influenced': [{
-			'return': 'count',
-			'optional': true
-		}],
-		'c:/influence/influence_node/peers': [{
-			'return': 'count',
-			'optional': true
-		}],
-		'c:/book/author/works_written': [{
-			'optional': true,
-			'return': 'count'
-		}],
-		'c:/visual_art/visual_artist/artworks': [{
-			'optional': true,
-			'return': 'count'
-		}],
-		'c:/law/inventor/inventions': [{
-			'optional': true,
-			'return': 'count'
-		}],
-		'/visual_art/visual_artist/associated_periods_or_movements': [],
-		'/book/author/school_or_movement': []
-	};
-	// Async Query Request
-	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
-		if(q.result === null) {
-			updateNamebox('<h3>Sorry, not enough data.</h3>');
-		} else {
-			clearAllNodes();
-			var person = newPeople([q.result], 0)[0];
-			var places = newPlaces([q.result][0]['/people/person/places_lived']);
-			if(places.length > 0) {
-				plotOnMap([person].concat(places));
-			} else {
-				plotOnMap([person]);
-			}
-			plotOnTimeline([person]);
-			if(updateNamebox) {
-				updateNameboxPerson(person);
-			} else {
-				toggleLoading('placeslived', false);
-			}
-
-		}
-	});
-}
-function getInfluences(id) {
-	var query = {
-		'id': id,
-		'name': null,
-		'/people/person/place_of_birth': {
-			'name': null,
-			'/location/location/geolocation': {
-				'latitude': null,
-				'longitude': null
-			}
-		},
-		'/people/person/date_of_birth': null,
 		'/people/deceased_person/date_of_death': null,
 		'/influence/influence_node/influenced_by': [{
 			'id': null,
@@ -580,20 +531,30 @@ function getInfluences(id) {
 			'/people/person/date_of_birth': null,
 			'/people/deceased_person/date_of_death': null
 		}],
-		'limit': 150
+		'limit': 100
 	};
 	// Async Query Request
 	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
-		if(q.result !== null) {
+		if(q.result === null) {
+			updateNamebox('<h3>Sorry, not enough data available on this topic.</h3>');
+		} else {
 			clearAllNodes();
-			var origin = newPeople([q.result], 0);
+			var origin = newPeople([q.result], 0)[0];
 			var influenced = newPeople((q.result['/influence/influence_node/influenced'] || []), 1);
 			var influencedBy = newPeople((q.result['/influence/influence_node/influenced_by'] || []), 2);
-			var people = origin.concat(influenced).concat(influencedBy);
+			var people = [origin].concat(influenced).concat(influencedBy);
 			plotOnMap(people);
 			plotOnTimeline(people);
+
+			// Wikipedia Bio
+			getWikiText(origin.name)
+
 		}
-		toggleLoading('influences', false);
+		if(changeNamebox) {
+			updateNameboxPerson(origin);
+		} else {
+			toggleLoading('influences', false);
+		}
 	});
 }
 function getPeers(id) {
