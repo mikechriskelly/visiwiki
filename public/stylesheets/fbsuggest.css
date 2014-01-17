@@ -108,6 +108,7 @@ li.fbs-nomatch,
     margin-top: 6px;
     margin-left: -10px;
     padding: 0px;
+    z-index: 1000;
 }
 
 .fbs-flyout-pane {
