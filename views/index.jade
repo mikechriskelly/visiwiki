@@ -43,16 +43,22 @@ block content
 						a#placeslived.namenavlink(href='#', data-id='/en/walt_whitman') Walt Whitman	
 			#map.section.hidden-xs
 	section#seetime
-	#zoomtime.timeline.hidden-xs
+	.container
+		.grid	
+			.aside
+			#zoomtime.section.timeline.hidden-xs
 	section#about
-	#footer.hidden-xs
-		h1 VisiWiki
-		h2 
-			| pre-alpha 
-			br 
-			| by Mike Kelly
-		h3 VisiWiki is a visual guide to influential figures.
-		h3 Data courtesy of Wikipedia and freebase.com.
-		h3 Works best in Chrome.
+	.container.fullheight
+		.grid	
+			.aside
+			#footer.section.hidden-xs
+				h1 VisiWiki
+				h2 
+					| alpha 
+					br 
+					| by Mike Kelly
+				h3 VisiWiki is a visual guide to influential figures.
+				h3 Data courtesy of Wikipedia and freebase.com.
+				h3 Works best in Chrome.
 	#fulltime.timeline
 	script(src='/javascripts/main.js')

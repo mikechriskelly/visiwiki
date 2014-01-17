@@ -167,7 +167,7 @@ timeline.xAxis.call(timeline.axis);
 //--------------------------------------------------------------------------
 // Timeline Setup - Zoom and Pan Timeline
 var zoomtime = {};
-zoomtime.w = timeline.w * 0.8;
+zoomtime.w = timeline.w;
 zoomtime.itemh = 20;
 zoomtime.numrows = 32;
 zoomtime.h = (zoomtime.itemh + 5) * (zoomtime.numrows + 5);
