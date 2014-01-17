@@ -642,11 +642,11 @@ function plotOnTimeline(people) {
 		.text(function (d) { return d.name; });
 
 	// Center timeline on origin node
-	var trans = [zoomtime.x(centerTime) * -zoomScale, 0];
-	zoomtimeSVG
-		.transition()
-		.duration(200)
-		.attr('transform', 'translate(' + trans[0] + ',' + trans[1] + ')scale(' + zoomScale + ')');
+	var trans = [(zoomtime.x(centerTime) * -zoomScale), 0];
+	// zoomtimeSVG
+	// 	.transition()
+	// 	.duration(200)
+	// 	.attr('transform', 'translate(' + trans[0] + ',' + trans[1] + ')');
 	zoomtime.zoom.scale(zoomScale);
 	zoomtime.zoom.translate([trans[0], trans[1]]);
 
