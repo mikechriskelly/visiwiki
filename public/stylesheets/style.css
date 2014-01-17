@@ -233,7 +233,7 @@ span.infotip:after {
 	top: 0px;
 	left: -24px;
 }
-ul { margin: 0; padding: 0; }
+ul.legend { margin: 0; padding: 0; }
 li.legend {list-style-type:none;}
 li.legend:before {content:'\00b7'; font-size:160px; line-height:32px; vertical-align:middle;}
 li.source:before {color: #332412;}

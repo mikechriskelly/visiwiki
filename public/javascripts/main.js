@@ -23,7 +23,7 @@ function getWikiText(name) {
 		success: function(qr) {
 			$.each(qr.query.pages, function(key, val) {
 				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
-				$('#namebox').append('<p style="margin-top: 60px"><ul><li class="legend source">' + name + '</li><li class="legend influenced">Influences</li><li class="legend influencedby">Influenced By</li></ul></p>');
+				$('#namebox').append('<p style="margin-top: 60px"><ul class="legend"><li class="legend source">' + name + '</li><li class="legend influenced">Influences</li><li class="legend influencedby">Influenced By</li></ul></p>');
 				return false;
 			}); 
 		},
@@ -628,7 +628,7 @@ function plotOnTimeline(people) {
 		.attr('height', function() { return (d3.select(this).attr('y') == 0) ? 0 : zoomtime.itemh; })
 		.attr('fill', function(d) { return d.color; })
 		.attr('y', function(d,i) { return findRowPosition(d,i); })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.6; })
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.7; })
 
 	// Clear row sorting tracker
 	lastDeath = [];
@@ -676,7 +676,7 @@ function plotOnMap(people) {
 				.style('opacity', 1)
 				.html(resized_name + ' <i class="fa fa-arrow-circle-right"></i>')
 				.style('width', '175px')
-				.style('top', (d3.event.pageY-10)+'px')
+				.style('top', (d3.event.pageY-50)+'px')
 				.style('left',(d3.event.pageX+18)+'px')
 				.on('click', function() { 
 					d3.select(this).style('opacity', 0);
