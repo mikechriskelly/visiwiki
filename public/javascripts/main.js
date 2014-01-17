@@ -23,6 +23,7 @@ function getWikiText(name) {
 		success: function(qr) {
 			$.each(qr.query.pages, function(key, val) {
 				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
+				$('#namebox').append('<p style="margin-top: 60px"><ul><li class="legend source">' + name + '</li><li class="legend influenced">Influences</li><li class="legend influencedby">Influenced By</li></ul></p>');
 				return false;
 			}); 
 		},
@@ -158,7 +159,7 @@ timeline.xAxis.call(timeline.axis);
 var zoomtime = {};
 zoomtime.w = timeline.w;
 zoomtime.h = $(document).height();;
-zoomtime.itemh = 16;
+zoomtime.itemh = 20;
 zoomtime.numrows = 32;
 
 zoomtime.x = d3.time.scale()
