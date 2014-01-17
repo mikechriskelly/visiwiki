@@ -98,7 +98,7 @@ map.zoom = d3.behavior.zoom()
 
 var mapSVG = d3.select('#map').append('svg')
 	.attr('width', '100%')
-	.attr('height', '100%')
+	.attr('height', $(window).height())
 	.attr('viewBox', '0 0 ' + map.w + ' ' + map.h )
 	.attr('preserveAspectRatio', 'xMidYMid meet')
 	.attr('pointer-events', 'all')
