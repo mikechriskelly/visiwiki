@@ -23,7 +23,9 @@ function getWikiText(name) {
 		success: function(qr) {
 			$.each(qr.query.pages, function(key, val) {
 				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
-				$('#namebox').append('<p style="margin-top: 60px"><ul class="legend"><li class="legend source">' + name + '</li><li class="legend influenced">Influences</li><li class="legend influencedby">Influenced By</li></ul></p>');
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-origin"></i> ' + name 
+					+ '<br><i class="fa fa-circle fa-2x color-influences"></i> Influences'
+					+ '<br><i class="fa fa-circle fa-2x color-influencedby"></i> Was influenced by</p>');
 				return false;
 			}); 
 		},
@@ -32,7 +34,7 @@ function getWikiText(name) {
 }
 //--------------------------------------------------------------------------
 // Node Colors
-// origin = black, influenced = blue, influenced_by = orange, placeslived = light brown
+// origin = black, influenced = blue, influenced_by = orange
 var colors = ['#332412', '#1B567A', '#C2412D', '#332412'];
 
 //--------------------------------------------------------------------------

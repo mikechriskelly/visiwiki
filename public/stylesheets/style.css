@@ -109,7 +109,6 @@ section {
 }
 #map {
 	min-width: 100%;
-	min-height: 100%;
 	position: relative;
 	background: #85cdff;
 	border-left: 1px solid #ccc;
@@ -236,9 +235,9 @@ span.infotip:after {
 	top: 0px;
 	left: -24px;
 }
-ul.legend { margin: 0; padding: 0; }
-li.legend {list-style-type:none;}
-li.legend:before {content:'\00b7'; font-size:160px; line-height:32px; vertical-align:middle;}
-li.source:before {color: #332412;}
-li.influenced:before {color: #1B567A;}
-li.influencedby:before {color: #C2412D;}
+
+p.legend { margin-top: 60px; margin-left: 20px; line-height: 24px; }
+.fa-2x { vertical-align: middle; }
+.color-origin { color: #332412;}
+.color-influences { color: #1B567A;}
+.color-influencedby  { color: #C2412D;}
