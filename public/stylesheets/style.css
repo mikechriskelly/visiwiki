@@ -1,8 +1,8 @@
 body {
 	color: #666; 
 	background: #fff; 
-	font-family: "Helvetica", Helvetica, Arial, sans-serif;
-	font-size: 12px;
+	font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+	font-size: 14px;
 	position: relative;
 	margin-top: 40px;
 }
@@ -21,10 +21,10 @@ div:empty { display: none; }
 
 svg { display: block; margin: 0 auto; }
 a:hover { text-decoration: none; }
-h1 { font-weight: 100; font-size: 60px; font-family: "Georgia", serif;}
-h2 { font-weight: 100; font-size: 22px; font-family: "Georgia", serif; font-style: italic}
-h3 { font-weight: 100; font-size: 26px; margin-bottom: 0px; font-family: "Georgia", serif;}
-h5 { font-weight: 100; font-size: 14px; font-family: "Helvetica", Helvetica, Arial, sans-serif;}
+h1 { font-weight: 100; font-size: 60px; font-family: "Georgia", "Cambria", serif;}
+h2 { font-weight: 100; font-size: 22px; font-family: "Georgia", "Cambria", serif; font-style: italic}
+h3 { font-weight: 100; font-size: 26px; margin-bottom: 0px; font-family: "Georgia","Cambria", serif;}
+h5 { font-weight: 100; font-size: 14px; font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;}
 span.label { margin-right: 2px; line-height: 2; font-size: 80%;}
 span.badge { margin-right: 7px;}
 section {
@@ -69,7 +69,7 @@ section {
 	font-weight: 100;
 }
 .navbar-nav > li {
-	font-size: 14px;
+	font-size: 16px;
 	float: left;
 }
 .navbar-nav > .active > a,
@@ -92,6 +92,10 @@ section {
 	font-size: 24px;
 	font-weight: 100;
 	line-height: 26px;
+}
+.navbar-brand > a {
+	color: inherit;
+	text-decoration: none;
 }
 .navbar-form {
 	display: inline;

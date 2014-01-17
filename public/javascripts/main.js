@@ -15,19 +15,26 @@ var wikiCall = 'http://en.wikipedia.org/w/api.php?format=json&action=query&prop=
 function setHeader(xhr) {
 	xhr.setRequestHeader('user_agent', 'VisiWiki (http://visiwiki.herokuapp.com; mikechriskelly@gmail.com)');
 }
-function getWikiText(name) {
+function getWikiText(name, queryType) {
 	$.ajax({
 		url: wikiCall + name,
 		type: 'GET',
 		dataType: 'jsonp',
 		success: function(qr) {
 			$.each(qr.query.pages, function(key, val) {
-				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '"><i class="fa fa-external-link"></i></a></p>');
+				$('#namebox').append('<p>' + val.extract.replace(/ *\([^)]*\) */g, " ") + ' <a href="http://en.wikipedia.org/wiki?curid=' + val.pageid + '">Read More <i class="fa fa-external-link"></i></a></p>');
+				return false;
+			}); 
+			// Add Legend
+			if(queryType == 'movement') {
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-influencedby"></i> Associated with ' + name + '</p>');
+			} else if(queryType == 'person') {
 				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-origin"></i> ' + name 
 					+ '<br><i class="fa fa-circle fa-2x color-influences"></i> Influences'
 					+ '<br><i class="fa fa-circle fa-2x color-influencedby"></i> Was influenced by</p>');
-				return false;
-			}); 
+			} else if(queryType == 'profession') {
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-influencedby"></i> Notable ' + name + '</p>');
+			}
 		},
 		error: function() { console.log('Wikipedia AJAX failed'); },
 	});
@@ -427,7 +434,7 @@ function getMovement(id) {
 			var people = artists.concat(authors);
 
 			// Wikipedia Bio
-			getWikiText(q.result.name)
+			getWikiText(q.result.name, 'movement')
 
 			updateNamebox(movementInfo);
 			plotOnMap(people);
@@ -471,6 +478,10 @@ function getProfession(id) {
 			var imgWidth = 64;
 			var imgURL = fbURL + '/image' + q.result.id +  '?maxwidth=' + imgWidth + '&key=' + fbKey;
 			var personInfo = '<div class="media"><img class="media-object pull-left" src="' + imgURL + '"><div class="media-body"><h3 class="media-heading">' + q.result.name + '</h3></div></div><p>' + description + '</p>';
+			
+			// Wikipedia Bio
+			getWikiText(q.result.name, 'profession')
+
 			updateNamebox(personInfo);
 			plotOnMap(people);
 			plotOnTimeline(people);
@@ -536,7 +547,7 @@ function getPerson(id, changeNamebox) {
 			plotOnTimeline(people);
 
 			// Wikipedia Bio
-			getWikiText(origin.name)
+			getWikiText(origin.name, 'person')
 
 		}
 		updateNameboxPerson(origin);
