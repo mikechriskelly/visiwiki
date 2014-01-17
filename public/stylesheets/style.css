@@ -85,7 +85,7 @@ section {
 	display: inline;
 	text-align: center;
 	font-family: "Georgia", serif;
-	max-width: 150px;
+	min-width: 200px;
 	padding: 7px 14px;
 	margin-right: auto;
 	margin-left: auto;
@@ -97,7 +97,7 @@ section {
 	display: inline;
 	margin: 5px 0px;
 	padding: 0px 10px;
-	width: 300px;
+	min-width: 300px;
 }
 .nav-stacked {
 	margin-top: 30px;
@@ -108,9 +108,12 @@ section {
 	font-size: 14px;
 }
 #map {
+	min-width: 100%;
+	min-height: 100%;
 	position: relative;
 	background: #85cdff;
 	border-left: 1px solid #ccc;
+
 }
 .node text {
   pointer-events: none;

@@ -4,14 +4,14 @@ block content
 		.container
 			form.navbar-form.pull-left
 				input#fbinput.form-control(type='text', placeholder='Search...', autofocus='')
-			ul.nav.navbar-nav
+			ul.nav.navbar-nav.hidden-xs
 				li.active
 					a(href='#seemap') Map
 				li
 					a(href='#seetime') Timeline
 				li
 					a(href='#about') About
-			.navbar-brand.pull-right VisiWiki
+			.navbar-brand.pull-right.hidden-xs VisiWiki
 	section#seemap
 	.container
 		.grid
@@ -34,15 +34,18 @@ block content
 						a#placeslived.namenavlink(href='#', data-id='/en/plato') Plato
 					li
 						a#placeslived.namenavlink(href='#', data-id='/en/walt_whitman') Walt Whitman	
-			#map.section
+			#map.section.hidden-xs
 	section#seetime
-	#fulltime.timeline
-	#zoomtime.timeline
+	#zoomtime.timeline.hidden-xs
 	section#about
-	#footer
+	#footer.hidden-xs
 		h1 VisiWiki
-		h2 pre-alpha
-		h3 a visual encyclopedia by Mike Kelly
-		h3 built with Node.js, D3, and jQuery
-		h3 data courtesy of Wikipedia and freebase.com
+		h2 
+			| pre-alpha 
+			br 
+			| by Mike Kelly
+		h3 VisiWiki is a visual guide to influential figures.
+		h3 Data courtesy of Wikipedia and freebase.com.
+		h3 Works best in Chrome.
+	#fulltime.timeline
 	script(src='/javascripts/main.js')

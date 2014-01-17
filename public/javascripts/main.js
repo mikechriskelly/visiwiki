@@ -102,6 +102,7 @@ var mapSVG = d3.select('#map').append('svg')
 	.attr('viewBox', '0 0 ' + map.w + ' ' + map.h )
 	.attr('preserveAspectRatio', 'xMidYMid meet')
 	.attr('pointer-events', 'all')
+	.attr("overflow", "hidden")
 	.call(map.zoom)
 	.append('g');
 
@@ -157,10 +158,10 @@ timeline.xAxis.call(timeline.axis);
 //--------------------------------------------------------------------------
 // Timeline Setup - Zoom and Pan Timeline
 var zoomtime = {};
-zoomtime.w = timeline.w;
-zoomtime.h = $(document).height();;
+zoomtime.w = timeline.w * 0.8;
 zoomtime.itemh = 20;
 zoomtime.numrows = 32;
+zoomtime.h = (zoomtime.itemh + 5) * (zoomtime.numrows + 5);
 
 zoomtime.x = d3.time.scale()
 	.range([0, zoomtime.w]);
@@ -676,7 +677,7 @@ function plotOnMap(people) {
 				.style('opacity', 1)
 				.html(resized_name + ' <i class="fa fa-arrow-circle-right"></i>')
 				.style('width', '175px')
-				.style('top', (d3.event.pageY-50)+'px')
+				.style('top', (d3.event.pageY-16)+'px')
 				.style('left',(d3.event.pageX+18)+'px')
 				.on('click', function() { 
 					d3.select(this).style('opacity', 0);
