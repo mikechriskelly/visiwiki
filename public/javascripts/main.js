@@ -88,7 +88,7 @@ function toYear(date, bcString) {
 // Map Setup
 var map = {};
 map.w  = 800;
-map.h = 480;
+map.h = 800;
 map.projection = d3.geo.mercator().translate([map.w / 2, map.h / 1.5]);
 map.path = d3.geo.path().projection(map.projection);
 map.zoom = d3.behavior.zoom()
@@ -97,7 +97,7 @@ map.zoom = d3.behavior.zoom()
 
 var mapSVG = d3.select('#map').append('svg')
 	.attr('width', '100%')
-	.attr('height', '60%')
+	.attr('height', '100%')
 	.attr('viewBox', '0 0 ' + map.w + ' ' + map.h )
 	.attr('preserveAspectRatio', 'xMidYMid meet')
 	.attr('pointer-events', 'all')
@@ -643,10 +643,6 @@ function plotOnTimeline(people) {
 
 	// Center timeline on origin node
 	var trans = [(zoomtime.x(centerTime) * -zoomScale), 0];
-	// zoomtimeSVG
-	// 	.transition()
-	// 	.duration(200)
-	// 	.attr('transform', 'translate(' + trans[0] + ',' + trans[1] + ')');
 	zoomtime.zoom.scale(zoomScale);
 	zoomtime.zoom.translate([trans[0], trans[1]]);
 
