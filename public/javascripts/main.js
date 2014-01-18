@@ -27,13 +27,13 @@ function getWikiText(name, queryType) {
 			}); 
 			// Add Legend
 			if(queryType == 'movement') {
-				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-influences"></i> Associated with ' + name + '</p>');
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-lg color-influences"></i> Associated with ' + name + '</p>');
 			} else if(queryType == 'person') {
-				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-origin"></i> ' + name 
-					+ '<br><i class="fa fa-circle fa-2x color-influences"></i> Influences'
-					+ '<br><i class="fa fa-circle fa-2x color-influencedby"></i> Was influenced by</p>');
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-lg color-origin"></i> ' + name 
+					+ '<br><i class="fa fa-circle fa-lg color-influences"></i> Influences'
+					+ '<br><i class="fa fa-circle fa-lg color-influencedby"></i> Was influenced by</p>');
 			} else if(queryType == 'profession') {
-				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-2x color-influences"></i> Notable ' + name + '</p>');
+				$('#namebox').append('<p class="legend"><i class="fa fa-circle fa-lg color-influences"></i> Notable ' + name + '</p>');
 			}
 		},
 		error: function() { console.log('Wikipedia AJAX failed'); },
