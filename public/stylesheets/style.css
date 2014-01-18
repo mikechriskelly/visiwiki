@@ -86,7 +86,7 @@ section {
 	display: inline;
 	text-align: center;
 	font-family: "Georgia", serif;
-	min-width: 200px;
+	min-width: 150px;
 	padding: 7px 14px;
 	margin-right: auto;
 	margin-left: auto;
@@ -142,7 +142,7 @@ section {
 	position: relative;
 	border: 1px 0px 1px 1px solid #ccc;
 	width: 100%;
-	overflow: auto;
+	overflow: hidden;
 	margin-top: 3px;
 	padding-top: 7px;
 }
@@ -240,7 +240,7 @@ span.infotip:after {
 }
 
 p.legend { margin-top: 60px; margin-left: 20px; line-height: 24px; }
-.fa-2x { vertical-align: middle; }
+.fa-lg { vertical-align: middle; }
 .color-origin { color: #332412;}
 .color-influences { color: #1B567A;}
 .color-influencedby  { color: #C2412D;}
