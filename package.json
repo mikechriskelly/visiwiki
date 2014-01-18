@@ -1,7 +1,7 @@
 {
   "name": "VisiWiki",
   "author": "Mike Kelly <mikechriskelly@gmail.com>",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "private": true,
   "scripts": {
     "start": "node app.js"
