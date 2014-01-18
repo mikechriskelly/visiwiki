@@ -173,6 +173,7 @@ rect.pane {
 	font-size: 10px;
 	fill: #fff;
 	font-weight: 400;
+	cursor: pointer;
 }
 .country {
 	fill: #F7F7F7;

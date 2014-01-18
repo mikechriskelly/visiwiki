@@ -188,12 +188,6 @@ var zoomtimeSVG = d3.select('#zoomtime').append('svg')
 	.attr('width', zoomtime.w)
 	.attr('height', zoomtime.h);
 
-zoomtime.events = zoomtimeSVG.append('g')
-	.attr('class', 'events');
-
-zoomtime.eventlabels = zoomtimeSVG.append('g')
-	.attr('class', 'eventlabels');
-
 zoomtime.zoom = d3.behavior.zoom()
 	.scaleExtent([1,30])
 	.on('zoom', redrawZoomtime);
@@ -212,12 +206,18 @@ zoomtimeSVG
 		.attr('class', 'x axis')
 		.attr('transform', 'translate(0,' + zoomtime.itemh + ')');
 
+zoomtime.events = zoomtimeSVG.append('g')
+	.attr('class', 'events');
+
 zoomtimeSVG
 	.append('rect')
 		.attr('class', 'pane')
 		.attr('width', zoomtime.w)
 		.attr('height', zoomtime.h)
 		.call(zoomtime.zoom);
+
+zoomtime.eventlabels = zoomtimeSVG.append('g')
+	.attr('class', 'eventlabels');
 
 function redrawZoomtime() {
 	zoomtimeSVG.select('g.x.axis').call(zoomtime.xAxis);
@@ -642,7 +642,7 @@ function plotOnTimeline(people) {
 		.attr('height', function() { return (d3.select(this).attr('y') == 0) ? 0 : zoomtime.itemh; })
 		.attr('fill', function(d) { return d.color; })
 		.attr('y', function(d,i) { return findRowPosition(d,i); })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.7; })
+		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.7; });
 
 	// Clear row sorting tracker
 	lastDeath = [];
@@ -651,10 +651,14 @@ function plotOnTimeline(people) {
 		.selectAll('text')
 		.data(people)
 		.enter().append('text')
+		.attr('id', function(d) { return d.id; })
+		.on('click', function() { 
+			getPerson(d3.select(this).attr('id'));
+		})
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
 		.attr('y', function(d,i) { return findRowPosition(d, i) + zoomtime.itemh/2 + 5; })
 		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 1; })
-		.text(function (d) { return d.name; });
+		.text(function(d) { return d.name; });
 
 	// Center timeline on origin node
 	var trans = [(zoomtime.x(centerTime) * -zoomScale), 0];
