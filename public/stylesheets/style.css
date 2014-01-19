@@ -201,14 +201,13 @@ rect.pane {
 .maphovertip {
 	z-index: 1;
 	position: absolute;
-	bottom: 5px;
-	left: 5px;
-	font-size: 8px;
+	top: 6px;
+	left: 8px;
+	font-size: 10px;
 	background: #fff;
 	color: #222;
-	padding: 2px; 
-	opacity: 0.5;
-	text-shadow: 0px 1px 0px #f5f5f5;
+	padding: 4px 6px 3px 6px; 
+	opacity: 0.8;
 	border-radius: 2px; 
 	box-shadow: 0px 0px 2px 0px #a6a6a6; 
 }

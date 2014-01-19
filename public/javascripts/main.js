@@ -111,25 +111,25 @@ var mapSVG = d3.select('#map').append('svg')
 	.attr('viewBox', '0 0 ' + map.w + ' ' + map.h )
 	.attr('preserveAspectRatio', 'xMidYMid meet')
 	.attr('pointer-events', 'all')
-	.attr("overflow", "hidden")
+	.attr('overflow', 'hidden')
 	.call(map.zoom)
 	.append('g');
 
 // Tip box for country names
 var maphovertip = d3.select('#map').append('span')
 		.attr('class', 'maphovertip')
-		.style('opacity', 0);
+		.style('visibility', 'hidden');
 
 // Tip box for people names 
 var infotip = d3.select('body').append('span') 
 		.attr('class', 'infotip')       
 		.style('position', 'absolute')
 		.style('z-index', '12')
-		.style('opacity', 0);
+		.style('visibility', 'hidden');
 
 function redrawMap() {
 	mapSVG.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
-	infotip.style('opacity', 0);
+	infotip.style('visibility', 'hidden'); 
 }
 
 //--------------------------------------------------------------------------
@@ -612,7 +612,7 @@ function plotOnTimeline(people) {
 				return zoomtime.itemh*1.2 + r * (zoomtime.itemh+2); 
 			}
 		}
-		return 0; 
+		return -10; 
 	}
 
 	// Full Timeline
@@ -691,7 +691,7 @@ function plotOnMap(people) {
 			}
 			infotip
 				.attr('id', d.id)
-				.style('opacity', 1)
+				.style('visibility', 'visible')
 				.html(resized_name + ' <i class="fa fa-arrow-circle-right"></i>')
 				.style('width', '175px')
 				.style('top', (d3.event.pageY-16)+'px')
@@ -701,19 +701,18 @@ function plotOnMap(people) {
 					d3.select(this).style('width', '1px');
 					getPerson(d3.select(this).attr('id')); 
 				});
-			if(d.city !== null) {
-				maphovertip
-					.html(d.city)
-					.style('opacity', 0.6);
-			}  
-			d3.select(this)
-				.attr('opacity', 1);
 		})
-		.on('mouseout',  function(d) {
-			d3.select(this)
-				.attr('opacity', function(d) { if(d.degree === 0) { return 1; } else { return 0.9; } });
+		.on('mouseover', function() { return maphovertip.style('visibility', 'visible'); })
+		.on('mousemove',  function(d) {
+			var hovertext = d.name;
+			if(d.city !== null)
+				hovertext += ' from ' + d.city;
 			maphovertip
-				.style('opacity', 0); 
+				.html(hovertext)
+		}) 
+		.on('mouseout',  function(d) {
+			maphovertip
+				.style('visibility', 'hidden'); 
 		})
 		.attr('r', function(d) { if(d.degree === 0) { return 2.3; } else { return 0.9; } });
 		
@@ -760,11 +759,11 @@ function ready(error, world, names) {
 		.on('mousemove', function(d) {
 			maphovertip
 				.html(d.name)
-				.style('opacity', 0.6);  
+				.style('visibility', 'visible');  
 		})
 		.on('mouseout',  function() {
 			maphovertip
-				.style('opacity', 0);  
+				.style('visibility', 'hidden');  
 		});
 
 		// If received ID from URL then start query
