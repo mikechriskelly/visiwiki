@@ -345,25 +345,6 @@ function newPeople(queryResult, degree) {
 	}
 	return people;
 }
-function newPlaces(queryResult) {
-	var places = [];
-	for (var i = 0; i < queryResult.length; i++) {
-		places[i] = {};
-		places[i].name = queryResult[i]['location']['name'] || 'Unknown';
-		places[i].city = places[i].name;
-		places[i].degree = 3;
-		places[i].color = colors[3];
-
-		// Save standard geocoordinates
-		places[i].coordinates = [queryResult[i]['location']['/location/location/geolocation']['longitude'],
-																	queryResult[i]['location']['/location/location/geolocation']['latitude']] || [0,0];
-
-		// Translate geocoordinates into map coordinates
-		places[i].x = map.projection(places[i].coordinates)[0];
-		places[i].y = map.projection(places[i].coordinates)[1];
-	}
-	return places;
-}
 function getMovement(id) {
 	window.history.replaceState({}, 'VisiWiki', '/m' + id);
 	updateNamebox('<h3>Loading...</h3>');
@@ -553,46 +534,6 @@ function getPerson(id, changeNamebox) {
 		updateNameboxPerson(origin);
 	});
 }
-function getPeers(id) {
-	var query = {
-		'id': id,
-		'name': null,
-		'/people/person/place_of_birth': {
-			'name': null,
-			'/location/location/geolocation': {
-				'latitude': null,
-				'longitude': null
-			}
-		},
-		'/people/person/date_of_birth': null,
-		'/people/deceased_person/date_of_death': null,
-		'/influence/influence_node/peers': [{
-			'id': null,
-			'name': null,
-			'/people/person/place_of_birth': {
-				'name': null,
-				'/location/location/geolocation': {
-					'latitude': null,
-					'longitude': null
-				}
-			},
-			'/people/person/date_of_birth': null,
-			'/people/deceased_person/date_of_death': null
-		}]
-	};
-	// Async Query Request
-	$.getJSON(fbCall, {query:JSON.stringify(query)}, function(q) {
-		if(q.result !== null) {
-			clearAllNodes();
-			var origin = newPeople([q.result], 0);
-			var peers = newPeople((q.result['/influence/influence_node/peers'] || []), 1);
-			var people = origin.concat(peers);
-			plotOnMap(people);
-			plotOnTimeline(people);
-		}
-		toggleLoading('peers', false);
-	});
-}
 function plotOnTimeline(people) {
 	// Prepare variables for zoom timeline
 	var zoomScale = 8;
@@ -612,7 +553,7 @@ function plotOnTimeline(people) {
 				return zoomtime.itemh*1.2 + r * (zoomtime.itemh+2); 
 			}
 		}
-		return -10; 
+		return -30; 
 	}
 
 	// Full Timeline
@@ -642,7 +583,8 @@ function plotOnTimeline(people) {
 		.attr('height', function() { return (d3.select(this).attr('y') == 0) ? 0 : zoomtime.itemh; })
 		.attr('fill', function(d) { return d.color; })
 		.attr('y', function(d,i) { return findRowPosition(d,i); })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 0.7; });
+		.attr('opacity', 0.7)
+		.attr('visibility', function() { return (d3.select(this).attr('y') > 0) ? 'visible' : 'hidden'; });
 
 	// Clear row sorting tracker
 	lastDeath = [];
@@ -657,8 +599,9 @@ function plotOnTimeline(people) {
 		})
 		.attr('class', function(d) { return 'eventlabels degree-' + d.degree; })
 		.attr('y', function(d,i) { return findRowPosition(d, i) + zoomtime.itemh/2 + 5; })
-		.attr('opacity', function() { return (d3.select(this).attr('y') == 0) ? 0 : 1; })
-		.text(function(d) { return d.name; });
+		.text(function(d) { return d.name; })
+		.attr('opacity', 1)
+		.attr('visibility', function() { return (d3.select(this).attr('y') > 0) ? 'visible' : 'hidden'; });
 
 	// Center timeline on origin node
 	var trans = [(zoomtime.x(centerTime) * -zoomScale), 0];
@@ -707,12 +650,10 @@ function plotOnMap(people) {
 			var hovertext = d.name;
 			if(d.city !== null)
 				hovertext += ' from ' + d.city;
-			maphovertip
-				.html(hovertext)
+			maphovertip.html(hovertext);
 		}) 
 		.on('mouseout',  function(d) {
-			maphovertip
-				.style('visibility', 'hidden'); 
+			maphovertip.style('visibility', 'hidden'); 
 		})
 		.attr('r', function(d) { if(d.degree === 0) { return 2.3; } else { return 0.9; } });
 		
@@ -818,37 +759,14 @@ $(document).on('click', 'a.namenavlink', function(e) {
 	e.preventDefault();
 	var linkid = $(this).attr('id');
 	var queryid = $(this).attr('data-id');
-	$('#nameboxnav').children().removeClass('active');
-	$('#' + linkid).parent('li').addClass('active');   
 	switch (linkid) {
-		case 'placeslived':
-			toggleLoading('placeslived', true);
+		case 'person':
 			getPerson(queryid, false);
-			break;
-		case 'influences':
-			toggleLoading('influences', true);
-			getInfluences(queryid);
-			break;
-		case 'peers':
-			toggleLoading('peers', true);
-			getPeers(queryid);  
-			break;
-		case 'writworks':
-			// getWritWorks(queryid);
-			$('#' + linkid).parent('li').removeClass('active');  
-			break;
-		case 'artworks':
-			// getArtWorks(queryid);
-			$('#' + linkid).parent('li').removeClass('active');  
-			break;
-		case 'inventions':
-			// getInventions(queryid);
-			$('#' + linkid).parent('li').removeClass('active');  
 			break;
 		case 'profession':
 			getProfession(queryid);
 			break;
-		case 'movements':
+		case 'movement':
 			getMovement(queryid);
 			break;
 		default:
